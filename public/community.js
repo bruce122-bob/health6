@@ -194,6 +194,7 @@ function displayMessage(message) {
                     onclick="toggleLike('${message.id}')">
                 ❤️ ${message.likeCount || 0}
             </button>
+            ${user && message.userId === user.uid ? '<button class="delete-btn" onclick="deleteMessage(\'' + message.id + '\')">删除</button>' : ''}
         </div>
     `;
 
@@ -230,6 +231,34 @@ async function toggleLike(messageId) {
     } catch (error) {
         console.error('点赞失败:', error);
         alert('操作失败，请重试');
+    }
+}
+
+// 删除消息
+async function deleteMessage(messageId) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('请先登录后再删除评论');
+        return;
+    }
+
+    try {
+        console.log('开始删除消息');
+        const messageRef = database.ref(`messages/${messageId}`);
+        const messageSnapshot = await messageRef.once('value');
+        const message = messageSnapshot.val();
+
+        if (message.userId !== user.uid) {
+            alert('您只能删除自己的评论');
+            return;
+        }
+
+        await messageRef.remove();
+        console.log('消息删除成功');
+        loadMessages(currentTab); // 刷新消息列表
+    } catch (error) {
+        console.error('删除消息失败:', error);
+        alert('删除失败，请重试');
     }
 }
 

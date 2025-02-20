@@ -14,16 +14,16 @@
 </head>
 <body>
     <header>
-        <h1>交流社区</h1>
-        <a href="index.html" class="back-btn">返回主页</a>
+        <h1>交流社区 <span class="translation">Community Exchange</span></h1>
+        <a href="index.html" class="back-btn">返回主页 <span class="translation">Back to Home</span></a>
         <div class="auth-container">
             <div class="auth-buttons" style="display: flex;">
-                <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">登录</button>
-                <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">注册</button>
+                <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">登录 <span class="translation">Login</span></button>
+                <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">注册 <span class="translation">Register</span></button>
             </div>
             <div class="user-info" style="display: none;">
                 <span class="user-email"></span>
-                <button onclick="logoutUser()">退出</button>
+                <button onclick="logoutUser()">退出 <span class="translation">Logout</span></button>
             </div>
         </div>
     </header>
@@ -31,16 +31,17 @@
     <div class="community-container">
         <div class="community-header">
             <div class="stats">
-                <span class="online-users">在线用户：<span id="onlineCount">0</span></span>
-                <span class="total-messages">总发言数：<span id="messageCount">0</span></span>
+                <span class="online-users">在线用户：<span id="onlineCount">0</span> <span class="translation">Online Users</span></span>
+                <span class="total-messages">总发言数：<span id="messageCount">0</span> <span class="translation">Total Messages</span></span>
             </div>
             <div class="search-container">
                 <input type="text" id="messageSearch" placeholder="搜索消息..." class="search-input">
+                <span class="translation">Search Messages</span>
             </div>
             <div class="message-tabs">
-                <button class="tab-btn active" data-tab="all">全部消息</button>
-                <button class="tab-btn" data-tab="mine">我的消息</button>
-                <button class="tab-btn" data-tab="hot">热门消息</button>
+                <button class="tab-btn active" data-tab="all">全部消息 <span class="translation">All Messages</span></button>
+                <button class="tab-btn" data-tab="mine">我的消息 <span class="translation">My Messages</span></button>
+                <button class="tab-btn" data-tab="hot">热门消息 <span class="translation">Hot Messages</span></button>
             </div>
         </div>
 

@@ -27,18 +27,18 @@
     <!-- 认证容器 - 移到 body 的最前面 -->
     <div class="auth-container">
         <div class="auth-buttons" style="display: flex;">
-            <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">登录</button>
-            <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">注册</button>
-            <button onclick="document.getElementById('accountSettingsModal').style.display='block'" class="settings-btn">账号设置</button>
+            <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">登录 <span class="translation">Login</span></button>
+            <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">注册 <span class="translation">Register</span></button>
+            <button onclick="document.getElementById('accountSettingsModal').style.display='block'" class="settings-btn">账号设置 <span class="translation">Account Settings</span></button>
         </div>
         <div class="user-info" style="display: none;">
             <span class="user-email"></span>
-            <button onclick="logoutUser()">退出</button>
+            <button onclick="logoutUser()">退出 <span class="translation">Logout</span></button>
         </div>
     </div>
 
     <header>
-        <h1>她安计划</h1>
+        <h1>她安计划 <span class="translation">Her Safety Plan</span></h1>
     </header>
 
     <!-- 登录模态框 -->
@@ -83,27 +83,27 @@
         <div class="sidebar">
             <!-- 添加社区入口 -->
             <div class="community-section">
-                <h2>交流社区</h2>
+                <h2>交流社区 <span class="translation">Community Exchange</span></h2>
                 <div class="community-preview">
-                    <p>加入我们的社区，分享经验、交流想法</p>
+                    <p>加入我们的社区，分享经验、交流想法 <span class="translation">Join our community to share experiences and ideas</span></p>
                     <div class="community-stats">
                         <!-- 移除在线人数和总发言数显示 -->
                         <!-- <span class="online-count">在线：<span id="onlineCount">0</span></span> -->
                         <!-- <span class="message-count">总发言：<span id="messageCount">0</span></span> -->
                     </div>
                     <a href="community.html" class="enter-community-btn">
-                        进入社区
+                        进入社区 <span class="translation">Enter Community</span>
                         <span class="arrow">→</span>
                     </a>
                 </div>
             </div>
 
             <div class="resource-section">
-                <h2>资料区</h2>
+                <h2>资料区 <span class="translation">Resource Area</span></h2>
                 <div class="resource-content" id="resourceContent">
                     <!-- 添加资料展示区域 -->
                     <div class="resource-item">
-                        <h3>资料展示</h3>
+                        <h3>资料展示 <span class="translation">Resource Display</span></h3>
                         <div class="articles-container">
                             <div class="articles-filter">
                                 <select id="platformFilter">
@@ -121,14 +121,14 @@
                     </div>
 
                     <div class="resource-item">
-                        <h3>安全知识</h3>
+                        <h3>安全知识 <span class="translation">Safety Knowledge</span></h3>
                         <ul>
                             <!-- 这里可以添加其他安全知识内容 -->
                         </ul>
                     </div>
 
                     <div class="resource-item">
-                        <h3>紧急联系</h3>
+                        <h3>紧急联系 <span class="translation">Emergency Contacts</span></h3>
                         <div class="emergency-contacts">
                             <div class="region-selector">
                                 <select id="regionSelect">
@@ -152,7 +152,7 @@
             </div>
 
             <div class="suggestion-section">
-                <h2>提议区</h2>
+                <h2>提议区 <span class="translation">Suggestion Area</span></h2>
                 <div class="suggestion-content">
                     <form id="suggestionForm" class="suggestion-form">
                         <textarea 
@@ -162,7 +162,7 @@
                         ></textarea>
                         <div class="suggestion-form-footer">
                             <span class="char-count">0/200</span>
-                            <button type="submit">提交建议</button>
+                            <button type="submit">提交建议 <span class="translation">Submit Suggestion</span></button>
                         </div>
                     </form>
                     
@@ -178,35 +178,35 @@
                 <!-- 地图标记区域 -->
                 <div class="map-section">
                     <div class="map-container">
-                        <h2><a href="javascript:void(0)" onclick="openFullscreenMap()" class="map-title">安全地图</a></h2>
+                        <h2><a href="javascript:void(0)" onclick="openFullscreenMap()" class="map-title">安全地图 <span class="translation">Safety Map</span></a></h2>
                         <div id="safetyMap"></div>
-                        <button id="addMarker" class="add-marker-btn">添加标记</button>
+                        <button id="addMarker" class="add-marker-btn">添加标记 <span class="translation">Add Marker</span></button>
                     </div>
                 </div>
             </div>
             
             <!-- 启发点区域 -->
             <div class="inspiration-section">
-                <h2>启发点</h2>
+                <h2>启发点 <span class="translation">Inspiration Points</span></h2>
                 <div class="inspiration-content">
                     <div class="problem-statement">
                         <p>当下性侵家暴偷拍等事件有越来越多被报道，其年龄段从婴儿到中年女性都包含，我们需要一个可以互帮互助，提供相关服务的网站。同时提高人人对女性安全重要性的认知。</p>
                     </div>
                     
                     <div class="solution-plan">
-                        <h3>主要方案</h3>
+                        <h3>主要方案 <span class="translation">Main Plan</span></h3>
                         <div class="plan-items">
                             <div class="plan-item">
                                 <i class="icon-counseling">🤝</i>
-                                <h4>心理咨询</h4>
-                                <p>提供专业的心理支持与辅导服务</p>
-                                <a href="#counselingModal" class="view-counselors-btn">查看咨询师</a>
+                                <h4>心理咨询 <span class="translation">Psychological Counseling</span></h4>
+                                <p>提供专业的心理支持与辅导服务 <span class="translation">Providing professional psychological support and counseling services</span></p>
+                                <a href="#counselingModal" class="view-counselors-btn">查看咨询师 <span class="translation">View Counselors</span></a>
                             </div>
                             <div class="plan-item">
                                 <i class="icon-defense">🛡️</i>
-                                <h4>防身技术</h4>
-                                <p>介绍实用的防身技巧与工具使用方法</p>
-                                <button class="defense-btn">查看详情</button>
+                                <h4>防身技术 <span class="translation">Self-defense Techniques</span></h4>
+                                <p>介绍实用的防身技巧与工具使用方法 <span class="translation">Introducing practical self-defense techniques and tool usage methods</span></p>
+                                <button class="defense-btn">查看详情 <span class="translation">View Details</span></button>
                             </div>
                         </div>
                     </div>

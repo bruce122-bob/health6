@@ -1771,4 +1771,20 @@ footer {
 .modal-content button:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+.translation {
+    display: inline;
+    font-size: 0.8em;
+    color: #333333;
+    font-family: 'ZCOOL XiaoWei', serif;
+    margin-left: 5px;
+}
+
+.translation:hover {
+    display: inline;
+}
+
+.auth-buttons button .translation, .user-info button .translation {
+    color: #ffffff;
 } 

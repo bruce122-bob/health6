@@ -121,8 +121,146 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function openFullscreenMap() {
-    const mapWindow = window.open('fullscreen-map.html', '_blank', 'width=800,height=600');
+    const mapWindow = window.open('fullscreen-map.html', '_blank', 'width=1024,height=768');
     if (mapWindow) {
         mapWindow.focus();
     }
-} 
+}
+
+// 检查 Firebase 是否正确初始化
+console.log('Checking Firebase initialization...');
+if (!firebase.apps.length) {
+    console.error('Firebase not initialized!');
+    alert('Firebase 未初始化，请检查配置！');
+}
+
+// 初始化地图
+let map = null;
+let currentMarker = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化地图
+    map = L.map('safetyMap').setView([39.9042, 116.4074], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    // 点击地图添加标记
+    map.on('click', function(e) {
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
+        }
+        currentMarker = L.marker(e.latlng).addTo(map);
+        console.log('标记位置:', e.latlng);
+    });
+});
+
+// 提交标记数据到 Firebase
+function submitMarkerData(markerData) {
+    if (!firebase.apps.length) {
+        console.error('Firebase 未初始化');
+        alert('系统错误：Firebase 未初始化');
+        return;
+    }
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('请先登录后再添加标记！');
+        return;
+    }
+
+    const database = firebase.database();
+    const markersRef = database.ref('markers');
+
+    return markersRef.push({
+        ...markerData,
+        userId: user.uid,
+        userEmail: user.email,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
+// 处理提交按钮点击
+document.querySelector('.submit-marker-btn').addEventListener('click', async function() {
+    console.log('提交按钮被点击');
+
+    if (!currentMarker) {
+        alert('请先在地图上选择一个位置！');
+        return;
+    }
+
+    const title = document.querySelector('input[placeholder="标题"]').value;
+    const type = document.querySelector('select').value;
+    const description = document.querySelector('textarea').value;
+    
+    if (!title || !type || !description) {
+        alert('请填写完整的标记信息！');
+        return;
+    }
+
+    try {
+        // 显示加载动画
+        const loadingAnimation = document.createElement('div');
+        loadingAnimation.className = 'loading-animation';
+        document.body.appendChild(loadingAnimation);
+
+        const latlng = currentMarker.getLatLng();
+        const markerData = {
+            lat: latlng.lat,
+            lng: latlng.lng,
+            title: title,
+            type: type,
+            description: description
+        };
+
+        await submitMarkerData(markerData);
+        
+        // 成功提交后的操作
+        alert('标记添加成功！');
+        
+        // 清空表单
+        document.querySelector('input[placeholder="标题"]').value = '';
+        document.querySelector('textarea').value = '';
+        
+        // 刷新地图
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
+            currentMarker = null;
+        }
+
+        // 移除加载动画
+        document.body.removeChild(loadingAnimation);
+
+    } catch (error) {
+        console.error('提交失败:', error);
+        alert('提交失败，请重试');
+        // 移除加载动画
+        if (document.querySelector('.loading-animation')) {
+            document.body.removeChild(document.querySelector('.loading-animation'));
+        }
+    }
+});
+
+// CSS for loading animation
+const style = document.createElement('style');
+style.innerHTML = `
+.loading-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1000;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style); 

@@ -31,7 +31,7 @@ console.log('Firebase 初始化完成');
 console.log('数据库引用:', database ? '成功' : '失败');
 
 // 监听认证状态
-firebase.auth().onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged(async (user) => {
     console.log('认证状态变化:', user ? '已登录' : '未登录');
     const authButtons = document.querySelector('.auth-buttons');
     const userInfo = document.querySelector('.user-info');
@@ -39,12 +39,16 @@ firebase.auth().onAuthStateChanged((user) => {
     if (user) {
         // 用户已登录
         if (userInfo && authButtons) {
-            document.querySelector('.user-email').textContent = user.email;
+            // 获取用户名
+            const userRef = database.ref(`users/${user.uid}`);
+            const snapshot = await userRef.once('value');
+            const userData = snapshot.val();
+            const displayName = userData?.userName || user.email.split('@')[0];
+            
+            document.querySelector('.user-name').textContent = displayName;
             authButtons.style.display = 'none';
             userInfo.style.display = 'flex';
-            const settingsButton = document.querySelector('.settings-btn');
-            if (settingsButton) settingsButton.style.display = 'block';
-            console.log('显示用户信息:', user.email);
+            console.log('显示用户信息:', displayName);
         }
 
         // 在 localStorage 中保存登录状态
@@ -132,11 +136,49 @@ document.getElementById('registerForm')?.addEventListener('submit', async (e) =>
     try {
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
         console.log('注册成功:', userCredential.user.email);
+        
+        // 创建默认用户名（使用邮箱前缀）
+        const defaultUserName = email.split('@')[0];
+        await database.ref(`users/${userCredential.user.uid}`).set({
+            userName: defaultUserName,
+            email: email
+        });
+        
         alert('注册成功！');
         document.getElementById('registerModal').style.display = 'none';
     } catch (error) {
         console.error('注册错误:', error);
         alert('注册失败: ' + error.message);
+    }
+});
+
+// 处理账号设置
+document.getElementById('accountSettingsForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('开始更新用户名');
+    
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('请先登录！');
+        return;
+    }
+    
+    const newUserName = document.getElementById('userName').value;
+    
+    try {
+        await database.ref(`users/${user.uid}`).update({
+            userName: newUserName
+        });
+        
+        document.querySelector('.user-name').textContent = newUserName;
+        alert('用户名更新成功！');
+        document.getElementById('accountSettingsModal').style.display = 'none';
+        
+        // 重新加载页面以更新所有显示用户名的地方
+        window.location.reload();
+    } catch (error) {
+        console.error('更新用户名失败:', error);
+        alert('更新失败: ' + error.message);
     }
 });
 
@@ -163,12 +205,16 @@ window.closeModal = function(modalId) {
 window.addEventListener('click', (event) => {
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
+    const accountSettingsModal = document.getElementById('accountSettingsModal');
     
     if (event.target === loginModal) {
         loginModal.style.display = 'none';
     }
     if (event.target === registerModal) {
         registerModal.style.display = 'none';
+    }
+    if (event.target === accountSettingsModal) {
+        accountSettingsModal.style.display = 'none';
     }
 });
 

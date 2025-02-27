@@ -14,57 +14,96 @@
 </head>
 <body>
     <header>
-        <h1>交流社区 <span class="translation">Community Exchange</span></h1>
-        <a href="index.html" class="back-btn">返回主页 <span class="translation">Back to Home</span></a>
-        <div class="auth-container">
-            <div class="auth-buttons" style="display: flex;">
-                <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">
-                    登录 <span class="translation">Login</span>
-                </button>
-                <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">
-                    注册 <span class="translation">Register</span>
-                </button>
+        <div class="header-content">
+            <div class="title-container">
+                <h1>交流社区 <span class="translation">Community Exchange</span></h1>
+                <a href="index.html" class="back-btn">返回主页 <span class="translation">Back to Home</span></a>
             </div>
-            <div class="user-info" style="display: none;">
+            <div class="user-display">
                 <span class="user-email"></span>
-                <button onclick="logoutUser()">退出 <span class="translation">Logout</span></button>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="auth-container">
+                <div class="auth-buttons" style="display: flex;">
+                    <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">
+                        登录 <span class="translation">Login</span>
+                    </button>
+                    <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">
+                        注册 <span class="translation">Register</span>
+                    </button>
+                </div>
+                <div class="user-info" style="display: none;">
+                    <button onclick="logoutUser()" class="logout-btn">退出 <span class="translation">Logout</span></button>
+                </div>
             </div>
         </div>
     </header>
 
     <div class="community-container">
-        <div class="community-header">
-            <div class="stats">
-                <span class="online-users">在线用户：<span id="onlineCount">0</span> <span class="translation">Online Users</span></span>
-                <span class="total-messages">总发言数：<span id="messageCount">0</span> <span class="translation">Total Messages</span></span>
-            </div>
-            <div class="search-container">
-                <input type="text" id="messageSearch" placeholder="搜索消息... Search Messages..." class="search-input">
-            </div>
-            <div class="message-tabs">
-                <button class="tab-btn active" data-tab="all">全部消息 <span class="translation">All Messages</span></button>
-                <button class="tab-btn" data-tab="mine">我的消息 <span class="translation">My Messages</span></button>
-                <button class="tab-btn" data-tab="hot">热门消息 <span class="translation">Hot Messages</span></button>
-            </div>
-        </div>
-
-        <div class="message-list" id="messageList">
-            <!-- 消息将通过 JavaScript 动态添加 -->
-        </div>
-
-        <div class="message-form-container">
-            <form id="messageForm" class="message-form">
-                <textarea 
-                    id="messageText" 
-                    placeholder="分享你的想法... Share your thoughts..."
-                    maxlength="500" 
-                    required
-                ></textarea>
-                <div class="form-footer">
-                    <span class="char-count">0/500</span>
-                    <button type="submit">发送 <span class="translation">Send</span></button>
+        <!-- 左侧社区公告 -->
+        <div class="community-sidebar">
+            <div class="community-notice">
+                <h3>社区公告 <span class="translation">Community Notice</span></h3>
+                <div class="notice-item">
+                    <h4>欢迎来到交流社区</h4>
+                    <p>在这里您可以分享经验、提问和互相支持。请遵守社区规则，保持友善的交流环境。</p>
                 </div>
-            </form>
+                <div class="notice-item">
+                    <h4>安全提示</h4>
+                    <p>请勿在公共聊天中分享个人敏感信息，保护您的隐私安全。</p>
+                </div>
+                <div class="notice-item">
+                    <h4>新功能上线</h4>
+                    <p>现在您可以使用标签功能对消息进行分类，方便其他用户查找相关内容。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧消息区域 -->
+        <div class="message-area">
+            <div class="community-stats">
+                <div class="stat-item">
+                    <span class="stat-label">在线用户: </span>
+                    <span class="stat-value" id="onlineUsers">1</span>
+                    <span class="translation">Online Users</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">总发言数: </span>
+                    <span class="stat-value" id="totalMessages">0</span>
+                    <span class="translation">Total Messages</span>
+                </div>
+            </div>
+
+            <div class="message-search">
+                <input type="text" placeholder="搜索消息... Search Messages..." id="messageSearch">
+            </div>
+
+            <div class="message-filter">
+                <button class="filter-btn active" data-filter="all">全部消息 <span class="translation">All Messages</span></button>
+                <button class="filter-btn" data-filter="my">我的消息 <span class="translation">My Messages</span></button>
+                <button class="filter-btn" data-filter="hot">热门消息 <span class="translation">Hot Messages</span></button>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <!-- 消息将通过JavaScript动态添加 -->
+                <div class="no-messages">暂无消息</div>
+            </div>
+
+            <div class="message-form-container">
+                <form id="messageForm" class="message-form">
+                    <textarea 
+                        id="messageText" 
+                        placeholder="分享你的想法... Share your thoughts..."
+                        maxlength="500" 
+                        required
+                    ></textarea>
+                    <div class="form-footer">
+                        <span class="char-count">0/500</span>
+                        <button type="submit">发送 <span class="translation">Send</span></button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

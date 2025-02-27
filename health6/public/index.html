@@ -79,18 +79,14 @@
                 <h2>资料展示 <span class="translation">Information Display</span></h2>
                 <div class="info-content">
                     <!-- 图片轮播区域 -->
-                    <div class="slideshow-container">
-                        <div class="slides">
-                            <img src="images/WechatIMG73.jpg" alt="安全信息展示" class="slide">
-                            <img src="images/WechatIMG74.jpg" alt="安全信息展示" class="slide">
-                            <img src="images/WechatIMG75.jpg" alt="安全信息展示" class="slide">
-                            <img src="images/WechatIMG76.jpg" alt="安全信息展示" class="slide">
-                            <img src="images/a817fa8d6c0dc9165618d1db6a537817.JPG" alt="安全信息展示" class="slide">
-                            <img src="images/08ae9f8e4b4faad1b4344798515d0e2b.JPG" alt="安全信息展示" class="slide">
-                        </div>
-                        <button class="slideshow-prev">❮</button>
-                        <button class="slideshow-next">❯</button>
-                        <div class="slideshow-dots"></div>
+                    <div class="slideshow">
+                        <img src="images/safety1.jpg" class="slide active" alt="安全信息1">
+                        <img src="images/safety2.jpg" class="slide" alt="安全信息2">
+                        <img src="images/safety3.jpg" class="slide" alt="安全信息3">
+                        <img src="images/safety4.jpg" class="slide" alt="安全信息4">
+                        
+                        <button class="prev" onclick="prevSlide()">❮</button>
+                        <button class="next" onclick="nextSlide()">❯</button>
                     </div>
                 </div>
             </div>
@@ -233,5 +229,28 @@
     <script src="auth.js"></script>
     <script src="script.js"></script>
     <script src="stats.js"></script>
+
+    <script>
+        // 内联轮播图脚本
+        let currentIndex = 0;
+        const slides = document.getElementsByClassName('slide');
+        
+        function prevSlide() {
+            changeSlide(-1);
+        }
+        
+        function nextSlide() {
+            changeSlide(1);
+        }
+        
+        function changeSlide(direction) {
+            slides[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + direction + slides.length) % slides.length;
+            slides[currentIndex].classList.add('active');
+        }
+        
+        // 自动播放
+        setInterval(nextSlide, 3000);
+    </script>
 </body>
 </html> 

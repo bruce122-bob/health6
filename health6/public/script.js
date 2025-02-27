@@ -11,90 +11,114 @@ document.querySelector('.resource-section h2').addEventListener('click', functio
     }
 });
 
-// 图片轮播功能
-document.addEventListener('DOMContentLoaded', function() {
-    const slidesContainer = document.querySelector('.slides');
+// 轮播图初始化函数
+function initSlideshow() {
+    console.log('开始初始化轮播图');
+    
+    // 获取所有需要的元素
+    const slidesWrapper = document.querySelector('.slides-wrapper');
     const slides = document.querySelectorAll('.slide');
-    const prevButton = document.querySelector('.slideshow-prev');
-    const nextButton = document.querySelector('.slideshow-next');
-    const dotsContainer = document.querySelector('.slideshow-dots');
-    
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const dotsContainer = document.querySelector('.dots-container');
+
+    if (!slides.length) {
+        console.error('未找到轮播图片');
+        return;
+    }
+
     let currentSlide = 0;
-    let autoSlideInterval;
     
-    // 创建导航点
+    // 显示第一张图片
+    slides[0].classList.add('active');
+    console.log('第一张图片已设置为活动状态');
+
+    // 创建指示点
     slides.forEach((_, index) => {
-        const dot = document.createElement('div');
-        dot.classList.add('dot');
-        if (index === 0) dot.classList.add('active');
+        const dot = document.createElement('span');
+        dot.className = `dot ${index === 0 ? 'active' : ''}`;
         dot.addEventListener('click', () => goToSlide(index));
         dotsContainer.appendChild(dot);
     });
-    
-    // 更新导航点
-    function updateDots() {
-        document.querySelectorAll('.dot').forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentSlide);
+
+    // 切换到指定幻灯片
+    function goToSlide(index) {
+        console.log(`切换到幻灯片 ${index}`);
+        
+        // 隐藏当前幻灯片
+        slides[currentSlide].classList.remove('active');
+        document.querySelectorAll('.dot')[currentSlide].classList.remove('active');
+        
+        // 更新当前幻灯片索引
+        currentSlide = index;
+        if (currentSlide >= slides.length) currentSlide = 0;
+        if (currentSlide < 0) currentSlide = slides.length - 1;
+        
+        // 显示新的幻灯片
+        slides[currentSlide].classList.add('active');
+        document.querySelectorAll('.dot')[currentSlide].classList.add('active');
+    }
+
+    // 下一张幻灯片
+    function nextSlide() {
+        goToSlide((currentSlide + 1) % slides.length);
+    }
+
+    // 上一张幻灯片
+    function prevSlide() {
+        goToSlide((currentSlide - 1 + slides.length) % slides.length);
+    }
+
+    // 添加按钮事件监听
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            console.log('点击上一张按钮');
+            prevSlide();
         });
     }
     
-    // 切换到指定幻灯片
-    function goToSlide(index) {
-        currentSlide = index;
-        slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
-        updateDots();
-        resetAutoSlide();
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            console.log('点击下一张按钮');
+            nextSlide();
+        });
     }
-    
-    // 下一张幻灯片
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        goToSlide(currentSlide);
-    }
-    
-    // 上一张幻灯片
-    function prevSlide() {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        goToSlide(currentSlide);
-    }
-    
-    // 重置自动播放计时器
-    function resetAutoSlide() {
-        clearInterval(autoSlideInterval);
-        autoSlideInterval = setInterval(nextSlide, 5000); // 每5秒切换一次
-    }
-    
-    // 添加按钮事件监听
-    prevButton.addEventListener('click', prevSlide);
-    nextButton.addEventListener('click', nextSlide);
-    
+
+    // 自动播放
+    const autoPlayInterval = setInterval(nextSlide, 5000);
+
+    // 鼠标悬停时暂停自动播放
+    slidesWrapper.addEventListener('mouseenter', () => {
+        clearInterval(autoPlayInterval);
+    });
+
     // 添加触摸滑动支持
     let touchStartX = 0;
-    let touchEndX = 0;
     
-    slidesContainer.addEventListener('touchstart', e => {
+    slidesWrapper.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
     });
     
-    slidesContainer.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].clientX;
-        if (touchStartX - touchEndX > 50) { // 向左滑动
-            nextSlide();
-        } else if (touchEndX - touchStartX > 50) { // 向右滑动
-            prevSlide();
+    slidesWrapper.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
         }
     });
-    
-    // 鼠标悬停时暂停自动播放
-    const slideshowContainer = document.querySelector('.slideshow-container');
-    slideshowContainer.addEventListener('mouseenter', () => {
-        clearInterval(autoSlideInterval);
-    });
-    
-    slideshowContainer.addEventListener('mouseleave', resetAutoSlide);
-    
-    // 开始自动播放
-    resetAutoSlide();
+
+    console.log('轮播图初始化完成');
+}
+
+// 确保在 DOM 加载完成后初始化轮播图
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM 加载完成，准备初始化轮播图');
+    initSlideshow();
 });
 
 // 防身技巧展示功能
@@ -432,4 +456,37 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('预览地图元素不存在');
     }
+});
+
+// 确保在 DOM 加载完成后才执行轮播图脚本
+document.addEventListener('DOMContentLoaded', function() {
+    // 轮播图脚本
+    let currentIndex = 0;
+    const slides = document.getElementsByClassName('slide');
+    
+    // 确保找到了幻灯片元素
+    if (slides.length === 0) {
+        console.error('未找到轮播图片元素');
+        return;
+    }
+    
+    // 显示第一张图片
+    slides[0].classList.add('active');
+    
+    // 定义切换幻灯片的函数
+    window.moveSlide = function(direction) {
+        // 移除当前活动状态
+        slides[currentIndex].classList.remove('active');
+        
+        // 计算新索引
+        currentIndex = (currentIndex + direction + slides.length) % slides.length;
+        
+        // 添加新的活动状态
+        slides[currentIndex].classList.add('active');
+    };
+    
+    // 自动播放
+    setInterval(() => window.moveSlide(1), 3000);
+    
+    console.log('轮播图初始化完成');
 }); 

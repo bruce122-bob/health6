@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交流社区 - 她安计划 <span class="translation">Community - Her Safety Plan</span></title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- 先加载 auth.js 进行 Firebase 初始化 -->
+    <script src="auth.js"></script>
+</head>
+<body>
+    <header>
+        <h1>交流社区 <span class="translation">Community Exchange</span></h1>
+        <a href="index.html" class="back-btn">返回主页 <span class="translation">Back to Home</span></a>
+        <div class="auth-container">
+            <div class="auth-buttons" style="display: flex;">
+                <button onclick="document.getElementById('loginModal').style.display='block'" class="login-btn">
+                    登录 <span class="translation">Login</span>
+                </button>
+                <button onclick="document.getElementById('registerModal').style.display='block'" class="register-btn">
+                    注册 <span class="translation">Register</span>
+                </button>
+            </div>
+            <div class="user-info" style="display: none;">
+                <span class="user-email"></span>
+                <button onclick="logoutUser()">退出 <span class="translation">Logout</span></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="community-container">
+        <div class="community-header">
+            <div class="stats">
+                <span class="online-users">在线用户：<span id="onlineCount">0</span> <span class="translation">Online Users</span></span>
+                <span class="total-messages">总发言数：<span id="messageCount">0</span> <span class="translation">Total Messages</span></span>
+            </div>
+            <div class="search-container">
+                <input type="text" id="messageSearch" placeholder="搜索消息... Search Messages..." class="search-input">
+            </div>
+            <div class="message-tabs">
+                <button class="tab-btn active" data-tab="all">全部消息 <span class="translation">All Messages</span></button>
+                <button class="tab-btn" data-tab="mine">我的消息 <span class="translation">My Messages</span></button>
+                <button class="tab-btn" data-tab="hot">热门消息 <span class="translation">Hot Messages</span></button>
+            </div>
+        </div>
+
+        <div class="message-list" id="messageList">
+            <!-- 消息将通过 JavaScript 动态添加 -->
+        </div>
+
+        <div class="message-form-container">
+            <form id="messageForm" class="message-form">
+                <textarea 
+                    id="messageText" 
+                    placeholder="分享你的想法... Share your thoughts..."
+                    maxlength="500" 
+                    required
+                ></textarea>
+                <div class="form-footer">
+                    <span class="char-count">0/500</span>
+                    <button type="submit">发送 <span class="translation">Send</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>登录 <span class="translation">Login</span></h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="loginPassword" placeholder="密码 Password" required>
+                <div class="form-error" id="loginError"></div>
+                <button type="submit">登录 <span class="translation">Login</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>注册 <span class="translation">Register</span></h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位） Password (min 6 characters)" required minlength="6">
+                <div class="form-error" id="registerError"></div>
+                <button type="submit">注册 <span class="translation">Register</span></button>
+            </form>
+        </div>
+    </div>
+
+    <script src="community.js"></script>
+</body>
+</html> 

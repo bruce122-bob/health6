@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全地图 | Safety Map</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Leaflet 地图库 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        #fullscreenMap {
+            height: 100vh;
+            width: 100%;
+        }
+        .map-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 320px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .translation {
+            display: block;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #e74c3c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+        }
+        .auth-status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        #loginStatus {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .marker-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .marker-icon:hover {
+            transform: scale(1.1);
+        }
+        .marker-icon.safe { background-color: #2ecc71; }
+        .marker-icon.warning { background-color: #e74c3c; }
+        .marker-icon.help { background-color: #f1c40f; }
+        
+        .popup-content {
+            padding: 15px;
+            min-width: 250px;
+        }
+        .popup-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        .popup-description {
+            color: #444;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        .popup-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* 标记弹出窗口样式 */
+        .marker-popup {
+            min-width: 200px;
+        }
+        .marker-popup h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .marker-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 12px;
+            color: white;
+        }
+        .marker-type.safe { background: #2ecc71; }
+        .marker-type.warning { background: #e74c3c; }
+        .marker-type.help { background: #f1c40f; }
+        .marker-description {
+            margin: 10px 0;
+            color: #666;
+        }
+        .marker-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .marker-icon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        }
+        .marker-icon.safe { background-color: #2ecc71; }
+        .marker-icon.warning { background-color: #e74c3c; }
+        .marker-icon.help { background-color: #f1c40f; }
+    </style>
+</head>
+<body>
+    <div id="fullscreenMap"></div>
+    <div class="map-controls">
+        <div class="auth-status">
+            <div id="loginStatus">未登录<br><span class="translation">Not logged in</span></div>
+            <button id="loginBtn" class="btn" style="display: none;" onclick="window.location.href='index.html'">
+                返回主页登录<br><span class="translation">Return to login</span>
+            </button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                标题<br><span class="translation">Title</span>
+            </label>
+            <input type="text" id="title" placeholder="请输入标题 / Enter title" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                类型<br><span class="translation">Type</span>
+            </label>
+            <select id="type" required>
+                <option value="">请选择类型 / Select type</option>
+                <option value="safe">安全地点 / Safe Location</option>
+                <option value="warning">危险警告 / Danger Warning</option>
+                <option value="help">求助信息 / Help Needed</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                描述<br><span class="translation">Description</span>
+            </label>
+            <textarea id="description" placeholder="请输入描述 / Enter description" rows="3" required></textarea>
+        </div>
+        <button class="btn" id="submitMarker">
+            提交标记<br><span class="translation">Submit Marker</span>
+        </button>
+        <button class="btn" onclick="window.location.href='index.html'">
+            返回主页<br><span class="translation">Back to Home</span>
+        </button>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // 全局变量
+        let map;
+        let currentMarker;
+        let markersLayer;
+
+        // 初始化地图
+        function initMap() {
+            map = L.map('fullscreenMap').setView([39.9042, 116.4074], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+            
+            markersLayer = L.layerGroup().addTo(map);
+
+            // 点击地图添加标记
+            map.on('click', function(e) {
+                if (!firebase.auth().currentUser) {
+                    alert('请先登录后再添加标记！');
+                    return;
+                }
+                addMarker(e.latlng);
+            });
+        }
+
+        // 添加标记
+        function addMarker(latlng) {
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            const type = document.getElementById('type').value || 'help';
+            const icon = L.divIcon({
+                className: `marker-icon ${type}`,
+                html: '',
+                iconSize: [25, 25]
+            });
+
+            currentMarker = L.marker(latlng, {icon: icon}).addTo(map);
+        }
+
+        // 提交标记
+        document.getElementById('submitMarker').addEventListener('click', async function() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('请先登录后再添加标记！');
+                return;
+            }
+
+            if (!currentMarker) {
+                alert('请先在地图上选择一个位置！');
+                return;
+            }
+
+            const title = document.getElementById('title').value;
+            const type = document.getElementById('type').value;
+            const description = document.getElementById('description').value;
+
+            if (!title || !type || !description) {
+                alert('请填写完整的标记信息！');
+                return;
+            }
+
+            try {
+                const latlng = currentMarker.getLatLng();
+                const markerData = {
+                    lat: latlng.lat,
+                    lng: latlng.lng,
+                    title: title,
+                    type: type,
+                    description: description,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    timestamp: Date.now()
+                };
+
+                await firebase.database().ref('markers').push(markerData);
+                
+                // 清空表单
+                document.getElementById('title').value = '';
+                document.getElementById('type').value = '';
+                document.getElementById('description').value = '';
+                
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                    currentMarker = null;
+                }
+
+                alert('标记添加成功！');
+                loadMarkers();
+            } catch (error) {
+                console.error('提交失败:', error);
+                alert('提交失败: ' + error.message);
+            }
+        });
+
+        // 加载标记
+        function loadMarkers() {
+            markersLayer.clearLayers();
+            
+            firebase.database().ref('markers').once('value')
+                .then((snapshot) => {
+                    snapshot.forEach((child) => {
+                        const data = child.val();
+                        const markerId = child.key;
+                        const currentUser = firebase.auth().currentUser;
+                        const isOwner = currentUser && data.userId === currentUser.uid;
+                        
+                        const icon = L.divIcon({
+                            className: `marker-icon ${data.type}`,
+                            html: '',
+                            iconSize: [28, 28]
+                        });
+
+                        const marker = L.marker([data.lat, data.lng], {icon: icon});
+                        const popupContent = `
+                            <div class="popup-content">
+                                <div class="popup-title">${data.title}</div>
+                                <div class="popup-description">${data.description}</div>
+                                <div class="popup-meta">
+                                    <div>添加时间 / Time: ${new Date(data.timestamp).toLocaleString()}</div>
+                                    <div>添加者 / Added by: ${data.userEmail}</div>
+                                </div>
+                                ${isOwner ? `
+                                <div style="margin-top:15px;text-align:right">
+                                    <button onclick="deleteMarker('${markerId}')" class="delete-btn">
+                                        删除标记<br><span style="font-size:0.9em">Delete Marker</span>
+                                    </button>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        
+                        marker.bindPopup(popupContent);
+                        markersLayer.addLayer(marker);
+                    });
+                })
+                .catch((error) => {
+                    console.error('加载标记失败:', error);
+                });
+        }
+
+        // 添加删除标记的函数
+        async function deleteMarker(markerId) {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    alert('请先登录！');
+                    return;
+                }
+
+                // 获取标记数据以验证所有权
+                const markerSnapshot = await firebase.database().ref(`markers/${markerId}`).once('value');
+                const markerData = markerSnapshot.val();
+
+                if (!markerData) {
+                    alert('标记不存在！');
+                    return;
+                }
+
+                if (markerData.userId !== user.uid) {
+                    alert('您只能删除自己创建的标记！');
+                    return;
+                }
+
+                // 确认删除
+                if (confirm('确定要删除这个标记吗？')) {
+                    await firebase.database().ref(`markers/${markerId}`).remove();
+                    alert('标记已删除');
+                    loadMarkers(); // 重新加载标记
+                }
+            } catch (error) {
+                console.error('删除标记失败:', error);
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 监听认证状态
+        firebase.auth().onAuthStateChanged((user) => {
+            const loginStatus = document.getElementById('loginStatus');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (user) {
+                loginStatus.innerHTML = `已登录 / Logged in:<br>${user.email}`;
+                loginBtn.style.display = 'none';
+            } else {
+                loginStatus.innerHTML = '未登录<br><span class="translation">Not logged in</span>';
+                loginBtn.style.display = 'block';
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            loadMarkers();
+        });
+    </script>
+</body>
+</html> 

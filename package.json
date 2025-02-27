@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "http-server public",
+    "start": "http-server public -p 8081",
     "build": "echo 'No build script defined'",
     "test": "echo 'No test script defined'"
   },

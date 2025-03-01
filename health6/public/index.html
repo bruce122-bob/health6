@@ -24,6 +24,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <style>
+        .banner-area {
+            background: url('https://i.imgur.com/tPSD8mK.jpeg') center/cover no-repeat !important;
+        }
+    </style>
 </head>
 <body>
     <!-- 顶部横幅区域 -->
@@ -148,7 +153,7 @@
             <div class="missing-persons-container">
                 <!-- 寻人启事列表 -->
                 <div class="missing-persons-list">
-                    <!-- 示例寻人启事卡片 -->
+                    <!-- 冯兴雪的卡片 -->
                     <div class="missing-person-card">
                         <div class="missing-person-image">
                             <img src="https://i.imgur.com/ue2Sqnz.jpeg" alt="冯兴雪" onerror="this.src='https://via.placeholder.com/300x200?text=冯兴雪'">
@@ -166,16 +171,19 @@
                         </div>
                     </div>
                     
+                    <!-- 韩依贝的卡片 -->
                     <div class="missing-person-card">
                         <div class="missing-person-image">
-                            <img src="https://via.placeholder.com/300x200?text=李华" alt="李华">
+                            <img src="https://i.imgur.com/zdya1Mg.jpeg" alt="韩依贝">
                         </div>
                         <div class="missing-person-info">
-                            <h3>李华</h3>
-                            <p class="missing-date">失踪日期: 2023年11月5日</p>
-                            <p class="missing-location">最后出现地点: 上海市浦东新区</p>
-                            <p class="missing-description">身高165cm，棕色长发，失踪时穿黑色大衣。</p>
-                            <a href="/missing-person-detail.html" class="more-info-btn">查看详情 <span class="translation">More Info</span></a>
+                            <h3>韩依贝</h3>
+                            <p class="missing-date">失踪日期: 2023年10月17日</p>
+                            <p class="missing-location">最后出现地点: 山西省阳泉市盂县南娄镇西南关村</p>
+                            <p class="missing-description">14岁初三女生，失踪当天下午4点奶奶发现其不见，她当时穿着白色卫衣、蓝黑色牛仔裤，一件黑色轻薄单衣未带走。</p>
+                            <div style="position: relative; z-index: 10;">
+                                <button onclick="document.getElementById('detailModal2').style.display='block'" class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -304,6 +312,21 @@
                 <p><strong>最后出现地点:</strong> 四川省泸州市合江县白沙镇街基上街247附33号</p>
                 <p><strong>外貌特征:</strong> 女，25岁，身高165厘米，体重55公斤。齐肩短发，戴眼镜，失踪时穿黑色棉衣，下身穿着浅色阔腿牛仔裤。白沙口音，说话较斯文。</p>
                 <!-- 更多详细信息 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加韩依贝的详情模态框 -->
+    <div id="detailModal2" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('detailModal2')">&times;</span>
+            <h2>韩依贝 - 详细信息</h2>
+            <div class="detail-content">
+                <!-- 详细信息内容 -->
+                <img src="https://i.imgur.com/zdya1Mg.jpeg" alt="韩依贝" style="max-width: 300px;">
+                <p><strong>失踪日期:</strong> 2023年10月17日</p>
+                <p><strong>最后出现地点:</strong> 山西省阳泉市盂县南娄镇西南关村</p>
+                <p><strong>详细情况:</strong> 10月17日，来自广东省清远市的14岁初三女生韩依贝，因叛逆被父亲带回山西省阳泉市盂县南娄镇西南关村老家，却意外走失。失踪当天下午4点奶奶发现其不见，她当时穿着白色卫衣、蓝黑色牛仔裤，一件黑色轻薄单衣未带走。失踪前她无明显异常，只是早饭和午饭吃得少，下午3点50分左右监控显示她在村头小路独自漫步面带微笑，之后便毫无踪迹。她的身份证、手机等贵重物品留在家中，游戏账号未登录，微信电话无法接通。一周过去仍无消息，身无分文不知去向。父亲心急报警并求当地警方、村民和村干部帮忙寻找，截至10月23日中午女孩仍未找到。</p>
             </div>
         </div>
     </div>

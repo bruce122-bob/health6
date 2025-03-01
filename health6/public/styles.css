@@ -2385,4 +2385,214 @@ footer {
     .english-title {
         font-size: 1.8em;
     }
+}
+
+/* 寻人启事模块样式 */
+.missing-persons-wrapper {
+    background-color: #f9f9f9;
+    padding: 40px 0;
+}
+
+.missing-persons-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.missing-persons-section h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    position: relative;
+}
+
+.missing-persons-section h2:after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: #e74c3c;
+    margin: 10px auto 0;
+}
+
+.missing-persons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.missing-persons-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 电脑屏幕一行4个 */
+    gap: 15px; /* 减小间距使卡片更紧凑 */
+}
+
+.missing-person-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.missing-person-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.missing-person-image {
+    height: 160px; /* 减小图片高度 */
+    overflow: hidden;
+}
+
+.missing-person-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.missing-person-card:hover .missing-person-image img {
+    transform: scale(1.05);
+}
+
+.missing-person-info {
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.missing-person-info h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.missing-date, .missing-location {
+    margin: 4px 0;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.missing-description {
+    margin: 8px 0;
+    color: #444;
+    flex: 1;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.more-info-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+    align-self: flex-start;
+    font-size: 0.9em;
+}
+
+.more-info-btn:hover {
+    background: #c0392b;
+}
+
+.post-missing-person {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.post-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.post-btn:hover {
+    background: #2980b9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* 寻人启事表单样式 */
+#missingPersonForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#missingPersonForm textarea {
+    min-height: 100px;
+    resize: vertical;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.image-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.image-upload label {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px dashed #ddd;
+    transition: all 0.3s ease;
+}
+
+.image-upload label:hover {
+    background: #eee;
+    border-color: #ccc;
+}
+
+.image-upload input[type="file"] {
+    display: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .missing-persons-list {
+        grid-template-columns: repeat(2, 1fr); /* 手机屏幕一行2个 */
+    }
+    
+    .missing-person-image {
+        height: 140px; /* 在手机上进一步减小图片高度 */
+    }
+    
+    .missing-person-info h3 {
+        font-size: 1em;
+    }
+    
+    .missing-description {
+        font-size: 0.85em;
+    }
+}
+
+/* 小型手机屏幕 */
+@media (max-width: 480px) {
+    .missing-persons-list {
+        grid-template-columns: 1fr; /* 小型手机屏幕一行1个 */
+    }
+    
+    .missing-person-image {
+        height: 180px; /* 在小型手机上增加图片高度，因为宽度变大了 */
+    }
 } 

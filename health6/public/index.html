@@ -140,6 +140,54 @@
         </section>
     </div>
 
+    <!-- 新增寻人启事模块 -->
+    <div class="missing-persons-wrapper">
+        <section class="missing-persons-section">
+            <h2>寻人启事 <span class="translation">Missing Persons</span></h2>
+            
+            <div class="missing-persons-container">
+                <!-- 寻人启事列表 -->
+                <div class="missing-persons-list">
+                    <!-- 示例寻人启事卡片 -->
+                    <div class="missing-person-card">
+                        <div class="missing-person-image">
+                            <img src="images/missing-person1.jpg" alt="冯兴雪">
+                        </div>
+                        <div class="missing-person-info">
+                            <h3>冯兴雪</h3>
+                            <p class="missing-date">失踪日期: 2025年1月23日上午9:30</p>
+                            <p class="missing-location">最后出现地点: 四川省泸州市合江县白沙镇街基上街247附33号</p>
+                            <p class="missing-description">
+                                女，25岁，身高165厘米，体重55公斤。齐肩短发，戴眼镜，失踪时穿黑色棉衣，下身穿着浅色阔腿牛仔裤。白沙口音，说话较斯文。
+                            </p>
+                            <button class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+                        </div>
+                    </div>
+                    
+                    <div class="missing-person-card">
+                        <div class="missing-person-image">
+                            <img src="images/placeholder-person.jpg" alt="寻找的人">
+                        </div>
+                        <div class="missing-person-info">
+                            <h3>李华</h3>
+                            <p class="missing-date">失踪日期: 2023年11月5日</p>
+                            <p class="missing-location">最后出现地点: 上海市浦东新区</p>
+                            <p class="missing-description">身高165cm，棕色长发，失踪时穿黑色大衣。</p>
+                            <button class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 发布寻人启事按钮 -->
+                <div class="post-missing-person">
+                    <button class="post-btn" onclick="document.getElementById('postMissingPersonModal').style.display='block'">
+                        发布寻人启事 <span class="translation">Post Missing Person</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <!-- 功能展示区域 -->
     <div class="features-wrapper">
         <section class="features-section">
@@ -217,6 +265,27 @@
             <form id="accountSettingsForm">
                 <input type="text" id="userName" placeholder="用户名 Username" required>
                 <button type="submit">保存更改 <span class="translation">Save Changes</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加寻人启事发布模态框 -->
+    <div id="postMissingPersonModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('postMissingPersonModal')">&times;</span>
+            <h2>发布寻人启事 <span class="translation">Post Missing Person</span></h2>
+            <form id="missingPersonForm">
+                <input type="text" id="missingName" placeholder="姓名 Name" required>
+                <input type="date" id="missingDate" placeholder="失踪日期 Missing Date" required>
+                <input type="text" id="missingLocation" placeholder="最后出现地点 Last Seen Location" required>
+                <textarea id="missingDescription" placeholder="描述（外貌特征、穿着等） Description (Appearance, Clothing, etc.)" required></textarea>
+                <div class="image-upload">
+                    <label for="missingPhoto">上传照片 Upload Photo</label>
+                    <input type="file" id="missingPhoto" accept="image/*">
+                </div>
+                <input type="text" id="contactInfo" placeholder="联系方式 Contact Information" required>
+                <div class="form-error" id="missingPersonError"></div>
+                <button type="submit">发布 <span class="translation">Post</span></button>
             </form>
         </div>
     </div>

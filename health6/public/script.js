@@ -489,4 +489,175 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(() => window.moveSlide(1), 3000);
     
     console.log('轮播图初始化完成');
-}); 
+});
+
+// 寻人启事模块功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取模态框元素
+    const postMissingPersonModal = document.getElementById('postMissingPersonModal');
+    
+    // 如果存在表单，添加提交事件监听
+    const missingPersonForm = document.getElementById('missingPersonForm');
+    if (missingPersonForm) {
+        missingPersonForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 检查用户是否登录
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('请先登录后再发布寻人启事');
+                return;
+            }
+            
+            // 获取表单数据
+            const name = document.getElementById('missingName').value;
+            const date = document.getElementById('missingDate').value;
+            const location = document.getElementById('missingLocation').value;
+            const description = document.getElementById('missingDescription').value;
+            const contactInfo = document.getElementById('contactInfo').value;
+            
+            // 上传照片（如果有）
+            const photoFile = document.getElementById('missingPhoto').files[0];
+            
+            // 显示加载状态
+            const submitButton = missingPersonForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '提交中...';
+            submitButton.disabled = true;
+            
+            // 创建寻人启事数据对象
+            const missingPersonData = {
+                name: name,
+                date: date,
+                location: location,
+                description: description,
+                contactInfo: contactInfo,
+                userId: user.uid,
+                userEmail: user.email,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            // 保存到 Firebase 数据库
+            try {
+                const missingPersonsRef = firebase.database().ref('missingPersons');
+                missingPersonsRef.push(missingPersonData)
+                    .then(() => {
+                        // 成功保存
+                        alert('寻人启事发布成功');
+                        missingPersonForm.reset();
+                        closeModal('postMissingPersonModal');
+                        
+                        // 刷新寻人启事列表
+                        loadMissingPersons();
+                    })
+                    .catch(error => {
+                        console.error('保存寻人启事失败:', error);
+                        alert('发布失败，请重试');
+                    })
+                    .finally(() => {
+                        // 恢复按钮状态
+                        submitButton.innerHTML = originalButtonText;
+                        submitButton.disabled = false;
+                    });
+            } catch (error) {
+                console.error('发布寻人启事时出错:', error);
+                alert('发布失败，请重试');
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+            }
+        });
+    }
+    
+    // 加载寻人启事列表
+    loadMissingPersons();
+    
+    // 添加查看详情按钮事件
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('more-info-btn')) {
+            const card = e.target.closest('.missing-person-card');
+            if (card) {
+                const id = card.dataset.id;
+                // 这里可以实现查看详情的功能，例如打开详情页或模态框
+                alert('查看详情功能待实现');
+            }
+        }
+    });
+});
+
+// 加载寻人启事列表
+function loadMissingPersons() {
+    const missingPersonsList = document.querySelector('.missing-persons-list');
+    if (!missingPersonsList) return;
+    
+    try {
+        const missingPersonsRef = firebase.database().ref('missingPersons');
+        missingPersonsRef.orderByChild('timestamp').limitToLast(4).once('value')
+            .then(snapshot => {
+                if (!snapshot.exists()) {
+                    missingPersonsList.innerHTML = '<p class="no-data">暂无寻人启事</p>';
+                    return;
+                }
+                
+                // 清空现有列表
+                missingPersonsList.innerHTML = '';
+                
+                // 将数据转换为数组并反转（最新的在前）
+                const missingPersons = [];
+                snapshot.forEach(childSnapshot => {
+                    missingPersons.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                missingPersons.reverse();
+                
+                // 显示寻人启事
+                missingPersons.forEach(person => {
+                    const card = createMissingPersonCard(person);
+                    missingPersonsList.appendChild(card);
+                });
+            })
+            .catch(error => {
+                console.error('加载寻人启事失败:', error);
+                missingPersonsList.innerHTML = '<p class="error">加载失败，请刷新页面重试</p>';
+            });
+    } catch (error) {
+        console.error('加载寻人启事时出错:', error);
+    }
+}
+
+// 创建寻人启事卡片
+function createMissingPersonCard(person) {
+    const card = document.createElement('div');
+    card.className = 'missing-person-card';
+    card.dataset.id = person.id;
+    
+    const formattedDate = new Date(person.date).toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    card.innerHTML = `
+        <div class="missing-person-image">
+            <img src="${person.photoUrl || 'images/placeholder-person.jpg'}" alt="${person.name}">
+        </div>
+        <div class="missing-person-info">
+            <h3>${person.name}</h3>
+            <p class="missing-date">失踪日期: ${formattedDate}</p>
+            <p class="missing-location">最后出现地点: ${person.location}</p>
+            <p class="missing-description">${person.description}</p>
+            <button class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// 关闭模态框函数
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+} 

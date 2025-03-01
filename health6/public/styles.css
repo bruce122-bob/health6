@@ -1715,7 +1715,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    background: url('images/IMG_0819 2.jpeg') center/cover no-repeat;
+    background: url('https://i.imgur.com/ue2Sqnz.jpeg') center/cover no-repeat;
     overflow: hidden;
 }
 
@@ -2595,4 +2595,25 @@ footer {
     .missing-person-image {
         height: 180px; /* 在小型手机上增加图片高度，因为宽度变大了 */
     }
+}
+
+/* 确保 more-info-btn 作为链接时仍然保持按钮样式 */
+a.more-info-btn {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: #e74c3c;
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+a.more-info-btn:hover {
+    background-color: #c0392b;
 } 

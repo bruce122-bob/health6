@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻人启事详情 - 李华</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* 详情页特定样式 */
+        .detail-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .person-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 20px;
+        }
+        
+        .person-image {
+            width: 250px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-right: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .person-basic-info {
+            flex: 1;
+        }
+        
+        .person-basic-info h1 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+        }
+        
+        .info-section h2 {
+            color: #e74c3c;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-item i {
+            color: #e74c3c;
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .description {
+            line-height: 1.6;
+        }
+        
+        .contact-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .contact-section h2 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        .contact-methods {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .contact-method {
+            flex: 1;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .contact-method i {
+            font-size: 24px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #c0392b;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .person-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .person-image {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-methods {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <a href="index.html">Her Safety Plan</a>
+            </div>
+            <div class="navbar-links">
+                <a href="index.html">首页 <span class="translation">Home</span></a>
+                <a href="#" onclick="showSection('safety-map')">安全地图 <span class="translation">Safety Map</span></a>
+                <a href="#" onclick="showSection('community')">交流社区 <span class="translation">Community</span></a>
+                <a href="#" onclick="showSection('resources')">资料区 <span class="translation">Resources</span></a>
+                <a href="#" onclick="showSection('emergency')">紧急求助 <span class="translation">Emergency Help</span></a>
+            </div>
+            <div class="navbar-auth">
+                <button id="loginBtn" onclick="document.getElementById('loginModal').style.display='block'">登录 <span class="translation">Login</span></button>
+                <button id="registerBtn" onclick="document.getElementById('registerModal').style.display='block'">注册 <span class="translation">Register</span></button>
+                <div id="userInfo" style="display: none;">
+                    <span id="userName"></span>
+                    <button id="accountBtn" onclick="document.getElementById('accountSettingsModal').style.display='block'">账号设置 <span class="translation">Account</span></button>
+                    <button id="logoutBtn">登出 <span class="translation">Logout</span></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 详情内容 -->
+    <div class="detail-container">
+        <div class="person-header">
+            <img src="https://via.placeholder.com/300x200?text=李华" alt="李华" class="person-image">
+            <div class="person-basic-info">
+                <h1>李华 <span class="translation">Missing Person</span></h1>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>失踪日期: 2023年11月5日</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>最后出现地点: 上海市浦东新区</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>失踪时长: <span id="missingDuration">计算中...</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>个人信息 <span class="translation">Personal Information</span></h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-user"></i>
+                    <span>姓名: 李华</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-venus-mars"></i>
+                    <span>性别: 女</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-birthday-cake"></i>
+                    <span>年龄: 28岁</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-ruler-vertical"></i>
+                    <span>身高: 165厘米</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-weight"></i>
+                    <span>体重: 50公斤</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-language"></i>
+                    <span>口音: 上海口音</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>外貌特征 <span class="translation">Appearance</span></h2>
+            <p class="description">
+                身高165cm，棕色长发，失踪时穿黑色大衣。
+            </p>
+        </div>
+        
+        <div class="info-section">
+            <h2>失踪情况 <span class="translation">Missing Circumstances</span></h2>
+            <p class="description">
+                李华于2023年11月5日在上海市浦东新区失踪。当天她告诉朋友要去参加一个面试，之后便失去联系。她的手机已关机，社交媒体账号也没有更新。最后一次被目击是在浦东新区的一家咖啡店，监控显示她离开咖啡店后向地铁站方向走去。
+            </p>
+        </div>
+        
+        <div class="contact-section">
+            <h2>联系方式 <span class="translation">Contact Information</span></h2>
+            <p>如果您有任何关于李华的信息，请立即联系以下方式：</p>
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <i class="fas fa-phone"></i>
+                    <h3>电话</h3>
+                    <p>135-8888-9999</p>
+                </div>
+                <div class="contact-method">
+                    <i class="fas fa-envelope"></i>
+                    <h3>邮箱</h3>
+                    <p>findlihua@example.com</p>
+                </div>
+                <div class="contact-method">
+                    <i class="fas fa-police-box"></i>
+                    <h3>警方联系</h3>
+                    <p>上海市公安局浦东分局: 021-12345</p>
+                </div>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-button" style="display: inline-block; text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> 返回首页 <span class="translation">Back to Home</span>
+        </a>
+    </div>
+
+    <footer>
+        <p>Bruce</p>
+    </footer>
+
+    <!-- 脚本 -->
+    <script>
+        // 计算失踪时长
+        function updateMissingDuration() {
+            const missingDate = new Date('2023-11-05T00:00:00');
+            const now = new Date();
+            
+            // 计算时间差（毫秒）
+            const diff = now - missingDate;
+            
+            // 计算天数
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            // 计算小时
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('missingDuration').textContent = `${days}天${hours}小时`;
+        }
+        
+        // 页面加载时更新失踪时长
+        window.onload = function() {
+            updateMissingDuration();
+            // 每小时更新一次
+            setInterval(updateMissingDuration, 3600000);
+        };
+    </script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // 如果 script.js 中没有 showSection 函数，添加它
+        function showSection(sectionName) {
+            // 对于详情页面，我们只需要重定向到主页
+            window.location.href = 'index.html#' + sectionName;
+        }
+        
+        // 确保登录/注册模态框正常工作
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

@@ -640,7 +640,7 @@ function createMissingPersonCard(person) {
     
     card.innerHTML = `
         <div class="missing-person-image">
-            <img src="${person.photoUrl || 'images/placeholder-person.jpg'}" alt="${person.name}">
+            <img src="${person.photoUrl || 'https://i.imgur.com/ue2Sqnz.jpeg'}" alt="${person.name}">
         </div>
         <div class="missing-person-info">
             <h3>${person.name}</h3>
@@ -660,4 +660,12 @@ function closeModal(modalId) {
     if (modal) {
         modal.style.display = 'none';
     }
-} 
+}
+
+function setDefaultImage() {
+    document.getElementById('someImage').src = 'https://i.imgur.com/ue2Sqnz.jpeg';
+}
+
+// 使用环境变量
+const baseUrl = process.env.BASE_URL || '';
+const imagePath = baseUrl + '/images/missing-person1.jpg'; 

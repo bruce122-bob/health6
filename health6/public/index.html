@@ -28,6 +28,145 @@
         .banner-area {
             background: url('https://i.imgur.com/tPSD8mK.jpeg') center/cover no-repeat !important;
         }
+        
+        /* 修复模态框完全居中 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            /* 使用flexbox实现完全居中 */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 当模态框显示时应用flex布局 */
+        .modal[style*="display: block"] {
+            display: flex !important;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            padding: 25px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-sizing: border-box;
+            /* 移除之前的偏移设置 */
+            left: 0;
+            transform: none;
+            margin: 0 auto;
+        }
+        
+        /* 确保标题居中 */
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        /* 确保关闭按钮位置正确 */
+        .modal .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            color: #333;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .modal .close:hover {
+            color: #e74c3c;
+        }
+        
+        /* 确保红色文字正确显示 */
+        .detail-content .source-info {
+            color: red !important;
+            font-weight: bold !important;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+        
+        /* 改进详情内容样式 */
+        .detail-content {
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+        
+        .detail-content img {
+            display: block;
+            margin: 0 auto 20px;
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        
+        .detail-content p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        /* 添加到现有样式中 */
+        .missing-persons-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .missing-person-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+        
+        .missing-person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .missing-person-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .missing-person-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .missing-person-info {
+            padding: 15px;
+        }
+        
+        /* 确保在移动设备上也能正确显示 */
+        @media (max-width: 768px) {
+            .missing-persons-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .missing-persons-list {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -186,6 +325,42 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- 梁欣的卡片 -->
+                    <div class="missing-person-card">
+                        <div class="missing-person-image">
+                            <img src="https://i.imgur.com/v335x9T.png" alt="梁欣" onerror="this.src='https://via.placeholder.com/300x200?text=梁欣'">
+                        </div>
+                        <div class="missing-person-info">
+                            <h3>梁欣</h3>
+                            <p class="missing-date">失踪日期: 2025年2月27日早上</p>
+                            <p class="missing-location">最后出现地点: 山西省临汾市兵站路立贞医院</p>
+                            <p class="missing-description">
+                                女，25岁，身高150厘米，体重150公斤。失踪时穿浅卡其色大衣，黄色裤子，白色运动鞋。从医院走失，急寻。
+                            </p>
+                            <div style="position: relative; z-index: 10;">
+                                <button onclick="document.getElementById('detailModal3').style.display='block'" class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 袁淑芝的卡片 -->
+                    <div class="missing-person-card">
+                        <div class="missing-person-image">
+                            <img src="https://i.imgur.com/EzeSSgp.png" alt="袁淑芝" onerror="this.src='https://via.placeholder.com/300x200?text=袁淑芝'">
+                        </div>
+                        <div class="missing-person-info">
+                            <h3>袁淑芝</h3>
+                            <p class="missing-date">失踪日期: 2025年2月21日凌晨3点</p>
+                            <p class="missing-location">最后出现地点: 2月21日凌晨3点42分，从西江大桥楼梯走下滨江公园</p>
+                            <p class="missing-description">
+                                女，53岁，身高约165厘米，身材偏胖。失踪时身穿红色外套，黑色休闲裤，黑色鞋。
+                            </p>
+                            <div style="position: relative; z-index: 10;">
+                                <button onclick="document.getElementById('detailModal4').style.display='block'" class="more-info-btn">查看详情 <span class="translation">More Info</span></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 发布寻人启事按钮 -->
@@ -300,7 +475,7 @@
         </div>
     </div>
 
-    <!-- 添加到页面底部 -->
+    <!-- 修改冯兴雪的详情模态框 -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('detailModal')">&times;</span>
@@ -311,12 +486,12 @@
                 <p><strong>失踪日期:</strong> 2025年1月23日上午9:30</p>
                 <p><strong>最后出现地点:</strong> 四川省泸州市合江县白沙镇街基上街247附33号</p>
                 <p><strong>外貌特征:</strong> 女，25岁，身高165厘米，体重55公斤。齐肩短发，戴眼镜，失踪时穿黑色棉衣，下身穿着浅色阔腿牛仔裤。白沙口音，说话较斯文。</p>
-                <!-- 更多详细信息 -->
+                <p class="source-info">来自公益寻人 鸭鸭 小红书号：951436314</p>
             </div>
         </div>
     </div>
 
-    <!-- 添加韩依贝的详情模态框 -->
+    <!-- 修改韩依贝的详情模态框 -->
     <div id="detailModal2" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('detailModal2')">&times;</span>
@@ -327,6 +502,41 @@
                 <p><strong>失踪日期:</strong> 2023年10月17日</p>
                 <p><strong>最后出现地点:</strong> 山西省阳泉市盂县南娄镇西南关村</p>
                 <p><strong>详细情况:</strong> 10月17日，来自广东省清远市的14岁初三女生韩依贝，因叛逆被父亲带回山西省阳泉市盂县南娄镇西南关村老家，却意外走失。失踪当天下午4点奶奶发现其不见，她当时穿着白色卫衣、蓝黑色牛仔裤，一件黑色轻薄单衣未带走。失踪前她无明显异常，只是早饭和午饭吃得少，下午3点50分左右监控显示她在村头小路独自漫步面带微笑，之后便毫无踪迹。她的身份证、手机等贵重物品留在家中，游戏账号未登录，微信电话无法接通。一周过去仍无消息，身无分文不知去向。父亲心急报警并求当地警方、村民和村干部帮忙寻找，截至10月23日中午女孩仍未找到。</p>
+                <p class="source-info">来自公益寻人 鸭鸭 小红书号：951436314</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改梁欣的详情模态框 -->
+    <div id="detailModal3" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('detailModal3')">&times;</span>
+            <h2>梁欣 - 详细信息</h2>
+            <div class="detail-content">
+                <!-- 详细信息内容 -->
+                <img src="https://i.imgur.com/v335x9T.png" alt="梁欣" style="max-width: 300px;">
+                <p><strong>失踪日期:</strong> 2025年2月27日早上</p>
+                <p><strong>最后出现地点:</strong> 山西省临汾市兵站路立贞医院</p>
+                <p><strong>外貌特征:</strong> 女，25岁，身高150厘米，体重150公斤。失踪时穿浅卡其色大衣，黄色裤子，白色运动鞋。</p>
+                <p><strong>详细情况:</strong> 梁欣于2025年2月27日早上从山西省临汾市兵站路立贞医院走失。她身高150cm，体重150kg，走失时穿着浅卡其色大衣，黄色裤子，白色运动鞋。家人十分着急，如有线索请立即联系家属或当地警方。</p>
+                <p class="source-info">来自公益寻人 鸭鸭 小红书号：951436314</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改袁淑芝的详情模态框 -->
+    <div id="detailModal4" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('detailModal4')">&times;</span>
+            <h2>袁淑芝 - 详细信息</h2>
+            <div class="detail-content">
+                <!-- 详细信息内容 -->
+                <img src="https://i.imgur.com/EzeSSgp.png" alt="袁淑芝" style="max-width: 300px;">
+                <p><strong>失踪日期:</strong> 2025年2月21日凌晨3点</p>
+                <p><strong>最后出现地点:</strong> 2月21日凌晨3点42分，从西江大桥楼梯走下滨江公园</p>
+                <p><strong>外貌特征:</strong> 女，53岁，身高约165厘米，身材偏胖。失踪时身穿红色外套，黑色休闲裤，黑色鞋。</p>
+                <p><strong>详细情况:</strong> 袁淑芝患有精神分裂症，于2025年2月21日凌晨3点从贵港市港南区木松岭社区民建街出走。出走时未带手机钥匙，离家前未与家人发生争执，无任何异常表现。家人十分担心，如有线索请立即联系家属或当地警方。</p>
+                <p class="source-info">来自公益寻人 鸭鸭 小红书号：951436314</p>
             </div>
         </div>
     </div>
@@ -361,6 +571,42 @@
         
         // 自动播放
         setInterval(nextSlide, 3000);
+
+        // 在页面加载完成后立即执行
+        window.onload = function() {
+            // 强制显示所有卡片
+            const cards = document.querySelectorAll('.missing-person-card');
+            console.log('找到卡片数量:', cards.length);
+            
+            cards.forEach((card, index) => {
+                // 强制显示每个卡片
+                card.style.display = 'flex';
+                card.style.opacity = '1';
+                card.style.visibility = 'visible';
+                card.style.position = 'relative';
+                console.log('已设置卡片显示:', index + 1);
+            });
+            
+            // 强制设置容器样式
+            const container = document.querySelector('.missing-persons-list');
+            if (container) {
+                container.style.cssText = `
+                    display: grid !important;
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 20px !important;
+                    width: 100% !important;
+                `;
+                console.log('已设置容器样式');
+            }
+        };
+        
+        // 修复关闭模态框的函数
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html> 

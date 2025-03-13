@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安全地图 - 她安计划 | She Haven</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Leaflet 地图库 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- 添加定位控件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+    <!-- 添加搜索控件 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- 添加标记聚类 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            background-color: #ffffff;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        
+        /* 功能导航 - 左上角 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin-left: 20px;
+        }
+        
+        .nav-links li {
+            margin-right: 20px;
+        }
+        
+        .nav-links a {
+            color: #000000;
+            text-decoration: none;
+            font-size: 1em;
+        }
+        
+        /* 英文翻译样式 */
+        .translation {
+            display: block;
+            font-size: 0.5em;
+            color: #666;
+            margin-top: 5px;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            display: inline;
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 3px;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #fullscreenMap {
+            height: 100vh;
+            width: 100%;
+            margin-top: 50px; /* 为顶部导航栏留出空间 */
+        }
+        
+        .map-controls {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 320px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #333;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #000;
+        }
+        
+        .auth-status {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        #loginStatus {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .marker-icon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .marker-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .marker-icon.safe { background-color: #2ecc71; }
+        .marker-icon.warning { background-color: #e74c3c; }
+        .marker-icon.help { background-color: #f1c40f; }
+        
+        .marker-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: white;
+            margin: 5px 0;
+        }
+        
+        .marker-type.safe { background-color: #2ecc71; }
+        .marker-type.warning { background-color: #e74c3c; }
+        .marker-type.help { background-color: #f1c40f; color: #333; }
+        
+        .popup-content {
+            padding: 15px;
+            min-width: 250px;
+        }
+        
+        .popup-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        
+        .popup-description {
+            color: #444;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        
+        .popup-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .delete-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            background: #000;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .map-controls {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-height: 50vh; /* 最大高度为视口高度的50% */
+                border-radius: 12px 12px 0 0;
+                padding: 15px;
+                z-index: 1001;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .map-controls.collapsed {
+                max-height: 60px;
+                overflow: hidden;
+            }
+            
+            .toggle-controls {
+                display: block;
+                text-align: center;
+                padding: 5px 0;
+                margin-bottom: 10px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            
+            .toggle-controls:after {
+                content: "▲ 收起面板";
+            }
+            
+            .map-controls.collapsed .toggle-controls:after {
+                content: "▼ 展开面板";
+            }
+            
+            .form-group {
+                margin-bottom: 10px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .nav-links {
+                margin-left: 5px;
+            }
+            
+            .nav-links li {
+                margin-right: 10px;
+            }
+            
+            .nav-links a {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左上角 -->
+        <ul class="nav-links">
+            <li><a href="index.html">主页<span class="inline-translation">Home</span></a></li>
+            <li><a href="javascript:void(0)" style="font-weight: bold;">安全地图<span class="inline-translation">Safety Map</span></a></li>
+            <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
+            <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
+            <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
+        </ul>
+        
+        <!-- 用户区域 - 直接显示在导航栏中 -->
+        <div style="margin-left: auto; display: flex; align-items: center;">
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: flex; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 15px; text-decoration: none;" onclick="console.log('登录按钮被点击'); document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="console.log('注册按钮被点击'); document.getElementById('registerModal').style.display='block'">注册<span class="inline-translation">Register</span></a>
+            </div>
+            
+            <!-- 已登录显示 -->
+            <div id="userArea" style="display: none; align-items: center;">
+                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 15px;">用户名</span>
+                <a href="javascript:void(0)" style="margin-right: 15px; color: #333; text-decoration: none;" onclick="console.log('账号设置按钮被点击'); showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" onclick="console.log('退出按钮被点击'); try { logoutUser(); } catch(e) { console.error('退出错误:', e); alert('退出出错: ' + e.message); }">退出<span class="inline-translation">Logout</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullscreenMap"></div>
+    
+    <div class="map-controls">
+        <div class="toggle-controls" onclick="toggleControls()"></div>
+        <h2>安全地图 <span class="translation">Safety Map</span></h2>
+        <p class="map-description">
+            在地图上标记安全或危险地点，帮助他人避开危险。<br>
+            <span class="translation">Mark safe or dangerous locations on the map to help others avoid danger.</span>
+        </p>
+        <p class="map-description" style="margin-top: 10px; color: #0066cc;">
+            <strong>新功能：</strong>使用左上角的搜索图标 <span style="font-size: 1.2em;">🔍</span> 快速查找地点！<br>
+            <span class="translation"><strong>New Feature:</strong> Use the search icon in the top-left corner to quickly find locations!</span>
+        </p>
+        <div class="auth-status">
+            <div id="loginStatus">
+                已登录 / Logged in:
+                <span id="userEmail">guyeyang122@icloud.com</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                标题<br><span class="translation">Title</span>
+            </label>
+            <input type="text" id="title" placeholder="请输入标题 / Enter title" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                类型<br><span class="translation">Type</span>
+            </label>
+            <select id="type" required>
+                <option value="">请选择类型 / Select type</option>
+                <option value="safe">安全地点 / Safe Location</option>
+                <option value="warning">危险警告 / Danger Warning</option>
+                <option value="help">求助信息 / Help Needed</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                描述<br><span class="translation">Description</span>
+            </label>
+            <textarea id="description" placeholder="请输入描述 / Enter description" rows="3" required></textarea>
+        </div>
+        <button class="btn" id="submitMarker">
+            提交标记<br><span class="translation">Submit Marker</span>
+        </button>
+        <button class="btn" onclick="window.location.href='index.html'">
+            返回主页<br><span class="translation">Back to Home</span>
+        </button>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>登录 <span class="translation">Login</span></h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="loginPassword" placeholder="密码 Password" required>
+                <div class="form-error" id="loginError"></div>
+                <button type="submit">登录 <span class="inline-translation">Login</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>注册 <span class="translation">Register</span></h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位） Password (min 6 characters)" required minlength="6">
+                <div class="form-error" id="registerError"></div>
+                <button type="submit">注册 <span class="inline-translation">Register</span></button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 账号设置模态框 -->
+    <div id="accountSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('accountSettingsModal')">&times;</span>
+            <h2>账号设置 <span class="translation">Account Settings</span></h2>
+            <form id="accountSettingsForm">
+                <label for="userName">用户名 <span class="inline-translation">Username</span></label>
+                <input type="text" id="userName" placeholder="用户名 Username" required>
+                <div class="form-error" id="accountSettingsError"></div>
+                <button type="submit">保存 <span class="inline-translation">Save</span></button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                console.log('正在初始化Firebase...');
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase初始化成功');
+                
+                // 测试数据库连接
+                firebase.database().ref('.info/connected').on('value', function(snap) {
+                    if (snap.val() === true) {
+                        console.log('已连接到Firebase数据库');
+                    } else {
+                        console.log('未连接到Firebase数据库');
+                    }
+                });
+            } catch (error) {
+                console.error('Firebase初始化失败:', error);
+                alert('连接到数据库失败，请检查网络连接');
+            }
+        }
+
+        // 全局变量
+        let map;
+        let currentMarker;
+        let markersLayer;
+        let isControlsCollapsed = false;
+
+        // 初始化地图
+        function initMap() {
+            map = L.map('fullscreenMap').setView([39.9042, 116.4074], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19
+            }).addTo(map);
+            
+            markersLayer = L.layerGroup().addTo(map);
+
+            // 添加定位控件
+            L.control.locate({
+                position: 'topleft',
+                strings: {
+                    title: "显示我的位置"
+                }
+            }).addTo(map);
+            
+            // 添加搜索地点控件
+            const geocoder = L.Control.geocoder({
+                position: 'topleft',
+                placeholder: '搜索地点...',
+                defaultMarkGeocode: true,
+                geocoder: L.Control.Geocoder.nominatim({
+                    geocodingQueryParams: {
+                        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8'
+                    }
+                })
+            }).addTo(map);
+            
+            // 搜索结果处理
+            geocoder.on('markgeocode', function(e) {
+                const bbox = e.geocode.bbox;
+                const poly = L.polygon([
+                    bbox.getSouthEast(),
+                    bbox.getNorthEast(),
+                    bbox.getNorthWest(),
+                    bbox.getSouthWest()
+                ]).addTo(map);
+                map.fitBounds(poly.getBounds());
+                setTimeout(function() {
+                    map.removeLayer(poly);
+                }, 3000);
+            });
+
+            // 点击地图添加标记
+            map.on('click', function(e) {
+                if (!firebase.auth().currentUser) {
+                    alert('请先登录后再添加标记！');
+                    return;
+                }
+                addMarker(e.latlng);
+            });
+            
+            // 不再自动加载标记，而是等待用户登录后再加载
+            // loadMarkers();
+        }
+
+        // 添加标记
+        function addMarker(latlng) {
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            const type = document.getElementById('type').value || 'help';
+            const icon = L.divIcon({
+                className: `marker-icon ${type}`,
+                html: '',
+                iconSize: [25, 25]
+            });
+
+            currentMarker = L.marker(latlng, {icon: icon}).addTo(map);
+        }
+
+        // 加载已有标记
+        function loadMarkers() {
+            console.log('开始加载标记数据...');
+            
+            // 确保用户已登录
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                console.log('用户未登录，等待登录后再加载标记');
+                // 不显示错误，只是不加载数据
+                return;
+            }
+            
+            console.log('当前用户:', user.uid, user.email);
+            
+            const markersRef = firebase.database().ref('markers');
+            
+            // 添加错误处理
+            markersRef.on('value', (snapshot) => {
+                try {
+                    // 清除现有标记
+                    markersLayer.clearLayers();
+                    
+                    console.log('加载标记数据:', snapshot.exists() ? '有数据' : '无数据');
+                    
+                    if (snapshot.exists()) {
+                        let markerCount = 0;
+                        snapshot.forEach((childSnapshot) => {
+                            try {
+                                const markerData = childSnapshot.val();
+                                const markerId = childSnapshot.key;
+                                
+                                console.log('处理标记数据:', markerId, markerData);
+                                
+                                // 确保经纬度存在
+                                if (!markerData.lat || !markerData.lng) {
+                                    console.error('标记缺少经纬度:', markerId);
+                                    return;
+                                }
+                                
+                                // 创建图标
+                                const icon = L.divIcon({
+                                    className: `marker-icon ${markerData.type || 'help'}`,
+                                    html: '',
+                                    iconSize: [25, 25]
+                                });
+                                
+                                // 添加标记到地图
+                                const marker = L.marker([markerData.lat, markerData.lng], {icon: icon}).addTo(markersLayer);
+                                markerCount++;
+                                
+                                // 创建弹出窗口内容
+                                const popupContent = document.createElement('div');
+                                popupContent.className = 'popup-content';
+                                
+                                const title = document.createElement('div');
+                                title.className = 'popup-title';
+                                title.textContent = markerData.title || '无标题';
+                                popupContent.appendChild(title);
+                                
+                                const typeLabel = document.createElement('div');
+                                typeLabel.className = `marker-type ${markerData.type || 'help'}`;
+                                typeLabel.textContent = markerData.type === 'safe' ? '安全地点' : 
+                                                       markerData.type === 'warning' ? '危险警告' : '求助信息';
+                                popupContent.appendChild(typeLabel);
+                                
+                                const description = document.createElement('div');
+                                description.className = 'popup-description';
+                                description.textContent = markerData.description || '无描述';
+                                popupContent.appendChild(description);
+                                
+                                const meta = document.createElement('div');
+                                meta.className = 'popup-meta';
+                                const date = new Date(markerData.timestamp || Date.now());
+                                const displayName = markerData.userName || (markerData.userEmail ? markerData.userEmail.split('@')[0] : '匿名用户');
+                                meta.textContent = `由 ${displayName} 添加于 ${date.toLocaleString()}`;
+                                popupContent.appendChild(meta);
+                                
+                                // 如果是当前用户添加的标记，显示删除按钮
+                                const currentUser = firebase.auth().currentUser;
+                                if (currentUser && markerData.userId === currentUser.uid) {
+                                    const deleteBtn = document.createElement('button');
+                                    deleteBtn.className = 'delete-btn';
+                                    deleteBtn.textContent = '删除标记';
+                                    deleteBtn.onclick = function() {
+                                        if (confirm('确定要删除这个标记吗？')) {
+                                            firebase.database().ref(`markers/${markerId}`).remove()
+                                                .then(() => {
+                                                    map.closePopup();
+                                                    console.log('标记删除成功');
+                                                })
+                                                .catch((error) => {
+                                                    console.error('删除标记失败:', error);
+                                                    alert('删除标记失败，请重试');
+                                                });
+                                        }
+                                    };
+                                    popupContent.appendChild(deleteBtn);
+                                }
+                                
+                                marker.bindPopup(popupContent);
+                            } catch (error) {
+                                console.error('处理单个标记失败:', error);
+                            }
+                        });
+                        console.log(`成功加载 ${markerCount} 个标记`);
+                    } else {
+                        console.log('没有找到标记数据');
+                    }
+                } catch (error) {
+                    console.error('处理标记数据时出错:', error);
+                    alert('加载标记数据失败，请刷新页面重试');
+                }
+            }, (error) => {
+                console.error('从Firebase加载标记数据失败:', error);
+                
+                // 检查是否是权限错误
+                if (error.code === 'PERMISSION_DENIED') {
+                    console.error('Firebase权限被拒绝，请检查数据库规则');
+                    alert('无权访问标记数据，请确认您有权限访问此数据');
+                } else {
+                    alert('加载标记数据失败: ' + error.message);
+                }
+            });
+        }
+
+        // 提交标记
+        document.getElementById('submitMarker').addEventListener('click', async function() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('请先登录后再添加标记！');
+                return;
+            }
+            
+            if (!currentMarker) {
+                alert('请先在地图上点击选择位置！');
+                return;
+            }
+            
+            const title = document.getElementById('title').value;
+            const type = document.getElementById('type').value;
+            const description = document.getElementById('description').value;
+            
+            if (!title || !type || !description) {
+                alert('请填写完整信息！');
+                return;
+            }
+            
+            const latlng = currentMarker.getLatLng();
+            console.log('准备提交标记:', {
+                title, type, description,
+                lat: latlng.lat,
+                lng: latlng.lng
+            });
+            
+            try {
+                // 获取用户名 - 简化逻辑，直接使用显示的用户名
+                const userName = document.getElementById('userNameDisplay').textContent;
+                
+                // 创建标记数据
+                const markerData = {
+                    title: title,
+                    type: type,
+                    description: description,
+                    lat: latlng.lat,
+                    lng: latlng.lng,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    userName: userName,
+                    timestamp: Date.now()
+                };
+                
+                // 保存到数据库
+                const newMarkerRef = await firebase.database().ref('markers').push(markerData);
+                console.log('标记添加成功，ID:', newMarkerRef.key);
+                
+                alert('标记添加成功！');
+                
+                // 清空表单
+                document.getElementById('title').value = '';
+                document.getElementById('type').value = '';
+                document.getElementById('description').value = '';
+                
+                // 移除临时标记
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                    currentMarker = null;
+                }
+                
+                // 手动添加标记到地图（不等待数据库回调）
+                const icon = L.divIcon({
+                    className: `marker-icon ${type}`,
+                    html: '',
+                    iconSize: [25, 25]
+                });
+                
+                const marker = L.marker([latlng.lat, latlng.lng], {icon: icon}).addTo(markersLayer);
+                
+                // 创建弹出窗口内容
+                const popupContent = document.createElement('div');
+                popupContent.className = 'popup-content';
+                
+                const titleElem = document.createElement('div');
+                titleElem.className = 'popup-title';
+                titleElem.textContent = title;
+                popupContent.appendChild(titleElem);
+                
+                const typeLabel = document.createElement('div');
+                typeLabel.className = `marker-type ${type}`;
+                typeLabel.textContent = type === 'safe' ? '安全地点' : 
+                                       type === 'warning' ? '危险警告' : '求助信息';
+                popupContent.appendChild(typeLabel);
+                
+                const descriptionElem = document.createElement('div');
+                descriptionElem.className = 'popup-description';
+                descriptionElem.textContent = description;
+                popupContent.appendChild(descriptionElem);
+                
+                const meta = document.createElement('div');
+                meta.className = 'popup-meta';
+                const date = new Date();
+                meta.textContent = `由 ${userName} 添加于 ${date.toLocaleString()}`;
+                popupContent.appendChild(meta);
+                
+                // 添加删除按钮
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = '删除标记';
+                deleteBtn.onclick = function() {
+                    if (confirm('确定要删除这个标记吗？')) {
+                        firebase.database().ref(`markers/${newMarkerRef.key}`).remove()
+                            .then(() => {
+                                map.closePopup();
+                                markersLayer.removeLayer(marker);
+                                console.log('标记删除成功');
+                            })
+                            .catch((error) => {
+                                console.error('删除标记失败:', error);
+                                alert('删除标记失败，请重试');
+                            });
+                    }
+                };
+                popupContent.appendChild(deleteBtn);
+                
+                marker.bindPopup(popupContent);
+                
+            } catch (error) {
+                console.error('添加标记失败:', error);
+                alert('添加标记失败，请重试');
+            }
+        });
+
+        // 切换控制面板展开/收起状态（移动端）
+        function toggleControls() {
+            const controls = document.querySelector('.map-controls');
+            isControlsCollapsed = !isControlsCollapsed;
+            if (isControlsCollapsed) {
+                controls.classList.add('collapsed');
+            } else {
+                controls.classList.remove('collapsed');
+            }
+        }
+
+        // 显示不同的页面部分
+        function showSection(sectionName) {
+            if (sectionName === 'resources') {
+                window.location.href = 'index.html#resources';
+            } else if (sectionName === 'emergency') {
+                window.location.href = 'index.html#emergency';
+            }
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 显示账号设置模态框
+        function showAccountSettingsModal() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('请先登录后再修改账号设置');
+                return;
+            }
+            
+            // 获取用户当前用户名
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const userNameInput = document.getElementById('userName');
+            
+            if (userNameInput) {
+                userNameInput.value = userNameDisplay.textContent || user.email.split('@')[0];
+            }
+            
+            // 显示模态框
+            document.getElementById('accountSettingsModal').style.display = 'block';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            
+            // 先检查localStorage中是否有登录信息
+            const cachedUid = localStorage.getItem('userUid');
+            const cachedEmail = localStorage.getItem('userEmail');
+            const cachedName = localStorage.getItem('userName');
+            
+            if (cachedUid && cachedEmail) {
+                console.log('从localStorage检测到登录信息:', cachedEmail);
+                // 显示已登录状态
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('userArea').style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = cachedName || cachedEmail.split('@')[0];
+                document.getElementById('loginStatus').innerHTML = `已登录 / Logged in:<br><span id="userEmail">${cachedName || cachedEmail.split('@')[0]}</span>`;
+                
+                // 尝试加载标记
+                loadMarkers();
+            }
+            
+            // 检查登录状态
+            firebase.auth().onAuthStateChanged(function(user) {
+                console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+                
+                if (user) {
+                    // 用户已登录
+                    document.getElementById('loginButtons').style.display = 'none';
+                    document.getElementById('userArea').style.display = 'flex';
+                    
+                    // 保存登录信息到localStorage
+                    localStorage.setItem('userLoggedIn', 'true');
+                    localStorage.setItem('userEmail', user.email);
+                    localStorage.setItem('userUid', user.uid);
+                    
+                    // 获取用户名
+                    firebase.database().ref(`users/${user.uid}`).once('value')
+                        .then(snapshot => {
+                            const userData = snapshot.val();
+                            const userName = userData?.userName || user.email.split('@')[0];
+                            
+                            // 保存用户名到localStorage
+                            localStorage.setItem('userName', userName);
+                            
+                            // 更新顶部导航栏的用户名显示
+                            document.getElementById('userNameDisplay').textContent = userName;
+                            
+                            // 更新登录状态区域的显示
+                            document.getElementById('loginStatus').innerHTML = `已登录 / Logged in:<br><span id="userEmail">${userName}</span>`;
+                            
+                            // 用户登录后加载标记
+                            loadMarkers();
+                        })
+                        .catch(error => {
+                            console.error('获取用户名失败:', error);
+                            // 出错时使用邮箱前缀作为用户名
+                            const defaultName = user.email.split('@')[0];
+                            document.getElementById('userNameDisplay').textContent = defaultName;
+                            document.getElementById('loginStatus').innerHTML = `已登录 / Logged in:<br><span id="userEmail">${defaultName}</span>`;
+                            
+                            // 保存默认用户名到localStorage
+                            localStorage.setItem('userName', defaultName);
+                            
+                            // 即使获取用户名失败，也尝试加载标记
+                            loadMarkers();
+                        });
+                } else {
+                    // 用户未登录
+                    document.getElementById('loginStatus').innerHTML = '未登录<br><span class="translation">Not logged in</span>';
+                    document.getElementById('loginButtons').style.display = 'flex';
+                    document.getElementById('userArea').style.display = 'none';
+                    
+                    // 清除localStorage中的登录信息
+                    localStorage.removeItem('userLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userUid');
+                    
+                    // 清除地图上的标记
+                    if (markersLayer) {
+                        markersLayer.clearLayers();
+                    }
+                }
+            });
+        });
+        
+        // 本地定义的登出函数，避免依赖外部auth.js
+        function logoutUser() {
+            console.log('开始本地登出流程');
+            try {
+                firebase.auth().signOut().then(() => {
+                    console.log('登出成功');
+                    
+                    // 清除localStorage
+                    localStorage.removeItem('userLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userUid');
+                    
+                    // 刷新页面
+                    window.location.reload();
+                }).catch((error) => {
+                    console.error('登出错误:', error);
+                    alert('登出失败: ' + error.message);
+                });
+            } catch (error) {
+                console.error('登出过程中出现异常:', error);
+                alert('登出过程中出现异常: ' + error.message);
+            }
+        }
+
+        // 处理登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('开始登录流程');
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginError = document.getElementById('loginError');
+            
+            try {
+                loginError.textContent = ''; // 清除之前的错误信息
+                
+                // 显示加载状态
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '登录中...';
+                submitButton.disabled = true;
+                
+                // 执行登录
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                console.log('登录成功:', userCredential.user.email);
+                
+                // 保存登录信息到localStorage
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userEmail', userCredential.user.email);
+                localStorage.setItem('userUid', userCredential.user.uid);
+                
+                // 获取用户名
+                const snapshot = await firebase.database().ref(`users/${userCredential.user.uid}`).once('value');
+                const userData = snapshot.val();
+                const userName = userData?.userName || userCredential.user.email.split('@')[0];
+                
+                // 保存用户名到localStorage
+                localStorage.setItem('userName', userName);
+                
+                // 更新UI
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('userArea').style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = userName;
+                document.getElementById('loginStatus').innerHTML = `已登录 / Logged in:<br><span id="userEmail">${userName}</span>`;
+                
+                // 关闭模态框
+                document.getElementById('loginModal').style.display = 'none';
+                
+                // 加载标记
+                loadMarkers();
+                
+                // 显示成功消息
+                alert('登录成功！');
+            } catch (error) {
+                console.error('登录错误:', error);
+                loginError.textContent = '登录失败: ' + error.message;
+                
+                // 恢复按钮状态
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+
+        // 处理注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('开始注册流程');
+            
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const registerError = document.getElementById('registerError');
+            
+            try {
+                registerError.textContent = ''; // 清除之前的错误信息
+                
+                // 显示加载状态
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '注册中...';
+                submitButton.disabled = true;
+                
+                // 执行注册
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                console.log('注册成功:', userCredential.user.email);
+                
+                // 创建用户资料
+                const defaultUserName = email.split('@')[0];
+                await firebase.database().ref(`users/${userCredential.user.uid}`).set({
+                    userName: defaultUserName,
+                    email: email,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                // 保存登录信息到localStorage
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('userUid', userCredential.user.uid);
+                localStorage.setItem('userName', defaultUserName);
+                
+                // 更新UI
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('userArea').style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = defaultUserName;
+                document.getElementById('loginStatus').innerHTML = `已登录 / Logged in:<br><span id="userEmail">${defaultUserName}</span>`;
+                
+                // 关闭模态框
+                document.getElementById('registerModal').style.display = 'none';
+                
+                // 加载标记
+                loadMarkers();
+                
+                // 显示成功消息
+                alert('注册成功！');
+            } catch (error) {
+                console.error('注册错误:', error);
+                registerError.textContent = '注册失败: ' + error.message;
+                
+                // 恢复按钮状态
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+    
+    <!-- 加载auth.js -->
+    <script src="auth.js"></script>
+</body>
+</html> 

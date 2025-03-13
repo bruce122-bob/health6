@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>交流社区 - 她安计划 | She Haven</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        /* 重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            background-color: #ffffff;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        
+        /* 功能导航 - 左上角 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin-left: 20px;
+        }
+        
+        .nav-links li {
+            margin-right: 20px;
+        }
+        
+        .nav-links a {
+            color: #000000;
+            text-decoration: none;
+            font-size: 1em;
+        }
+        
+        /* 英文翻译样式 */
+        .translation {
+            display: block;
+            font-size: 0.5em;
+            color: #666;
+            margin-top: 5px;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            display: inline;
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 3px;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* 主标题区域 */
+        .main-title {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 70px;
+        }
+        
+        .main-title h1 {
+            font-size: 3em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        /* 内容容器 */
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 社区容器 */
+        .community-container {
+            display: flex;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        
+        /* 左侧社区公告 */
+        .community-sidebar {
+            width: 300px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        
+        .community-notice h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-weight: normal;
+        }
+        
+        .notice-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .notice-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .notice-item h4 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .notice-item p {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* 右侧消息区域 */
+        .message-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 社区统计 */
+        .community-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .stat-item {
+            font-size: 0.9em;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #000;
+        }
+        
+        /* 消息搜索 */
+        .message-search {
+            margin-bottom: 15px;
+        }
+        
+        .message-search input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        /* 消息过滤器 */
+        .message-filter {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background-color: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        /* 消息容器 */
+        .messages-container {
+            flex: 1;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .no-messages {
+            text-align: center;
+            color: #999;
+            padding: 50px 0;
+        }
+        
+        /* 消息项 */
+        .message-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .message-user {
+            font-weight: bold;
+        }
+        
+        .message-time {
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        .message-content {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        /* 消息表单 */
+        .message-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .char-count {
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        .message-form button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s;
+        }
+        
+        .message-form button:hover {
+            background-color: #000;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .modal-content button:hover {
+            background-color: #000;
+        }
+        
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-error {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .community-container {
+                flex-direction: column;
+            }
+            
+            .community-sidebar {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .message-filter {
+                flex-wrap: wrap;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 5px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左上角 -->
+        <ul class="nav-links">
+            <li><a href="index.html">主页<span class="inline-translation">Home</span></a></li>
+            <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
+            <li><a href="javascript:void(0)" style="font-weight: bold;">交流社区<span class="inline-translation">Community</span></a></li>
+            <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
+            <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
+        </ul>
+        
+        <!-- 用户区域 - 直接显示在导航栏中 -->
+        <div style="margin-left: auto; display: flex; align-items: center;">
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: flex; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 15px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">注册<span class="inline-translation">Register</span></a>
+            </div>
+            
+            <!-- 已登录显示 -->
+            <div id="userArea" style="display: none; align-items: center;">
+                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 15px;">用户名</span>
+                <a href="javascript:void(0)" style="margin-right: 15px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主标题区域 -->
+    <div class="main-title">
+        <h1>交流社区
+            <span class="translation">Community Exchange</span>
+        </h1>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content-container">
+        <div class="community-container">
+            <!-- 左侧社区公告 -->
+            <div class="community-sidebar">
+                <div class="community-notice">
+                    <h3>社区公告 <span class="translation">Community Notice</span></h3>
+                    <div class="notice-item">
+                        <h4>欢迎来到交流社区</h4>
+                        <p>在这里您可以分享经验、提问和互相支持。请遵守社区规则，保持友善的交流环境。</p>
+                    </div>
+                    <div class="notice-item">
+                        <h4>安全提示</h4>
+                        <p>请勿在公共聊天中分享个人敏感信息，保护您的隐私安全。</p>
+                    </div>
+                    <div class="notice-item">
+                        <h4>新功能上线</h4>
+                        <p>现在您可以使用标签功能对消息进行分类，方便其他用户查找相关内容。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧消息区域 -->
+            <div class="message-area">
+                <div class="community-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">在线用户: </span>
+                        <span class="stat-value" id="onlineUsers">3</span>
+                        <span class="inline-translation">Online Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">总发言数: </span>
+                        <span class="stat-value" id="totalMessages">0</span>
+                        <span class="inline-translation">Total Messages</span>
+                    </div>
+                </div>
+
+                <div class="message-search">
+                    <input type="text" placeholder="搜索消息... Search Messages..." id="messageSearch">
+                </div>
+
+                <div class="message-filter">
+                    <button class="filter-btn active" data-filter="all">全部消息 <span class="inline-translation">All Messages</span></button>
+                    <button class="filter-btn" data-filter="my">我的消息 <span class="inline-translation">My Messages</span></button>
+                    <button class="filter-btn" data-filter="hot">热门消息 <span class="inline-translation">Hot Messages</span></button>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <!-- 消息将通过JavaScript动态添加 -->
+                    <div class="no-messages">暂无消息</div>
+                </div>
+
+                <div class="message-form-container">
+                    <form id="messageForm" class="message-form">
+                        <textarea 
+                            id="messageText" 
+                            placeholder="分享你的想法... Share your thoughts..."
+                            maxlength="500" 
+                            required
+                        ></textarea>
+                        <div class="form-footer">
+                            <span class="char-count">0/500</span>
+                            <button type="submit">发送 <span class="inline-translation">Send</span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <div class="footer" style="text-align: right; padding: 10px 20px; margin-top: 40px; border-top: 1px solid #eeeeee;">
+        <p>Bruce Zoey Sarah</p>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>登录 <span class="translation">Login</span></h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="loginPassword" placeholder="密码 Password" required>
+                <div class="form-error" id="loginError"></div>
+                <button type="submit">登录 <span class="inline-translation">Login</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>注册 <span class="translation">Register</span></h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位） Password (min 6 characters)" required minlength="6">
+                <div class="form-error" id="registerError"></div>
+                <button type="submit">注册 <span class="inline-translation">Register</span></button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 账号设置模态框 -->
+    <div id="accountSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('accountSettingsModal')">&times;</span>
+            <h2>账号设置 <span class="translation">Account Settings</span></h2>
+            <form id="accountSettingsForm">
+                <label for="userName">用户名 <span class="inline-translation">Username</span></label>
+                <input type="text" id="userName" placeholder="用户名 Username" required>
+                <div class="form-error" id="accountSettingsError"></div>
+                <button type="submit">保存 <span class="inline-translation">Save</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 关闭模态框的脚本 -->
+    <script>
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // 点击模态框背景关闭
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+    
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            var modals = document.querySelectorAll('.modal');
+            modals.forEach(function(modal) {
+                if (modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    });
+    
+    // 退出登录
+    function logoutUser() {
+        if (confirm('确定要退出登录吗？')) {
+            firebase.auth().signOut().then(function() {
+                console.log('用户已退出登录');
+                // 清除本地存储的登录状态
+                localStorage.removeItem('userLoggedIn');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                // 刷新页面
+                window.location.reload();
+            }).catch(function(error) {
+                console.error('退出登录失败:', error);
+                alert('退出登录失败，请重试');
+            });
+        }
+    }
+    
+    // 显示账号设置模态框
+    function showAccountSettingsModal() {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert('请先登录后再修改账号设置');
+            return;
+        }
+        
+        // 获取用户当前用户名
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userNameInput = document.getElementById('userName');
+        
+        if (userNameInput) {
+            userNameInput.value = userNameDisplay.textContent || user.email.split('@')[0];
+        }
+        
+        // 显示模态框
+        document.getElementById('accountSettingsModal').style.display = 'block';
+    }
+    
+    // 处理账号设置表单提交
+    document.getElementById('accountSettingsForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert('请先登录！');
+            return;
+        }
+        
+        const newUserName = document.getElementById('userName').value.trim();
+        if (!newUserName) {
+            alert('用户名不能为空');
+            return;
+        }
+        
+        // 更新用户名
+        firebase.database().ref(`users/${user.uid}`).update({
+            userName: newUserName
+        }).then(function() {
+            // 更新显示
+            document.getElementById('userNameDisplay').textContent = newUserName;
+            // 保存到本地存储
+            localStorage.setItem('userName', newUserName);
+            
+            alert('用户名更新成功！');
+            closeModal('accountSettingsModal');
+        }).catch(function(error) {
+            console.error('更新用户名失败:', error);
+            alert('更新失败: ' + error.message);
+        });
+    });
+    
+    // 显示不同的页面部分
+    function showSection(sectionName) {
+        if (sectionName === 'safety-map') {
+            window.location.href = 'safety-map.html';
+        } else if (sectionName === 'resources') {
+            window.location.href = 'resources.html';
+        } else if (sectionName === 'emergency') {
+            window.location.href = 'emergency.html';
+        }
+    }
+    </script>
+
+    <!-- 先加载 auth.js 进行 Firebase 初始化 -->
+    <script src="auth.js"></script>
+    <script src="community.js"></script>
+</body>
+</html> 

@@ -2215,28 +2215,90 @@ footer {
 /* 添加全局响应式字体调整 */
 @media (max-width: 768px) {
     body {
-        font-size: 14px;
+        font-size: 15px;
     }
-
-    h1 { font-size: 2em; }
-    h2 { font-size: 1.5em; }
-    h3 { font-size: 1.2em; }
+    
+    /* 顶部导航栏 */
+    .top-nav {
+        padding: 8px 10px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-links {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+    .nav-links li {
+        margin: 5px 2px;
+        font-size: 0.9em;
+    }
+    
+    .nav-links a {
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+    
+    /* 用户区域 */
+    .top-nav > div {
+        width: 100%;
+        margin-top: 8px;
+        justify-content: flex-end;
+    }
+    
+    /* 主标题区域 */
+    .main-title {
+        height: 200px;
+        margin-top: 120px;
+    }
+    
+    .main-title h1 {
+        font-size: 3em;
+    }
+    
+    /* 内容区域 */
+    .content-container {
+        padding: 0 15px;
+    }
+    
+    /* 按钮和表单元素 */
+    button, .btn, input[type="submit"] {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    
+    input, textarea, select {
+        font-size: 0.9em;
+        padding: 8px;
+    }
 }
 
-/* 优化按钮和表单元素在移动端的触摸区域 */
-@media (max-width: 768px) {
-    button,
-    .auth-buttons button,
-    .user-info button,
-    input[type="submit"] {
-        min-height: 44px;  /* 确保足够的触摸区域 */
-        padding: 10px 15px;
+/* 超小屏幕设备 */
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
     }
-
-    input,
-    select,
-    textarea {
-        font-size: 16px !important;  /* 防止iOS自动缩放 */
+    
+    .nav-links li {
+        margin: 3px 1px;
+        font-size: 0.8em;
+    }
+    
+    .nav-links a {
+        font-size: 0.8em;
+    }
+    
+    .main-title h1 {
+        font-size: 2.5em;
+    }
+    
+    button, .btn, input[type="submit"] {
+        padding: 6px 10px;
+        font-size: 0.85em;
     }
 }
 
@@ -2616,4 +2678,173 @@ a.more-info-btn {
 
 a.more-info-btn:hover {
     background-color: #333;
+}
+
+/* 汉堡菜单样式优化 */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 35px;
+    height: 30px;
+    cursor: pointer;
+    z-index: 1001;
+    margin-right: 15px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 6px;
+    border-radius: 4px;
+    border: 2px solid #333;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 4px;
+    width: 100%;
+    background-color: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 移动端导航样式优化 */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+        position: fixed;
+        left: 10px;
+        top: 15px;
+        z-index: 1001;
+        width: 35px;
+        height: 30px;
+        padding: 6px;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 70%;
+        max-width: 250px;
+        height: calc(100vh - 60px);
+        background-color: #fff;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+        transition: all 0.3s ease;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+        overflow-y: auto;
+    }
+
+    .nav-links.active {
+        left: 0;
+    }
+
+    .nav-links a {
+        margin: 10px 0;
+        font-size: 16px;
+        width: 100%;
+        text-align: left;
+        display: block;
+    }
+    
+    /* 确保登录和注册按钮始终可见 */
+    .user-area {
+        display: flex !important;
+        margin-left: auto;
+        z-index: 1000;
+        position: absolute;
+        right: 10px;
+        top: 15px;
+    }
+    
+    /* 确保登录按钮和用户区域不重叠 */
+    #loginButtons, #userArea {
+        position: absolute;
+        right: 10px;
+        top: 15px;
+        z-index: 1002;
+    }
+    
+    /* 移除强制隐藏登录按钮的样式 */
+    #loginButtons {
+        display: flex;
+    }
+    
+    /* 调整顶部导航栏布局 */
+    .top-nav {
+        padding: 15px 20px;
+        justify-content: center;
+        position: relative;
+        height: 50px;
+    }
+    
+    /* 主标题在移动端的优化 */
+    .main-title {
+        text-align: center;
+        margin-top: 80px;
+    }
+    
+    .main-title h1 {
+        font-size: 4em !important;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .main-title .translation {
+        font-size: 0.5em !important;
+        display: block;
+        margin-top: 10px;
+    }
+
+    /* 确保内容居中显示 */
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        width: 75%;
+    }
+    
+    .main-title h1 {
+        font-size: 3.5em !important;
+    }
+    
+    /* 确保登录和注册按钮在小屏幕上仍然可见 */
+    #loginButtons a {
+        font-size: 0.9em;
+        padding: 5px 8px;
+    }
+}
+
+/* 用户区域样式 */
+.user-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .user-area {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
 } 

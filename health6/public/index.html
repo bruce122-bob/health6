@@ -134,24 +134,51 @@
         /* 主标题区域 */
         .main-title {
             text-align: center;
-            padding: 30px 0;
-            margin-top: 50px; /* 为固定导航腾出空间 */
+            padding: 0;
+            margin: 0;
+            position: relative;
+            height: 280px; /* 固定高度，确保上下居中 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 垂直居中 */
+            align-items: center; /* 水平居中 */
+            border-top: none; /* 移除红色上边框 */
+            border-bottom: none; /* 移除黑色下边框 */
+            margin-top: 100px; /* 增加与顶部导航栏的距离，从50px增加到100px */
+            margin-bottom: 50px; /* 增加与下方内容的距离 */
         }
         
         .main-title h1 {
-            font-size: 5em; /* 放大标题 */
+            font-size: 4.5em; /* 进一步增大字体 */
             font-weight: normal;
-            margin-bottom: 10px;
+            margin: 0;
+            padding: 0;
+            display: block; /* 确保显示 */
+            visibility: visible; /* 确保可见 */
+            letter-spacing: 2px; /* 增加字间距 */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1); /* 添加轻微阴影效果 */
+            background: linear-gradient(to right, #333, #000); /* 添加水平渐变背景 */
+            -webkit-background-clip: text; /* 使渐变仅应用于文字 */
+            -webkit-text-fill-color: transparent; /* 使文字透明以显示背景 */
+            color: #000; /* 为不支持上述属性的浏览器提供后备颜色 */
         }
         
-        /* 添加英文翻译样式 */
+        /* 调整英文标题与下方黑线的距离 */
         .translation {
             display: block;
-            font-size: 0.5em;
+            font-size: 0.6em; /* 从0.5em增加到0.6em */
             color: #666;
-            margin-top: 5px;
+            margin-top: 10px; /* 从5px增加到10px */
+            padding-bottom: 0; /* 移除底部内边距 */
             font-weight: normal;
             font-family: 'Arial', sans-serif;
+            visibility: visible; /* 确保可见 */
+            letter-spacing: 1px; /* 增加字间距 */
+        }
+        
+        /* 删除黑线 */
+        .black-line {
+            display: none; /* 隐藏黑线 */
         }
         
         /* 内容区域 */
@@ -374,16 +401,61 @@
         
         /* 响应式设计 */
         @media (max-width: 768px) {
+            /* 手机端导航栏优化 */
             .top-nav {
-                justify-content: space-between; /* 保持两端对齐 */
-                padding: 10px; /* 简化内边距 */
+                padding: 15px 20px;
+                justify-content: center;
+                position: relative;
             }
             
             .nav-links {
-                margin-bottom: 0; /* 不再需要底部边距 */
-                justify-content: flex-start; /* 左对齐 */
-                margin-left: 0;
-                width: auto; /* 不再占满宽度 */
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .nav-links li {
+                margin: 5px 2px;
+                font-size: 0.9em;
+            }
+            
+            .nav-links a {
+                font-size: 0.9em;
+                white-space: nowrap;
+            }
+            
+            /* 用户区域在手机端的样式 */
+            .user-area {
+                margin-left: auto;
+                width: auto;
+            }
+            
+            /* 主标题区域在手机端的样式 */
+            .main-title {
+                height: 200px;
+                margin-top: 120px;
+            }
+            
+            .main-title h1 {
+                font-size: 3em;
+            }
+            
+            /* 内容区域在手机端的样式 */
+            .content-section {
+                padding: 20px 15px;
+            }
+            
+            .section-title {
+                font-size: 1.5em;
+            }
+            
+            /* 网站介绍在手机端的样式 */
+            .intro-text {
+                font-size: 0.95em;
+                line-height: 1.5;
             }
             
             .auth-container {
@@ -441,6 +513,30 @@
                 margin-left: 10px;
                 font-size: 0.8em;
                 padding-left: 10px;
+            }
+        }
+        
+        /* 超小屏幕设备 */
+        @media (max-width: 480px) {
+            .nav-links li {
+                margin: 3px 1px;
+                font-size: 0.8em;
+            }
+            
+            .nav-links a {
+                font-size: 0.8em;
+            }
+            
+            .main-title h1 {
+                font-size: 2.5em;
+            }
+            
+            .section-title {
+                font-size: 1.3em;
+            }
+            
+            .intro-text {
+                font-size: 0.9em;
             }
         }
         
@@ -651,65 +747,92 @@
             display: block;
             opacity: 1;
         }
+        
+        /* 确保汉堡菜单按钮在移动设备上正确显示 */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                position: absolute;
+                left: 15px;
+                top: 15px;
+            }
+            
+            .top-nav {
+                padding: 15px 20px;
+                justify-content: center;
+                position: relative;
+            }
+            
+            /* 保持登录按钮在右侧 */
+            .user-area {
+                margin-left: auto;
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- 顶部导航区域 -->
     <div class="top-nav">
+        <!-- 汉堡菜单按钮 - 仅在移动端显示 -->
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="菜单">
+            <span></span>
+            <span></span>
+            <span></span>
+                    </button>
+
         <!-- 功能导航 - 左上角 -->
-        <ul class="nav-links">
+            <ul class="nav-links">
             <li><a href="javascript:void(0)" style="font-weight: bold;">主页<span class="inline-translation">Home</span></a></li>
             <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
             <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
             <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
             <li><a href="#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
-        </ul>
-        
-        <!-- 用户区域 - 直接显示在导航栏中 -->
-        <div style="margin-left: auto; display: flex; align-items: center;">
-            <!-- 未登录显示 -->
-            <div id="loginButtons" style="display: flex; align-items: center;">
-                <a href="javascript:void(0)" style="color: #333; margin-right: 15px; text-decoration: none;" onclick="showLoginModal()">登录<span class="translation" style="display: inline; font-size: 0.8em; margin-left: 3px;">Login</span></a>
-                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="showRegisterModal()">注册<span class="translation" style="display: inline; font-size: 0.8em; margin-left: 3px;">Register</span></a>
-    </div>
+            </ul>
 
+        <!-- 用户区域 - 直接显示在导航栏中 -->
+        <div class="user-area">
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: none; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 10px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">加入我们<span class="inline-translation">Join Us</span></a>
+        </div>
+            
             <!-- 已登录显示 -->
-            <div id="userArea" style="display: none; align-items: center;">
-                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 15px;">用户名</span>
-                <a href="javascript:void(0)" style="margin-right: 15px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="translation" style="display: inline; font-size: 0.8em; margin-left: 3px;">Account</span></a>
-                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" onclick="logout()">退出<span class="translation" style="display: inline; font-size: 0.8em; margin-left: 3px;">Logout</span></a>
-                </div>
+            <div id="userArea" style="display: flex; align-items: center;">
+                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 10px;">用户名</span>
+                <a href="javascript:void(0)" style="margin-right: 10px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
                 </div>
             </div>
-    
+        </div>
+
     <!-- 登录状态提示 -->
     <div class="login-status" id="loginStatus"></div>
     
     <!-- 主标题区域 -->
     <div class="main-title">
-        <h1>她安计划
-            <span class="translation">She Haven</span>
-        </h1>
-        </div>
-    
+        <h1 style="font-size: 5em;">她安计划<span class="translation" style="font-size: 0.5em; margin-top: 15px;">She Haven</span></h1>
+    </div>
+
     <!-- 内容区域 -->
     <div class="content-container">
-        <!-- 侧边标题区域 -->
+        <!-- 网站介绍区域 -->
         <div class="side-sections">
-            <div class="left-section" style="width: 60%; max-width: 600px;">
-                <h2 class="section-title">网站介绍
+            <div class="left-section" style="width: 100%; max-width: 800px; margin: 0 auto;">
+                <h2 class="section-title" style="text-align: center;">网站介绍
                     <span class="translation">Website Introduction</span>
                 </h2>
-                <div class="introduction-text" style="margin-top: 10px; line-height: 1.5; font-size: 0.95em;">
+                <div class="introduction-text" style="margin-top: 20px; line-height: 1.6; font-size: 1em; text-align: center;">
                     <p>「她安计划 | SheHaven」 是一个致力于女性安全与权益的在线平台，我们提供一个开放、自由的空间，让每一位女性的声音都能被听见，让女性安全不再是一种侃侃而谈，而是看得见的权力。我们鼓励女性分享经验、学习自我保护知识，并团结彼此，共同推动社会的正向改变。微光不灭，终将燎原，每一个她都值得被温柔以待！</p>
                     
-                    <p style="margin-top: 8px; color: #666; font-style: italic; font-size: 0.9em;">
-                        SheHaven is an online platform dedicated to women's safety and rights. We provide an open and free space where every woman's voice can be heard, ensuring that women's safety is no longer just a topic of discussion but a visible right. We encourage women to share their experiences, learn self-protection skills, and unite to drive positive social change. A single spark never fades—it will eventually ignite a blazing fire. Every woman deserves to be treated with kindness.
+                    <p style="margin-top: 15px; color: #666; font-style: italic; font-size: 0.95em;">
+                        SheHaven is an online platform dedicated to women's safety and rights. We provide an open and free space where every woman's voice can be heard, ensuring that women's safety is no longer just a topic of discussion but a visible right. We encourage women to share their experiences, learn self-protection skills, and unite to drive positive social change. Every small light will eventually ignite a prairie fire, and every woman deserves to be treated with gentleness!
                     </p>
+                    </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
+                
         <!-- 右侧内容 -->
         <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 40px;">
             <!-- 咨询区 - 现在在图片上方居中 -->
@@ -717,7 +840,7 @@
                 <h2 class="section-title" id="resources">资讯区
                     <span class="translation">Information Area</span>
                 </h2>
-            </div>
+                    </div>
             
             <!-- 图片轮换区域 - 位置保持不变 -->
             <div class="slideshow-section">
@@ -731,14 +854,14 @@
                     </div>
                     <div class="mySlides">
                         <img src="images/safety3.jpg" class="slideshow-img" alt="安全信息3">
-                    </div>
-
+                </div>
+                
                     <!-- 导航按钮 -->
                     <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
                     <a class="next" onclick="changeSlide(1)">&#10095;</a>
+                    </div>
+                    </div>
                 </div>
-            </div>
-        </div>
     </div>
 
     <!-- 添加数据统计和寻人启事板块 -->
@@ -772,9 +895,9 @@
                         <img src="images/missing-person-hanyibei.jpg" alt="韩依贝">
                         </div>
                         <div class="missing-person-info">
-                        <h3>韩依贝</h3>
-                        <p class="missing-date">失踪日期: 2023年10月17日</p>
-                        <p class="missing-location">最后出现地点: 山西省阳泉市盂县南娄镇西南关村</p>
+                            <h3>韩依贝</h3>
+                            <p class="missing-date">失踪日期: 2023年10月17日</p>
+                            <p class="missing-location">最后出现地点: 山西省阳泉市盂县南娄镇西南关村</p>
                         <p class="missing-description">女，14岁，初三学生，失踪时穿着白色卫衣、蓝黑色牛仔裤。</p>
                         <a href="missing-person-detail-hanyibei.html" class="more-info-btn">查看详情 <span class="translation">More Info</span></a>
                             </div>
@@ -867,7 +990,7 @@
     <div id="registerModal" class="modal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 9999; overflow: hidden;">
         <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
             <span class="close" onclick="closeModal('registerModal')" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #555;">&times;</span>
-            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">注册<span class="translation">Register</span></h2>
+            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">加入我们<span class="translation">Join Us</span></h2>
             <form id="registerForm">
                 <div class="form-group">
                     <label for="registerEmail">邮箱<span class="translation">Email</span></label>
@@ -888,139 +1011,112 @@
 
     <!-- 登录相关的简化脚本 -->
     <script>
-    // 简单的退出函数，确保在任何情况下都有效
-    function logout() {
-        // 显示登录按钮，隐藏用户区域
-        document.getElementById('loginButtons').style.display = 'flex';
-        document.getElementById('userArea').style.display = 'none';
-        
-        // 提示用户
-        alert('已成功退出登录');
-        
-        // 清除本地存储
-        localStorage.removeItem('currentUser');
-        
-        // 如果有Firebase，尝试登出
-        if (typeof firebase !== 'undefined') {
-            try {
-                firebase.auth().signOut();
-            } catch (e) {
-                console.log('Firebase退出失败，但UI已更新');
-            }
-        }
-    }
-    
-    // 简单的登录函数
-    function login(username) {
-        // 隐藏登录按钮，显示用户区域
-        document.getElementById('loginButtons').style.display = 'none';
-        document.getElementById('userArea').style.display = 'flex';
-        
-        // 设置用户名
-        document.getElementById('userNameDisplay').textContent = username;
-        
-        // 保存到本地存储
-        localStorage.setItem('currentUser', JSON.stringify({
-            name: username,
-            loginTime: new Date().toISOString()
-        }));
-    }
-
+    // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('页面加载完成');
-        
-        // 获取DOM元素
-        const userInfo = document.getElementById('userInfo');
-        const authLinks = document.querySelector('.auth-links');
-        const userDisplayName = document.getElementById('userDisplayName');
-        const loginStatus = document.getElementById('loginStatus');
-        
-        // 显示登录状态消息
-        function showMessage(message, isError = false) {
-            if (!loginStatus) return;
-            
-            loginStatus.textContent = message;
-            loginStatus.style.backgroundColor = isError ? 'rgba(220,53,69,0.9)' : 'rgba(0,0,0,0.8)';
-            loginStatus.classList.add('show');
-            
-            setTimeout(() => {
-                loginStatus.classList.remove('show');
-            }, 3000);
+        // 检查是否有登录信息
+        const userName = localStorage.getItem('userName');
+        if (userName) {
+            // 已登录状态
+            document.getElementById('loginButtons').style.display = 'none';
+            document.getElementById('userArea').style.display = 'flex';
+            document.getElementById('userNameDisplay').textContent = userName;
+        } else {
+            // 未登录状态
+            document.getElementById('loginButtons').style.display = 'flex';
+            document.getElementById('userArea').style.display = 'none';
         }
         
-        // 显示登录后的用户信息UI
-        function showUserInfo(name) {
-            if (userDisplayName) userDisplayName.textContent = name || '用户';
-            if (authLinks) authLinks.classList.add('hidden');
-            if (userInfo) {
-                userInfo.classList.add('visible');
-                userInfo.style.display = 'flex';
-            }
-            console.log('已显示用户信息UI');
-        }
+        // 添加汉堡菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
         
-        // 显示登录前的链接UI
-        function showAuthLinks() {
-            if (authLinks) {
-                authLinks.classList.remove('hidden');
-                authLinks.style.display = 'flex';
-            }
-            if (userInfo) {
-                userInfo.classList.remove('visible');
-                userInfo.style.display = 'none';
-            }
-            console.log('已显示登录/注册链接UI');
-        }
-        
-        // 监听登录表单提交
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
+        if (menuToggle && navLinks) {
+            // 使用原生点击事件
+            menuToggle.addEventListener('click', function(e) {
                 e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                // 关闭登录模态框
-                closeModal('loginModal');
-                
-                // 从邮箱中提取用户名
-                const username = email.split('@')[0];
-                
-                // 使用我们的登录函数
-                login(username);
-                
-                // 显示成功消息
-                showMessage('登录成功，欢迎回来！');
-                
-                // 尝试真实登录Firebase
-                if (typeof firebase !== 'undefined') {
-                    try {
-                        firebase.auth().signInWithEmailAndPassword(email, password)
-                            .then(function(result) {
-                                console.log('Firebase登录成功');
-                            })
-                            .catch(function(error) {
-                                console.log('Firebase登录失败，但UI已更新');
-                            });
-                    } catch (e) {
-                        console.log('Firebase不可用，但UI已更新');
-                    }
-                }
+                e.stopPropagation();
+                console.log('汉堡菜单被点击');
+                menuToggle.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            }, true);
+            
+            // 点击导航链接后自动关闭菜单
+            const navItems = document.querySelectorAll('.nav-links a');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    console.log('导航链接被点击');
+                    menuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }, true);
             });
         }
         
-        // 检查是否有记住的登录状态
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            try {
-                const userData = JSON.parse(savedUser);
-                // 使用保存的用户名登录
-                login(userData.name);
-            } catch (e) {
-                console.log('解析保存的用户数据失败');
+        // 点击页面其他区域关闭菜单
+        document.addEventListener('click', function(event) {
+            if (menuToggle && navLinks && menuToggle.classList.contains('active')) {
+                // 如果点击的不是菜单按钮和导航链接
+                if (!event.target.closest('#menuToggle') && !event.target.closest('.nav-links')) {
+                    menuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
             }
-        }
+        });
     });
+    
+    // 简单的登录函数
+    function login() {
+        document.getElementById('loginButtons').style.display = 'none';
+        document.getElementById('userArea').style.display = 'flex';
+        document.getElementById('userNameDisplay').textContent = '用户名';
+        localStorage.setItem('userName', '用户名');
+        document.getElementById('loginModal').style.display = 'none';
+    }
+    
+    // 简单的退出函数
+    function logout() {
+        document.getElementById('loginButtons').style.display = 'flex';
+        document.getElementById('userArea').style.display = 'none';
+        localStorage.removeItem('userName');
+        alert('已成功退出登录');
+    }
+    
+    // 显示账号设置模态框
+    function showAccountSettingsModal() {
+        document.getElementById('accountSettingsModal').style.display = 'block';
+    }
+    
+    // 关闭模态框
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // 处理登录表单提交
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        login();
+    });
+    
+    // 处理注册表单提交
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        login();
+        document.getElementById('registerModal').style.display = 'none';
+    });
+    
+    // 处理账号设置表单提交
+    document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userName = document.getElementById('userName').value;
+        document.getElementById('userNameDisplay').textContent = userName;
+        localStorage.setItem('userName', userName);
+        document.getElementById('accountSettingsModal').style.display = 'none';
+        alert('账号设置已保存');
+    });
+    
+    // 登出用户
+    function logoutUser() {
+        logout();
+    }
     </script>
     
     <!-- 图片轮换脚本 -->
@@ -1128,6 +1224,49 @@
             content.addEventListener('click', function(event) {
                 event.stopPropagation();
             });
+        });
+    });
+    </script>
+
+    <!-- 添加汉堡菜单功能 -->
+    <script>
+    // 添加汉堡菜单功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (menuToggle) {
+            console.log('汉堡菜单按钮已找到');
+            menuToggle.addEventListener('click', function() {
+                console.log('汉堡菜单按钮被点击');
+                this.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+        } else {
+            console.log('汉堡菜单按钮未找到');
+        }
+        
+        // 点击导航链接后自动关闭菜单
+        const navItems = document.querySelectorAll('.nav-links a');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                if (menuToggle && menuToggle.classList.contains('active')) {
+                    menuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+        
+        // 点击页面其他区域关闭菜单
+        document.addEventListener('click', function(event) {
+            if (menuToggle && navLinks && 
+                !event.target.closest('.menu-toggle') && 
+                !event.target.closest('.nav-links')) {
+                if (navLinks.classList.contains('active')) {
+                    menuToggle.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            }
         });
     });
     </script>

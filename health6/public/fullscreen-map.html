@@ -515,7 +515,7 @@
     </div>
 
     <!-- 添加一个明显的收起控制面板按钮 -->
-    <button id="collapseButton" onclick="toggleControls()" style="position: fixed; top: 70px; right: 350px; z-index: 1002; background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+    <button id="collapseButton" style="position: fixed; top: 70px; right: 350px; z-index: 1002; background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
         收起控制面板
     </button>
 
@@ -929,6 +929,11 @@
             const mapControls = document.querySelector('.map-controls');
             const collapseButton = document.getElementById('collapseButton');
             
+            // 添加调试信息
+            console.log('切换控制面板状态');
+            console.log('当前状态:', mapControls.classList.contains('collapsed') ? '已收起' : '已展开');
+            
+            // 切换collapsed类
             mapControls.classList.toggle('collapsed');
             
             // 更新收起按钮的文字和位置
@@ -936,10 +941,12 @@
                 collapseButton.textContent = '展开控制面板';
                 collapseButton.style.right = '60px';
                 collapseButton.style.background = '#2ecc71';
+                console.log('控制面板已收起');
             } else {
                 collapseButton.textContent = '收起控制面板';
                 collapseButton.style.right = '350px';
                 collapseButton.style.background = '#e74c3c';
+                console.log('控制面板已展开');
             }
         }
 
@@ -979,6 +986,16 @@
                 document.getElementById('userArea').style.display = 'none';
             }
             
+            // 添加收起控制面板按钮的事件监听
+            const collapseButton = document.getElementById('collapseButton');
+            if (collapseButton) {
+                collapseButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('收起控制面板按钮被点击');
+                    toggleControls();
+                });
+            }
+            
             // 添加汉堡菜单功能
             const menuToggle = document.getElementById('menuToggle');
             const navLinks = document.querySelector('.nav-links');
@@ -1014,12 +1031,6 @@
                     }
                 }
             });
-            
-            // 控制面板折叠功能
-            const collapseButton = document.getElementById('collapseButton');
-            if (collapseButton) {
-                collapseButton.addEventListener('click', toggleControls);
-            }
         });
         
         // 简单的登录函数

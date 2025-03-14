@@ -449,11 +449,17 @@
         
         <!-- 用户区域 - 直接显示在导航栏中 -->
         <div class="user-area">
-            <!-- 只显示用户区域，不显示登录和注册按钮 -->
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: none; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 10px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">加入我们<span class="inline-translation">Join Us</span></a>
+            </div>
+            
+            <!-- 已登录显示 -->
             <div id="userArea" style="display: flex; align-items: center;">
                 <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 10px;">用户名</span>
                 <a href="javascript:void(0)" style="margin-right: 10px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
-                <a href="index.html" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;">返回主页<span class="inline-translation">Home</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
             </div>
         </div>
     </div>

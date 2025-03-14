@@ -523,11 +523,17 @@
         
         <!-- 用户区域 - 直接显示在导航栏中 -->
         <div class="user-area">
-            <!-- 只显示用户区域，不显示登录和注册按钮 -->
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: none; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 10px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">加入我们<span class="inline-translation">Join Us</span></a>
+            </div>
+            
+            <!-- 已登录显示 -->
             <div id="userArea" style="display: flex; align-items: center;">
                 <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 10px;">用户名</span>
                 <a href="javascript:void(0)" style="margin-right: 10px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
-                <a href="index.html" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;">返回主页<span class="inline-translation">Home</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
             </div>
         </div>
     </div>
@@ -612,6 +618,34 @@
         <p>Bruce Joey Sarah</p>
     </div>
 
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>登录 <span class="translation">Login</span></h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="loginPassword" placeholder="密码 Password" required>
+                <div class="form-error" id="loginError"></div>
+                <button type="submit">登录 <span class="inline-translation">Login</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>加入我们 <span class="translation">Join Us</span></h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱 Email" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位） Password (min 6 characters)" required minlength="6">
+                <div class="form-error" id="registerError"></div>
+                <button type="submit">注册 <span class="inline-translation">Register</span></button>
+            </form>
+        </div>
+    </div>
+
     <!-- 账号设置模态框 -->
     <div id="accountSettingsModal" class="modal">
         <div class="modal-content">
@@ -633,11 +667,14 @@
             // 检查是否有登录信息
             const userName = localStorage.getItem('userName');
             if (userName) {
-                // 显示用户名
+                // 已登录状态
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('userArea').style.display = 'flex';
                 document.getElementById('userNameDisplay').textContent = userName;
             } else {
-                // 如果未登录，重定向到主页
-                window.location.href = 'index.html';
+                // 未登录状态
+                document.getElementById('loginButtons').style.display = 'flex';
+                document.getElementById('userArea').style.display = 'none';
             }
             
             // 添加汉堡菜单功能
@@ -675,37 +712,24 @@
                     }
                 }
             });
-            
-            // 初始化消息计数器
-            document.querySelector('.char-count').textContent = '0/500';
-            
-            // 监听消息输入，更新字符计数
-            const messageText = document.getElementById('messageText');
-            if (messageText) {
-                messageText.addEventListener('input', function() {
-                    const count = this.value.length;
-                    document.querySelector('.char-count').textContent = count + '/500';
-                });
-            }
-            
-            // 处理消息表单提交
-            const messageForm = document.getElementById('messageForm');
-            if (messageForm) {
-                messageForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const messageText = document.getElementById('messageText').value.trim();
-                    if (messageText) {
-                        // 这里可以添加发送消息的逻辑
-                        console.log('发送消息:', messageText);
-                        // 清空输入框
-                        document.getElementById('messageText').value = '';
-                        document.querySelector('.char-count').textContent = '0/500';
-                        // 显示成功提示
-                        alert('消息已发送');
-                    }
-                });
-            }
         });
+        
+        // 简单的登录函数
+        function login() {
+            document.getElementById('loginButtons').style.display = 'none';
+            document.getElementById('userArea').style.display = 'flex';
+            document.getElementById('userNameDisplay').textContent = '用户名';
+            localStorage.setItem('userName', '用户名');
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        
+        // 简单的退出函数
+        function logout() {
+            document.getElementById('loginButtons').style.display = 'flex';
+            document.getElementById('userArea').style.display = 'none';
+            localStorage.removeItem('userName');
+            alert('已成功退出登录');
+        }
         
         // 显示账号设置模态框
         function showAccountSettingsModal() {
@@ -717,6 +741,19 @@
             document.getElementById(modalId).style.display = 'none';
         }
         
+        // 处理登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+        });
+        
+        // 处理注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+            document.getElementById('registerModal').style.display = 'none';
+        });
+        
         // 处理账号设置表单提交
         document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -726,6 +763,11 @@
             document.getElementById('accountSettingsModal').style.display = 'none';
             alert('账号设置已保存');
         });
+        
+        // 登出用户
+        function logoutUser() {
+            logout();
+        }
     </script>
 
     <!-- 先加载 auth.js 进行 Firebase 初始化 -->

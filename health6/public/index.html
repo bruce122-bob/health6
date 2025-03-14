@@ -769,6 +769,18 @@
                 width: auto;
             }
         }
+        
+        @media (max-width: 768px) {
+            .content-container > div {
+                flex-direction: column;
+            }
+            
+            .content-container > div > div {
+                width: 100% !important;
+                margin-right: 0 !important;
+                margin-bottom: 30px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -817,51 +829,56 @@
 
     <!-- 内容区域 -->
     <div class="content-container">
-        <!-- 网站介绍区域 -->
-        <div class="side-sections">
-            <div class="left-section" style="width: 100%; max-width: 800px; margin: 0 auto;">
-                <h2 class="section-title" style="text-align: center;">网站介绍
+        <!-- 使用flex布局将网站介绍和资讯区并排显示 -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 40px;">
+            <!-- 网站介绍区域 - 左侧 -->
+            <div style="width: 48%; min-width: 300px; margin-right: 2%;">
+                <h2 class="section-title" style="text-align: left;">网站介绍
                     <span class="translation">Website Introduction</span>
                 </h2>
-                <div class="introduction-text" style="margin-top: 20px; line-height: 1.6; font-size: 1em; text-align: center;">
+                <div class="introduction-text" style="margin-top: 20px; line-height: 1.6; font-size: 1em; text-align: left;">
                     <p>「她安计划 | SheHaven」 是一个致力于女性安全与权益的在线平台，我们提供一个开放、自由的空间，让每一位女性的声音都能被听见，让女性安全不再是一种侃侃而谈，而是看得见的权力。我们鼓励女性分享经验、学习自我保护知识，并团结彼此，共同推动社会的正向改变。微光不灭，终将燎原，每一个她都值得被温柔以待！</p>
                     
                     <p style="margin-top: 15px; color: #666; font-style: italic; font-size: 0.95em;">
                         SheHaven is an online platform dedicated to women's safety and rights. We provide an open and free space where every woman's voice can be heard, ensuring that women's safety is no longer just a topic of discussion but a visible right. We encourage women to share their experiences, learn self-protection skills, and unite to drive positive social change. Every small light will eventually ignite a prairie fire, and every woman deserves to be treated with gentleness!
                     </p>
                     </div>
-                    </div>
                 </div>
                 
-        <!-- 右侧内容 -->
-        <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 40px;">
-            <!-- 咨询区 - 现在在图片上方居中 -->
-            <div class="right-section">
-                <h2 class="section-title" id="resources">资讯区
-                    <span class="translation">Information Area</span>
-                </h2>
-                    </div>
-            
-            <!-- 图片轮换区域 - 位置保持不变 -->
-            <div class="slideshow-section">
-                <h2 class="slideshow-title">资料展示 Information Display</h2>
-                <div class="slideshow-container">
-                    <div class="mySlides active">
-                        <img src="images/safety1.jpg" class="slideshow-img" alt="安全信息1">
-                    </div>
-                    <div class="mySlides">
-                        <img src="images/safety2.jpg" class="slideshow-img" alt="安全信息2">
-                    </div>
-                    <div class="mySlides">
-                        <img src="images/safety3.jpg" class="slideshow-img" alt="安全信息3">
+            <!-- 资讯区 - 右侧 -->
+            <div style="width: 48%; min-width: 300px;">
+                <!-- 使用flex布局和justify-content: flex-start来放置两个标题 -->
+                <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px;">
+                    <!-- 空白区域，用于控制资讯区标题的位置 -->
+                    <div style="width: 45%;"></div>
+                    
+                    <!-- 资讯区标题放在中间偏右位置 -->
+                    <h2 class="section-title" id="resources" style="text-align: center; margin: 0;">资讯区
+                        <span class="translation">Information Area</span>
+                    </h2>
                 </div>
                 
-                    <!-- 导航按钮 -->
-                    <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
-                    <a class="next" onclick="changeSlide(1)">&#10095;</a>
+                <!-- 图片轮换区域 -->
+                <div class="slideshow-section" style="width: 100%; margin-top: 20px;">
+                    <h2 class="slideshow-title" style="text-align: left; margin-left: 0;">资料展示 Information Display</h2>
+                    <div class="slideshow-container">
+                        <div class="mySlides active">
+                            <img src="images/safety1.jpg" class="slideshow-img" alt="安全信息1">
+                    </div>
+                        <div class="mySlides">
+                            <img src="images/safety2.jpg" class="slideshow-img" alt="安全信息2">
+                    </div>
+                        <div class="mySlides">
+                            <img src="images/safety3.jpg" class="slideshow-img" alt="安全信息3">
+                </div>
+                
+                        <!-- 导航按钮 -->
+                        <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+                        <a class="next" onclick="changeSlide(1)">&#10095;</a>
                     </div>
                     </div>
                 </div>
+            </div>
     </div>
 
     <!-- 添加数据统计和寻人启事板块 -->
@@ -1225,7 +1242,6 @@
                 event.stopPropagation();
             });
         });
-    });
     </script>
 
     <!-- 添加汉堡菜单功能 -->

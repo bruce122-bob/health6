@@ -536,78 +536,78 @@
                 <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
             </div>
         </div>
-    </div>
+                </div>
     
     <!-- 主标题区域 -->
     <div class="main-title">
         <h1 style="font-size: 5em;">交流社区<span class="translation" style="font-size: 0.5em; margin-top: 15px;">Community Exchange</span></h1>
-    </div>
+        </div>
 
     <!-- 内容区域 -->
     <div class="content-container">
-        <div class="community-container">
-            <!-- 左侧社区公告 -->
-            <div class="community-sidebar">
-                <div class="community-notice">
-                    <h3>社区公告 <span class="translation">Community Notice</span></h3>
-                    <div class="notice-item">
-                        <h4>欢迎来到交流社区</h4>
-                        <p>在这里您可以分享经验、提问和互相支持。请遵守社区规则，保持友善的交流环境。</p>
-                    </div>
-                    <div class="notice-item">
-                        <h4>安全提示</h4>
-                        <p>请勿在公共聊天中分享个人敏感信息，保护您的隐私安全。</p>
-                    </div>
-                    <div class="notice-item">
-                        <h4>新功能上线</h4>
-                        <p>现在您可以使用标签功能对消息进行分类，方便其他用户查找相关内容。</p>
-                    </div>
+    <div class="community-container">
+        <!-- 左侧社区公告 -->
+        <div class="community-sidebar">
+            <div class="community-notice">
+                <h3>社区公告 <span class="translation">Community Notice</span></h3>
+                <div class="notice-item">
+                    <h4>欢迎来到交流社区</h4>
+                    <p>在这里您可以分享经验、提问和互相支持。请遵守社区规则，保持友善的交流环境。</p>
+                </div>
+                <div class="notice-item">
+                    <h4>安全提示</h4>
+                    <p>请勿在公共聊天中分享个人敏感信息，保护您的隐私安全。</p>
+                </div>
+                <div class="notice-item">
+                    <h4>新功能上线</h4>
+                    <p>现在您可以使用标签功能对消息进行分类，方便其他用户查找相关内容。</p>
                 </div>
             </div>
+        </div>
 
-            <!-- 右侧消息区域 -->
-            <div class="message-area">
-                <div class="community-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">在线用户: </span>
+        <!-- 右侧消息区域 -->
+        <div class="message-area">
+            <div class="community-stats">
+                <div class="stat-item">
+                    <span class="stat-label">在线用户: </span>
                         <span class="stat-value" id="onlineUsers">3</span>
                         <span class="inline-translation">Online Users</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">总发言数: </span>
-                        <span class="stat-value" id="totalMessages">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">总发言数: </span>
+                    <span class="stat-value" id="totalMessages">0</span>
                         <span class="inline-translation">Total Messages</span>
                     </div>
-                </div>
+            </div>
 
-                <div class="message-search">
-                    <input type="text" placeholder="搜索消息... Search Messages..." id="messageSearch">
-                </div>
+            <div class="message-search">
+                <input type="text" placeholder="搜索消息... Search Messages..." id="messageSearch">
+            </div>
 
-                <div class="message-filter">
+            <div class="message-filter">
                     <button class="filter-btn active" data-filter="all">全部消息 <span class="inline-translation">All Messages</span></button>
                     <button class="filter-btn" data-filter="my">我的消息 <span class="inline-translation">My Messages</span></button>
                     <button class="filter-btn" data-filter="hot">热门消息 <span class="inline-translation">Hot Messages</span></button>
-                </div>
+            </div>
 
-                <div class="messages-container" id="messagesContainer">
-                    <!-- 消息将通过JavaScript动态添加 -->
-                    <div class="no-messages">暂无消息</div>
-                </div>
+            <div class="messages-container" id="messagesContainer">
+                <!-- 消息将通过JavaScript动态添加 -->
+                <div class="no-messages">暂无消息</div>
+            </div>
 
-                <div class="message-form-container">
-                    <form id="messageForm" class="message-form">
-                        <textarea 
-                            id="messageText" 
-                            placeholder="分享你的想法... Share your thoughts..."
-                            maxlength="500" 
-                            required
-                        ></textarea>
-                        <div class="form-footer">
-                            <span class="char-count">0/500</span>
+            <div class="message-form-container">
+                <form id="messageForm" class="message-form">
+                    <textarea 
+                        id="messageText" 
+                        placeholder="分享你的想法... Share your thoughts..."
+                        maxlength="500" 
+                        required
+                    ></textarea>
+                    <div class="form-footer">
+                        <span class="char-count">0/500</span>
                             <button type="submit">发送 <span class="inline-translation">Send</span></button>
-                        </div>
-                    </form>
+                    </div>
+                </form>
                 </div>
             </div>
         </div>

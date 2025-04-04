@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>她安计划 | She Haven</title>
+    <title>She Haven</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -64,8 +64,13 @@
             background-size: cover;
             color: white;
             text-align: center;
-            padding: 100px 20px;
+            padding: 120px 20px;
             margin-top: 60px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         
         /* 英文翻译样式 */
@@ -674,6 +679,63 @@
                 margin: 0 5px 10px 0;
             }
         }
+        
+        @keyframes simpleEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .letter {
+            display: inline-block;
+        }
+        
+        @keyframes glowPulse {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+        
+        /* 删除闪光效果 */
+        @keyframes shine-sweep {
+            0% {
+                left: -100px;
+            }
+            100% {
+                left: 120%;
+            }
+        }
+        
+        /* 删除3D闪耀效果 */
+        .title-3d-shine {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            position: absolute;
+            transform: skewX(-20deg);
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            animation: shine 2s ease-in-out 2s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
     </style>
 </head>
 <body>
@@ -718,7 +780,7 @@
     
     <!-- 主标题区域 -->
     <div class="main-title">
-        <h1 style="font-size: 5em;">她安计划<span class="translation" style="font-size: 0.5em; margin-top: 15px;">She Haven</span></h1>
+        <h1 style="font-size: 5em; font-family: 'ZCOOL XiaoWei', 'Ma Shan Zheng', serif; color: white; text-shadow: 2px 4px 6px rgba(0,0,0,0.3); animation: simpleEntrance 1.5s ease-out forwards;">She Haven</h1>
     </div>
 
     <!-- 内容区域 -->
@@ -731,7 +793,7 @@
                     <span class="translation">Website Introduction</span>
                 </h2>
                 <div class="introduction-text" style="margin-top: 20px; line-height: 1.6; font-size: 1em; text-align: left;">
-                    <p>「她安计划 | SheHaven」 是一个致力于女性安全与权益的在线平台，我们提供一个开放、自由的空间，让每一位女性的声音都能被听见，让女性安全不再是一种侃侃而谈，而是看得见的权力。我们鼓励女性分享经验、学习自我保护知识，并团结彼此，共同推动社会的正向改变。微光不灭，终将燎原，每一个她都值得被温柔以待！</p>
+                    <p>「SheHaven」 是一个致力于女性安全与权益的在线平台，我们提供一个开放、自由的空间，让每一位女性的声音都能被听见，让女性安全不再是一种侃侃而谈，而是看得见的权力。我们鼓励女性分享经验、学习自我保护知识，并团结彼此，共同推动社会的正向改变。微光不灭，终将燎原，每一个她都值得被温柔以待！</p>
                     
                     <p style="margin-top: 15px; color: #666; font-style: italic; font-size: 0.95em;">
                         SheHaven is an online platform dedicated to women's safety and rights. We provide an open and free space where every woman's voice can be heard, ensuring that women's safety is no longer just a topic of discussion but a visible right. We encourage women to share their experiences, learn self-protection skills, and unite to drive positive social change. Every small light will eventually ignite a prairie fire, and every woman deserves to be treated with gentleness!

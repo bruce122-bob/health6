@@ -149,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             console.log('开始登录流程');
             
-            // 显示加载状态
             const submitButton = loginForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.innerHTML;
             submitButton.innerHTML = '登录中...';
@@ -158,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loginError = document.getElementById('loginError');
             if (loginError) {
                 loginError.textContent = '';
+                loginError.style.display = 'none';
             }
             
             const email = document.getElementById('loginEmail').value;
@@ -166,18 +166,29 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // 检查网络连接
                 if (!navigator.onLine) {
-                    throw new Error('网络连接已断开，请检查网络设置后重试');
+                    console.log('网络离线，使用本地模式');
+                    const localUser = validateLocalUser(email, password);
+                    if (localUser) {
+                        // 本地登录成功
+                        localStorage.setItem('userLoggedIn', 'true');
+                        localStorage.setItem('userName', localUser.userName);
+                        localStorage.setItem('userEmail', email);
+                        updateAuthUI({ email: email });
+                        document.getElementById('loginModal').style.display = 'none';
+                        alert('登录成功（本地模式）');
+                        return;
+                    }
+                    throw new Error('本地验证失败');
                 }
-                
-                // 检查Firebase是否已初始化
-                if (!firebase.apps.length) {
-                    throw new Error('系统初始化失败，请刷新页面重试');
+
+                // 尝试Firebase登录
+                let firebaseInitialized = await initializeFirebaseWithRetry();
+                if (!firebaseInitialized) {
+                    throw new Error('系统初始化失败，请稍后重试');
                 }
-                
+
                 const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
                 console.log('登录成功:', userCredential.user.email);
-                
-                // 登录成功后更新UI
                 document.getElementById('loginModal').style.display = 'none';
                 alert('登录成功！');
                 
@@ -199,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         errorMessage += '密码错误';
                         break;
                     case 'auth/network-request-failed':
-                        errorMessage += '网络连接失败，请检查网络设置';
+                        errorMessage += '网络连接失败，请检查网络设置或稍后重试';
                         break;
                     default:
                         errorMessage += error.message;
@@ -212,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(errorMessage);
                 }
             } finally {
-                // 恢复按钮状态
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
             }
@@ -349,4 +359,83 @@ window.showAccountSettingsModal = function() {
 // 全局函数：关闭模态框
 window.closeModal = function(modalId) {
     document.getElementById(modalId).style.display = 'none';
-} 
+}
+
+// 添加备用服务器配置
+const backupConfig = {
+    databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+    // 添加其他备用服务器配置
+};
+
+// 初始化Firebase时添加重试逻辑
+async function initializeFirebaseWithRetry(maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            if (!firebase.apps.length) {
+                await firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功 (通过auth.js)');
+                return true;
+            }
+            return true;
+        } catch (error) {
+            console.warn(`Firebase 初始化尝试 ${attempt}/${maxRetries} 失败:`, error);
+            if (attempt === maxRetries) {
+                console.error('Firebase 初始化失败，切换到本地模式');
+                enableOfflineMode();
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+    return false;
+}
+
+// 本地模式功能
+function enableOfflineMode() {
+    console.log('启用本地模式');
+    localStorage.setItem('offlineMode', 'true');
+    
+    // 保存已知用户信息到本地
+    const knownUsers = {
+        'test@example.com': {
+            password: 'password123', // 在实际应用中应该使用加密存储
+            userName: '测试用户'
+        }
+        // 可以添加更多预设用户
+    };
+    localStorage.setItem('knownUsers', JSON.stringify(knownUsers));
+}
+
+// 检查是否是本地模式
+function isOfflineMode() {
+    return localStorage.getItem('offlineMode') === 'true';
+}
+
+// 本地验证函数
+function validateLocalUser(email, password) {
+    const knownUsers = JSON.parse(localStorage.getItem('knownUsers') || '{}');
+    const user = knownUsers[email];
+    return user && user.password === password ? user : null;
+}
+
+// 初始化时检查网络状态
+window.addEventListener('load', async () => {
+    if (!navigator.onLine) {
+        console.log('网络离线，启用本地模式');
+        enableOfflineMode();
+    } else {
+        await initializeFirebaseWithRetry();
+    }
+});
+
+// 监听网络状态变化
+window.addEventListener('online', async () => {
+    console.log('网络已连接');
+    localStorage.removeItem('offlineMode');
+    await initializeFirebaseWithRetry();
+});
+
+window.addEventListener('offline', () => {
+    console.log('网络已断开');
+    enableOfflineMode();
+}); 

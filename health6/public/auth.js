@@ -149,17 +149,72 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             console.log('开始登录流程');
             
+            // 显示加载状态
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '登录中...';
+            submitButton.disabled = true;
+            
+            const loginError = document.getElementById('loginError');
+            if (loginError) {
+                loginError.textContent = '';
+            }
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
             try {
+                // 检查网络连接
+                if (!navigator.onLine) {
+                    throw new Error('网络连接已断开，请检查网络设置后重试');
+                }
+                
+                // 检查Firebase是否已初始化
+                if (!firebase.apps.length) {
+                    throw new Error('系统初始化失败，请刷新页面重试');
+                }
+                
                 const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
                 console.log('登录成功:', userCredential.user.email);
-                alert('登录成功！');
+                
+                // 登录成功后更新UI
                 document.getElementById('loginModal').style.display = 'none';
+                alert('登录成功！');
+                
             } catch (error) {
                 console.error('登录错误:', error);
-                alert('登录失败: ' + error.message);
+                
+                let errorMessage = '登录失败: ';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += '邮箱格式不正确';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += '该账号已被禁用';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += '用户不存在';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += '密码错误';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage += '网络连接失败，请检查网络设置';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                if (loginError) {
+                    loginError.textContent = errorMessage;
+                    loginError.style.display = 'block';
+                } else {
+                    alert(errorMessage);
+                }
+            } finally {
+                // 恢复按钮状态
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
             }
         });
     }

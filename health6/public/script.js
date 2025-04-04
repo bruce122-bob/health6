@@ -577,12 +577,16 @@ function loadMissingPersons() {
     const missingPersonsList = document.querySelector('.missing-persons-list');
     if (!missingPersonsList) return;
     
+    // 保存原始HTML内容（包含静态寻人启事卡片）
+    const originalContent = missingPersonsList.innerHTML;
+    
     try {
         const missingPersonsRef = firebase.database().ref('missingPersons');
         missingPersonsRef.orderByChild('timestamp').limitToLast(4).once('value')
             .then(snapshot => {
                 if (!snapshot.exists()) {
-                    missingPersonsList.innerHTML = '<p class="no-data">暂无寻人启事</p>';
+                    console.log('Firebase中没有寻人启事数据，保留静态内容');
+                    // 保留原始内容，不显示"暂无寻人启事"
                     return;
                 }
                 
@@ -607,10 +611,13 @@ function loadMissingPersons() {
             })
             .catch(error => {
                 console.error('加载寻人启事失败:', error);
-                missingPersonsList.innerHTML = '<p class="error">加载失败，请刷新页面重试</p>';
+                // 发生错误时恢复原始内容
+                missingPersonsList.innerHTML = originalContent;
             });
     } catch (error) {
         console.error('加载寻人启事时出错:', error);
+        // 发生错误时恢复原始内容
+        missingPersonsList.innerHTML = originalContent;
     }
 }
 
@@ -654,6 +661,64 @@ function setDefaultImage() {
     document.getElementById('someImage').src = 'https://i.imgur.com/ue2Sqnz.jpeg';
 }
 
-// 使用环境变量
-const baseUrl = process.env.BASE_URL || '';
-const imagePath = baseUrl + '/images/missing-person1.jpg'; 
+// 基础URL配置
+const baseUrl = window.location.origin;
+const imagePath = baseUrl + '/images/missing-person1.jpg';
+
+// 全局变量（如果未定义才声明）
+if (typeof map === 'undefined') {
+    let map;
+}
+
+// 初始化DOM内可收起部分
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('检查可收起部分');
+    
+    // 获取所有可收起部分
+    const collapsibleSections = document.querySelectorAll('.collapsible-section');
+    console.log(`找到 ${collapsibleSections.length} 个可收起部分`);
+    
+    // 为每个部分初始化收起功能
+    collapsibleSections.forEach(section => {
+        // 跳过资料区section
+        if (section.id === 'resources') {
+            console.log('跳过资料区，保持其始终展开');
+            return;
+        }
+        
+        const title = section.querySelector('h2') ? 
+                      section.querySelector('h2').textContent : 
+                      '区域';
+        console.log(`初始化部分: ${title}`);
+        
+        initCollapsibleSection(section, title);
+    });
+});
+
+// 初始化可收起部分的函数
+function initCollapsibleSection(section, title) {
+    console.log(`初始化${title}的收起功能`);
+    
+    // 创建收起按钮
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'collapse-toggle';
+    toggleBtn.textContent = '收起';
+    toggleBtn.style.backgroundColor = '#e74c3c';
+    
+    // 插入按钮到section的开头
+    section.insertBefore(toggleBtn, section.firstChild);
+    
+    // 添加点击事件
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log(`点击${title}的收起按钮`);
+        
+        const isCollapsed = section.classList.contains('collapsed');
+        section.classList.toggle('collapsed');
+        toggleBtn.textContent = isCollapsed ? '收起' : '展开';
+        toggleBtn.style.backgroundColor = isCollapsed ? '#e74c3c' : '#2ecc71';
+        
+        console.log(`${title}状态:`, isCollapsed ? '已展开' : '已收起');
+    });
+} 

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人安全指南 | 她安计划</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        /* 导航链接样式 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin: 0 10px;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 内容容器 */
+        .content-container {
+            max-width: 1000px;
+            margin: 80px auto 40px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            color: #1a3163;
+            border-bottom: 2px solid #1a3163;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            margin-left: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        /* 段落样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            color: #1a3163;
+            margin-bottom: 20px;
+            border-left: 4px solid #1a3163;
+            padding-left: 15px;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        /* 安全提示卡片 */
+        .safety-tip {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .safety-tip h3 {
+            color: #e74c3c;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .safety-tip h3:before {
+            content: "⚠️";
+            margin-right: 10px;
+        }
+        
+        .safety-tip ul {
+            padding-left: 20px;
+        }
+        
+        .safety-tip li {
+            margin-bottom: 10px;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #1a3163;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #12234a;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 20px;
+                margin-top: 70px;
+            }
+            
+            .top-nav {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左侧 -->
+        <ul class="nav-links">
+            <li><a href="index.html">主页<span class="inline-translation">Home</span></a></li>
+            <li><a href="resources.html">返回资料区<span class="inline-translation">Back</span></a></li>
+        </ul>
+    </div>
+
+    <div class="content-container">
+        <h1 class="page-title">个人安全指南 <span class="inline-translation">Personal Safety Guide</span></h1>
+        
+        <div class="content-section">
+            <h2>出行安全 <span class="inline-translation">Travel Safety</span></h2>
+            
+            <div class="safety-tip">
+                <h3>交通工具选择</h3>
+                <h4>网约车/出租车：</h4>
+                <ul>
+                    <li>上车前核对车牌、司机信息是否与平台一致，后排落座。</li>
+                    <li>行车中分享行程给亲友，避免透露过多个人信息。</li>
+                    <li>下车前确认个人物品是否带齐，避免遗失。</li>
+                    <li>若感到不适或不安全，可通过平台紧急联系功能求助或直接报警。</li>
+                </ul>
+                
+                <h4>公共交通：</h4>
+                <ul>
+                    <li>避免在深夜时段独自乘车，若必须则选择靠近司机或监控的位置。</li>
+                    <li>警惕周围异常情况（如被尾随、过度搭讪），必要时提前下车到人多处。</li>
+                    <li>随身物品尤其是贵重物品保持在视线范围内，防止被盗。</li>
+                </ul>
+                
+                <h4>自驾：</h4>
+                <ul>
+                    <li>上车前检查后座和车底，锁好车门后再启动。</li>
+                    <li>提前规划路线，避免偏僻路段，保持油箱充足。</li>
+                    <li>停车时尽量选择有照明和监控的停车场，不要将贵重物品留在车内。</li>
+                </ul>
+            </div>
+            
+            <div class="safety-tip">
+                <h3>步行/骑行安全</h3>
+                <ul>
+                    <li>避免长时间低头看手机或戴耳机，保持对环境的警觉。</li>
+                    <li>走明亮、人多的街道，绕行无监控的窄巷、地下通道。</li>
+                    <li>随身携带便携警报器或防身工具（需熟悉当地法律）。</li>
+                    <li>夜间着装选择亮色或反光材质，增加可见度。</li>
+                    <li>对于陌生人询问或接近，保持警惕，不随意搭讪或提供帮助。</li>
+                </ul>
+            </div>
+            
+            <div class="safety-tip">
+                <h3>夜间出行</h3>
+                <ul>
+                    <li>尽量结伴而行，告知亲友目的地及预计返回时间。</li>
+                    <li>穿着轻便、易活动的鞋服，减少贵重物品外露。</li>
+                    <li>手机保持电量充足，安装位置共享或紧急求助类应用。</li>
+                    <li>不要走捷径或穿越黑暗、人少的区域，即使绕远也要选择安全路线。</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>住宿安全 <span class="inline-translation">Accommodation Safety</span></h2>
+            
+            <div class="safety-tip">
+                <h3>独居安全</h3>
+                <ul>
+                    <li>安装防盗门锁、阻门器、可视门铃或监控设备。</li>
+                    <li>外卖/快递使用化名（如"X先生"），避免门牌信息暴露独居状态。</li>
+                    <li>定期检查门窗锁具，空调外机、阳台等易攀爬处加装防护栏。</li>
+                    <li>与信任的邻居或朋友建立定期联系机制，互相照应。</li>
+                    <li>将紧急联系人信息（如家人、房东）放在明显位置，以便紧急情况使用。</li>
+                </ul>
+            </div>
+            
+            <div class="safety-tip">
+                <h3>酒店/民宿</h3>
+                <ul>
+                    <li>选择正规平台预订，查看安全评价，避免入住偏僻区域。</li>
+                    <li>入住后检查门窗、镜子（防偷窥）、摄像头（可用手机摄像头扫描红外线）。</li>
+                    <li>使用阻门器或椅子抵门，房卡不离身，不随意透露房间号。</li>
+                    <li>熟悉紧急出口位置，了解酒店安全规定和服务电话。</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>社交安全 <span class="inline-translation">Social Safety</span></h2>
+            
+            <div class="safety-tip">
+                <h3>陌生人交往</h3>
+                <ul>
+                    <li>初次见面选择公共场所（咖啡馆、商场），告知亲友见面对象信息。</li>
+                    <li>避免饮用离开视线的饮品，自备未开封饮料或要求当面制作。</li>
+                    <li>不轻易透露住址、工作单位等敏感信息。</li>
+                    <li>保持适当社交距离，设定明确边界，对过度亲密行为坚决拒绝。</li>
+                </ul>
+            </div>
+            
+            <div class="safety-tip">
+                <h3>聚会/娱乐场所</h3>
+                <ul>
+                    <li>控制酒精摄入量，保持清醒，提前约定信任的朋友互相照应。</li>
+                    <li>离座后返回不喝剩余饮料，谨防药物混入。</li>
+                    <li>提前预约正规代驾，拒绝陌生人"顺路送回家"提议。</li>
+                    <li>熟悉场所出口位置，随时关注周围环境变化。</li>
+                </ul>
+            </div>
+            
+            <div class="safety-tip">
+                <h3>网络社交</h3>
+                <ul>
+                    <li>谨慎添加陌生人联系方式，朋友圈避免暴露日常行踪（如定位、家门照片）。</li>
+                    <li>警惕"高薪兼职""快速赚钱"等诱导性邀约，核实对方背景。</li>
+                    <li>遇到骚扰或威胁，保留证据（聊天记录、录音），及时报警或向平台举报。</li>
+                    <li>不轻信网上陌生人，线下见面需极度谨慎并采取安全措施。</li>
+                </ul>
+            </div>
+        </div>
+        
+        <a href="resources.html" class="back-btn">返回资料区 <span class="inline-translation">Back to Resources</span></a>
+    </div>
+</body>
+</html> 

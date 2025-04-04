@@ -63,26 +63,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 监听消息提交
     if (messageForm) {
-        // 移除所有现有的事件监听器
-        const newMessageForm = messageForm.cloneNode(true);
-        messageForm.parentNode.replaceChild(newMessageForm, messageForm);
-        console.log('已替换消息表单，移除所有事件监听器');
+        console.log('设置消息表单提交监听器');
+        
+        // 先移除已有的事件监听器
+        messageForm.removeEventListener('submit', handleMessageSubmit);
         
         // 添加新的事件监听器
-        newMessageForm.addEventListener('submit', handleMessageSubmit);
-        console.log('已添加新的消息提交监听器');
+        messageForm.addEventListener('submit', handleMessageSubmit);
         
-        // 更新引用
-        const newMessageText = document.getElementById('messageText');
-        if (newMessageText) {
-            // 监听字符计数
-            newMessageText.addEventListener('input', function() {
+        // 监听字符计数
+        if (messageText && charCount) {
+            messageText.addEventListener('input', function() {
                 const length = this.value.length;
-                const charCountElement = document.querySelector('.char-count');
-                if (charCountElement) {
-                    charCountElement.textContent = `${length}/500`;
-                }
+                charCount.textContent = `${length}/500`;
             });
+            
+            // 初始化字符计数
+            charCount.textContent = `0/500`;
         }
     }
     
@@ -185,77 +182,133 @@ function handleMessageSubmit(e) {
             charCountElement.textContent = '0/500';
         }
         
-        // 发送到数据库
-        messagesRef.push({
+        // 创建消息对象
+        const newMessage = {
             userId: user.uid,
             userEmail: user.email,
             text: text,
             timestamp: timestamp,
             likes: 0
-        }).then((ref) => {
-            console.log('消息发送成功，ID:', ref.key);
+        };
+        
+        console.log('准备发送消息:', newMessage);
+        console.log('当前用户ID:', user.uid);
+        
+        // 创建一个临时ID，用于防止消息重复
+        const tempId = `temp-${timestamp}`;
+        
+        // 临时禁用实时监听器，避免重复显示
+        // 先移除所有现有的监听器
+        messagesRef.off('child_added');
+        console.log('临时禁用实时监听器，防止消息重复');
+        
+        // 添加到消息ID集合中，防止实时监听器重复显示
+        messageIds.add(tempId);
+        
+        const messagesContainer = document.getElementById('messagesContainer');
+        let tempElement = null;
+        
+        if (messagesContainer) {
+            // 清除"暂无消息"提示
+            if (messagesContainer.querySelector('.no-messages')) {
+                messagesContainer.innerHTML = '';
+            }
             
-            // 更新最后一条消息的时间戳和ID
-            lastMessageTimestamp = timestamp;
-            lastMessageId = ref.key;
+            // 创建临时消息对象
+            const tempMessage = {
+                id: tempId,
+                ...newMessage
+            };
             
-            // 手动添加消息到界面，而不是依赖实时监听
-            const messagesContainer = document.getElementById('messagesContainer');
-            if (messagesContainer) {
-                // 如果是"暂无消息"，先清空
-                const noMessages = messagesContainer.querySelector('.no-messages');
-                if (noMessages) {
-                    messagesContainer.innerHTML = '';
-                }
+            // 立即在UI中显示消息
+            tempElement = displayMessage(tempMessage, messagesContainer);
+            
+            console.log('已在UI中添加临时消息，ID:', tempId);
+        }
+        
+        // 发送到数据库
+        messagesRef.push(newMessage)
+            .then((ref) => {
+                console.log('消息发送成功，ID:', ref.key);
                 
-                // 创建消息对象
-                const messageObj = {
-                    id: ref.key,
-                    userId: user.uid,
-                    userEmail: user.email,
-                    text: text,
-                    timestamp: timestamp,
-                    likes: 0
-                };
+                // 从消息ID集合中移除临时ID
+                messageIds.delete(tempId);
                 
-                // 检查是否已存在该消息
-                if (!document.getElementById(`message-${ref.key}`) && !messageIds.has(ref.key)) {
-                    console.log('手动添加新消息到界面:', ref.key);
-                    // 创建新消息元素并添加到顶部
-                    const tempDiv = document.createElement('div');
-                    displayMessage(messageObj, tempDiv);
+                // 添加新的消息ID到集合，防止重复显示
+                messageIds.add(ref.key);
+                
+                // 更新最后消息时间戳和ID，用于实时监听的过滤
+                lastMessageTimestamp = timestamp;
+                lastMessageId = ref.key;
+                
+                // 如果有临时消息，替换ID
+                if (tempElement) {
+                    const oldId = tempElement.id;
+                    // 更新DOM元素ID
+                    tempElement.id = `message-${ref.key}`;
                     
-                    if (messagesContainer.firstChild) {
-                        messagesContainer.insertBefore(tempDiv.firstChild, messagesContainer.firstChild);
-                    } else {
-                        messagesContainer.appendChild(tempDiv.firstChild);
+                    // 更新删除按钮的onclick属性
+                    const deleteBtn = tempElement.querySelector('.delete-btn');
+                    if (deleteBtn) {
+                        deleteBtn.setAttribute('onclick', `deleteMessage('${ref.key}')`);
                     }
                     
-                    // 更新消息计数
-                    updateTotalMessages();
-                } else {
-                    console.log('消息已存在，跳过添加:', ref.key);
+                    // 更新点赞按钮的onclick属性
+                    const likeBtn = tempElement.querySelector('.like-btn');
+                    if (likeBtn) {
+                        likeBtn.setAttribute('onclick', `likeMessage('${ref.key}', 0)`);
+                    }
+                    
+                    console.log(`更新消息ID: ${oldId} -> message-${ref.key}`);
                 }
-            }
-            
-            // 重置发送标志
-            isSending = false;
-        }).catch(error => {
-            console.log('发送消息失败:', error.message);
-            
-            if (error.code === 'PERMISSION_DENIED') {
-                alert('您没有权限发送消息，请联系管理员');
-            } else {
-                alert('发送消息失败，请重试');
-            }
-            
-            // 重置发送标志
-            isSending = false;
-        });
+                
+                // 重置发送标志
+                isSending = false;
+                
+                // 更新消息计数
+                updateTotalMessages();
+                
+                // 重新设置实时监听器 - 延迟一秒，避免可能的重复消息
+                setTimeout(() => {
+                    setupRealtimeListeners(messagesRef, messagesContainer, currentFilter);
+                    console.log('重新启用实时监听器');
+                }, 1000);
+            })
+            .catch(error => {
+                console.log('发送消息失败:', error.message);
+                
+                // 从消息ID集合中移除临时ID
+                messageIds.delete(tempId);
+                
+                // 移除临时消息
+                if (tempElement) {
+                    tempElement.remove();
+                }
+                
+                if (error.code === 'PERMISSION_DENIED') {
+                    alert('您没有权限发送消息，请联系管理员');
+                } else {
+                    alert('发送消息失败，请重试: ' + error.message);
+                }
+                
+                // 重置发送标志
+                isSending = false;
+                
+                // 重新设置实时监听器
+                setupRealtimeListeners(messagesRef, messagesContainer, currentFilter);
+            });
     } catch (error) {
         console.log('发送消息时出错:', error.message);
+        alert('发送消息时出错: ' + error.message);
         // 重置发送标志
         isSending = false;
+        
+        // 重新设置实时监听器
+        const messagesRef = firebase.database().ref('messages');
+        const messagesContainer = document.getElementById('messagesContainer');
+        if (messagesRef && messagesContainer) {
+            setupRealtimeListeners(messagesRef, messagesContainer, currentFilter);
+        }
     }
 }
 
@@ -271,7 +324,7 @@ function loadMessages(filter = 'all') {
     }
     
     // 显示加载中提示
-    messagesContainer.innerHTML = '<div class="loading-messages">加载中...</div>';
+    messagesContainer.innerHTML = '<div class="loading-messages" style="text-align: center; color: #666; padding: 50px 0;">加载中...</div>';
     
     const messagesRef = firebase.database().ref('messages');
     const user = firebase.auth().currentUser;
@@ -280,102 +333,192 @@ function loadMessages(filter = 'all') {
     messagesRef.off();
     console.log('已移除所有Firebase监听器');
     
-    // 使用 once 获取所有消息
-    messagesRef.once('value').then(snapshot => {
-        // 清空消息容器
-        messagesContainer.innerHTML = '';
-        const totalMessages = document.getElementById('totalMessages');
-        
-        if (!snapshot.exists()) {
-            if (totalMessages) totalMessages.textContent = '0';
-            messagesContainer.innerHTML = '<div class="no-messages">暂无消息</div>';
+    // 清空messageIds集合，防止显示重复消息
+    messageIds.clear();
+    
+    // 获取所有消息
+    messagesRef.orderByChild('timestamp')
+        .limitToLast(100)  // 限制加载最近的100条消息，避免性能问题
+        .once('value')
+        .then(snapshot => {
+            // 清空消息容器
+            messagesContainer.innerHTML = '';
+            const totalMessages = document.getElementById('totalMessages');
+            
+            if (!snapshot.exists()) {
+                if (totalMessages) totalMessages.textContent = '0';
+                messagesContainer.innerHTML = '<div class="no-messages" style="text-align: center; color: #999; padding: 50px 0;">暂无消息</div>';
+                
+                // 设置实时监听新消息
+                setupRealtimeListeners(messagesRef, messagesContainer, filter);
+                return;
+            }
+            
+            // 将消息对象转换为数组
+            let messageArray = [];
+            snapshot.forEach(childSnapshot => {
+                messageArray.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            
+            // 根据过滤器筛选消息
+            if (filter === 'my' && user) {
+                messageArray = messageArray.filter(msg => msg.userId === user.uid);
+            } else if (filter === 'hot') {
+                messageArray = messageArray.filter(msg => (msg.likes || 0) >= 5);
+            }
+            
+            // 按时间排序（最新的在前）
+            messageArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            if (totalMessages) totalMessages.textContent = messageArray.length;
+            
+            // 存储最后一条消息的ID和时间戳，可用于分页加载
+            if (messageArray.length > 0) {
+                lastMessageId = messageArray[0].id;
+                lastMessageTimestamp = messageArray[0].timestamp;
+                console.log('最新消息:', lastMessageId, lastMessageTimestamp);
+            } else {
+                lastMessageId = null;
+                lastMessageTimestamp = 0;
+            }
+            
+            // 添加所有消息ID到集合，防止重复显示
+            messageArray.forEach(msg => messageIds.add(msg.id));
+            
+            if (messageArray.length > 0) {
+                // 显示消息
+                console.log(`显示${messageArray.length}条消息`);
+                messageArray.forEach(message => {
+                    displayMessage(message, messagesContainer);
+                });
+                
+                // 确保消息可见
+                const messageElements = messagesContainer.querySelectorAll('.message-item, .message');
+                messageElements.forEach(el => {
+                    el.style.display = 'block';
+                    el.style.opacity = '1';
+                });
+            } else {
+                messagesContainer.innerHTML = '<div class="no-messages" style="text-align: center; color: #999; padding: 50px 0;">暂无消息</div>';
+            }
             
             // 设置实时监听新消息
             setupRealtimeListeners(messagesRef, messagesContainer, filter);
-            return;
-        }
-        
-        const messages = snapshot.val();
-        if (totalMessages) totalMessages.textContent = Object.keys(messages).length;
-        
-        // 将消息对象转换为数组并按时间排序
-        let messageArray = Object.entries(messages).map(([id, data]) => ({
-            id,
-            ...data
-        }));
-        
-        // 根据过滤器筛选消息
-        if (filter === 'my' && user) {
-            messageArray = messageArray.filter(msg => msg.userId === user.uid);
-        } else if (filter === 'hot') {
-            messageArray = messageArray.filter(msg => (msg.likes || 0) >= 5);
-        }
-        
-        // 按时间排序（最新的在前）
-        messageArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        
-        // 存储最后一条消息的ID和时间戳，用于实时监听
-        if (messageArray.length > 0) {
-            lastMessageId = messageArray[0].id;
-            lastMessageTimestamp = messageArray[0].timestamp;
-            console.log('设置最后一条消息:', lastMessageId, lastMessageTimestamp);
-        } else {
-            lastMessageId = null;
-            lastMessageTimestamp = 0;
-        }
-        
-        if (messageArray.length > 0) {
-            // 显示消息
-            messageArray.forEach(message => {
-                // 检查是否已存在该消息
-                if (!document.getElementById(`message-${message.id}`)) {
-                    displayMessage(message, messagesContainer);
-                }
-            });
-        } else {
-            messagesContainer.innerHTML = '<div class="no-messages">暂无消息</div>';
-        }
-        
-        // 设置实时监听新消息
-        setupRealtimeListeners(messagesRef, messagesContainer, filter);
-        
-    }).catch(error => {
-        console.log('加载消息失败:', error);
-        messagesContainer.innerHTML = '<div class="error-message">加载失败，请刷新页面重试</div>';
-    });
+            
+            // 更新消息计数
+            updateTotalMessages();
+        })
+        .catch(error => {
+            console.error('加载消息失败:', error);
+            messagesContainer.innerHTML = '<div class="error-message" style="text-align: center; color: #e74c3c; padding: 50px 0;">加载失败，请刷新页面重试</div>';
+        });
 }
 
 // 设置实时监听器
 function setupRealtimeListeners(messagesRef, container, filter) {
     const user = firebase.auth().currentUser;
     
-    // 只监听删除事件，不监听新消息
-    // 这样可以避免重复显示消息
-    messagesRef.on('child_removed', function(snapshot) {
-        const messageId = snapshot.key;
-        const messageElement = document.getElementById(`message-${messageId}`);
-        if (messageElement) {
-            messageElement.remove();
+    // 监听新消息添加事件 - 只监听比当前页面最后一条消息更新的消息
+    messagesRef.orderByChild('timestamp').startAfter(lastMessageTimestamp).on('child_added', function(snapshot) {
+        try {
+            const messageData = snapshot.val();
+            const messageId = snapshot.key;
             
-            // 更新消息计数
-            updateTotalMessages();
+            console.log('收到新消息事件:', messageId, '时间戳:', messageData.timestamp, '最后消息时间戳:', lastMessageTimestamp);
             
-            // 如果没有消息了，显示"暂无消息"
-            if (container.children.length === 0) {
-                container.innerHTML = '<div class="no-messages">暂无消息</div>';
+            // 如果消息已经存在于界面或缓存中，跳过
+            if (document.getElementById(`message-${messageId}`) || messageIds.has(messageId)) {
+                console.log('消息已存在于界面中，跳过显示:', messageId);
+                return;
             }
+            
+            // 临时消息处理
+            if (messageData.timestamp <= lastMessageTimestamp) {
+                console.log('消息时间早于或等于最后加载的消息，跳过:', messageId);
+                return;
+            }
+            
+            // 构建消息对象
+            const messageObj = {
+                id: messageId,
+                ...messageData
+            };
+            
+            // 根据过滤器确定是否显示消息
+            let shouldDisplay = true;
+            if (filter === 'my' && user) {
+                shouldDisplay = messageObj.userId === user.uid;
+            } else if (filter === 'hot') {
+                shouldDisplay = (messageObj.likes || 0) >= 5;
+            }
+            
+            // 如果符合过滤条件，显示消息
+            if (shouldDisplay) {
+                // 如果是"暂无消息"，先清空
+                const noMessages = container.querySelector('.no-messages');
+                if (noMessages) {
+                    container.innerHTML = '';
+                }
+                
+                // 更新最后消息时间戳
+                if (messageData.timestamp > lastMessageTimestamp) {
+                    lastMessageTimestamp = messageData.timestamp;
+                    lastMessageId = messageId;
+                    console.log('更新最后消息时间戳:', lastMessageTimestamp, '消息ID:', lastMessageId);
+                }
+                
+                // 显示消息到顶部
+                displayMessage(messageObj, container);
+                
+                // 更新消息计数
+                updateTotalMessages();
+            }
+        } catch (error) {
+            console.error('处理消息时出错:', error);
+        }
+    });
+    
+    // 监听删除事件
+    messagesRef.on('child_removed', function(snapshot) {
+        try {
+            const messageId = snapshot.key;
+            const messageElement = document.getElementById(`message-${messageId}`);
+            if (messageElement) {
+                messageElement.remove();
+                
+                // 更新消息计数
+                updateTotalMessages();
+                
+                // 如果没有消息了，显示"暂无消息"
+                const messageElements = container.querySelectorAll('.message-item, .message');
+                if (messageElements.length === 0) {
+                    container.innerHTML = '<div class="no-messages" style="text-align: center; color: #999; padding: 50px 0;">暂无消息</div>';
+                }
+                
+                // 从集合中移除消息ID
+                messageIds.delete(messageId);
+            }
+        } catch (error) {
+            console.error('处理消息删除时出错:', error);
         }
     });
     
     // 监听点赞更新
     messagesRef.on('child_changed', function(snapshot) {
-        const messageId = snapshot.key;
-        const messageElement = document.getElementById(`message-${messageId}`);
-        if (messageElement) {
-            const likeCount = messageElement.querySelector('.like-count');
-            if (likeCount && snapshot.val().likes) {
-                likeCount.textContent = snapshot.val().likes;
+        try {
+            const messageId = snapshot.key;
+            const messageElement = document.getElementById(`message-${messageId}`);
+            if (messageElement) {
+                const likeCount = messageElement.querySelector('.like-count');
+                if (likeCount && snapshot.val().likes) {
+                    likeCount.textContent = snapshot.val().likes;
+                }
             }
+        } catch (error) {
+            console.error('处理消息更新时出错:', error);
         }
     });
 }
@@ -445,8 +588,8 @@ function searchMessages(searchTerm) {
 function displayMessage(message, container) {
     if (!container || !message) return;
     
-    // 检查消息ID是否已存在
-    if (messageIds.has(message.id)) {
+    // 检查消息ID是否已存在（但允许临时消息ID）
+    if (!message.id.startsWith('temp-') && messageIds.has(message.id)) {
         console.log('跳过重复消息:', message.id);
         return;
     }
@@ -459,25 +602,49 @@ function displayMessage(message, container) {
     const isCurrentUser = currentUser && message.userId === currentUser.uid;
     
     const messageElement = document.createElement('div');
-    messageElement.className = `message ${isCurrentUser ? 'my-message' : ''}`;
+    messageElement.className = `message-item ${isCurrentUser ? 'my-message' : ''}`;
     messageElement.id = `message-${message.id}`;
+    messageElement.dataset.timestamp = message.timestamp; // 添加时间戳数据属性，便于排序
+    messageElement.dataset.userId = message.userId; // 添加用户ID数据属性，便于权限检查
+    
+    // 确保显示删除按钮时使用正确的ID（去掉temp-前缀）
+    const displayId = message.id.startsWith('temp-') ? message.id : message.id;
     
     const messageContent = `
         <div class="message-header">
-            <span class="message-author">${message.userEmail || '匿名用户'}</span>
+            <span class="message-user">${message.userEmail || '匿名用户'}</span>
             <span class="message-time">${formatTimestamp(message.timestamp)}</span>
         </div>
-        <div class="message-body">${message.text || ''}</div>
+        <div class="message-content">${message.text || ''}</div>
         <div class="message-footer">
-            <button class="like-btn" onclick="likeMessage('${message.id}', ${message.likes || 0})">
+            <button class="like-btn" onclick="likeMessage('${displayId}', ${message.likes || 0})">
                 👍 <span class="like-count">${message.likes || 0}</span>
             </button>
-            ${isCurrentUser ? `<button class="delete-btn" onclick="deleteMessage('${message.id}')">删除</button>` : ''}
+            ${isCurrentUser ? `<button class="delete-btn" onclick="deleteMessage('${displayId}')" style="background-color: #fff0f0; color: #e74c3c; border: 1px solid #e74c3c; padding: 3px 10px; border-radius: 3px; cursor: pointer;">删除</button>` : ''}
         </div>
     `;
     
     messageElement.innerHTML = messageContent;
-    container.appendChild(messageElement);
+    
+    // 确保message-item类样式是可见的
+    messageElement.style.display = 'block';
+    messageElement.style.opacity = '1';
+    
+    // 将新消息添加到顶部
+    if (container.querySelector('.no-messages')) {
+        container.innerHTML = '';
+    }
+    
+    if (container.firstChild) {
+        container.insertBefore(messageElement, container.firstChild);
+    } else {
+        container.appendChild(messageElement);
+    }
+    
+    // 确保消息计数更新
+    updateTotalMessages();
+    
+    return messageElement; // 返回创建的消息元素
 }
 
 // 格式化时间戳
@@ -542,56 +709,78 @@ function deleteMessage(messageId) {
             return;
         }
         
+        console.log('尝试删除消息ID:', messageId);
+        console.log('当前用户ID:', user.uid);
+        
         if (confirm('确定要删除这条消息吗？')) {
             const messageRef = firebase.database().ref(`messages/${messageId}`);
             
             // 先检查是否是自己的消息
-            messageRef.once('value').then(snapshot => {
-                try {
+            messageRef.once('value')
+                .then(snapshot => {
                     const message = snapshot.val();
-                    if (message && message.userId === user.uid) {
+                    
+                    if (!message) {
+                        console.log('消息不存在:', messageId);
+                        alert('消息不存在或已被删除');
+                        return Promise.reject(new Error('消息不存在'));
+                    }
+                    
+                    console.log('消息所有者ID:', message.userId);
+                    console.log('当前用户ID:', user.uid);
+                    
+                    if (message.userId === user.uid) {
+                        console.log('验证通过，用户有权限删除此消息');
                         // 删除消息
                         return messageRef.remove();
                     } else {
+                        console.log('验证失败，用户无权限删除此消息');
                         alert('您只能删除自己的消息');
                         return Promise.reject(new Error('不是自己的消息'));
                     }
-                } catch (error) {
-                    console.log('检查消息所有权失败:', error.message);
-                    return Promise.reject(error);
-                }
-            }).then(() => {
-                console.log('消息删除成功');
-                
-                // 从界面上移除消息元素
-                const messageElement = document.getElementById(`message-${messageId}`);
-                if (messageElement) {
-                    messageElement.remove();
+                })
+                .then(() => {
+                    console.log('消息删除成功:', messageId);
                     
-                    // 从集合中移除消息ID
-                    messageIds.delete(messageId);
-                    console.log('从集合中移除消息:', messageId);
-                    
-                    // 更新消息计数
-                    updateTotalMessages();
-                    
-                    // 如果没有消息了，显示"暂无消息"
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    if (messagesContainer && messagesContainer.children.length === 0) {
-                        messagesContainer.innerHTML = '<div class="no-messages">暂无消息</div>';
+                    // 从界面上移除消息元素
+                    const messageElement = document.getElementById(`message-${messageId}`);
+                    if (messageElement) {
+                        messageElement.remove();
+                        
+                        // 从集合中移除消息ID
+                        messageIds.delete(messageId);
+                        console.log('从集合中移除消息:', messageId);
+                        
+                        // 更新消息计数
+                        updateTotalMessages();
+                        
+                        // 如果没有消息了，显示"暂无消息"
+                        const messagesContainer = document.getElementById('messagesContainer');
+                        if (messagesContainer) {
+                            if (messagesContainer.querySelectorAll('.message-item, .message').length === 0) {
+                                messagesContainer.innerHTML = '<div class="no-messages" style="text-align: center; color: #999; padding: 50px 0;">暂无消息</div>';
+                            }
+                        }
+                        
+                        alert('消息已删除');
+                    } else {
+                        console.log('未找到要删除的消息元素:', messageId);
                     }
-                }
-            }).catch(error => {
-                if (error.code === 'PERMISSION_DENIED') {
-                    alert('您没有权限删除消息');
-                } else if (error.message !== '不是自己的消息') {
-                    console.log('删除消息失败:', error.message);
-                    alert('删除失败，请重试');
-                }
-            });
+                })
+                .catch(error => {
+                    console.error('删除消息过程中出错:', error);
+                    
+                    if (error.code === 'PERMISSION_DENIED') {
+                        alert('您没有权限删除消息，请联系管理员');
+                    } else if (error.message !== '不是自己的消息' && error.message !== '消息不存在') {
+                        console.log('删除消息失败:', error.message);
+                        alert('删除失败，请重试: ' + error.message);
+                    }
+                });
         }
     } catch (error) {
         console.log('删除操作失败:', error.message);
+        alert('删除操作失败: ' + error.message);
     }
 }
 
@@ -706,9 +895,28 @@ function updateTotalMessages() {
     const messagesContainer = document.getElementById('messagesContainer');
     
     if (totalMessages && messagesContainer) {
-        // 计算消息元素数量
-        const messageElements = messagesContainer.querySelectorAll('.message');
-        totalMessages.textContent = messageElements.length;
+        // 排除无消息和加载中的元素
+        const noMessages = messagesContainer.querySelector('.no-messages');
+        const loadingMessages = messagesContainer.querySelector('.loading-messages');
+        
+        if (noMessages || loadingMessages) {
+            totalMessages.textContent = "0";
+            return;
+        }
+        
+        // 计算非临时消息数量（排除以temp-开头的ID）
+        const allElements = messagesContainer.querySelectorAll('.message-item, .message');
+        let count = 0;
+        
+        allElements.forEach(el => {
+            // 排除临时消息，只计算正式消息
+            if (!el.id.includes('message-temp-')) {
+                count++;
+            }
+        });
+        
+        totalMessages.textContent = count;
+        console.log('更新消息计数:', count);
     }
 }
 

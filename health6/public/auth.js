@@ -1,3 +1,24 @@
+// 检查Firebase是否已初始化
+if (!firebase.apps.length) {
+    // 如果尚未初始化，则进行初始化
+    const firebaseConfig = {
+        apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+        authDomain: "safe-b29.firebaseapp.com",
+        databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "safe-b29",
+        storageBucket: "safe-b29.firebasestorage.app",
+        messagingSenderId: "253210723999",
+        appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+    };
+    
+    try {
+        firebase.initializeApp(firebaseConfig);
+        console.log('Firebase 初始化成功 (通过auth.js)');
+    } catch (error) {
+        console.error('Firebase 初始化失败:', error);
+    }
+}
+
 // 设置持久化 - 使用LOCAL持久化，确保登录状态在浏览器会话之间保持
 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     .then(() => {
@@ -14,6 +35,12 @@ const database = firebase.database();
 console.log('Firebase 初始化完成');
 console.log('数据库引用:', database ? '成功' : '失败');
 
+// 测试数据库连接
+database.ref('.info/connected').on('value', (snapshot) => {
+    const connected = snapshot.val();
+    console.log('数据库连接状态:', connected ? '已连接' : '未连接');
+});
+
 // 通用函数：更新用户界面
 function updateAuthUI(user) {
     console.log('通用认证UI更新:', user ? user.email : '未登录');
@@ -25,8 +52,14 @@ function updateAuthUI(user) {
     
     if (user) {
         // 用户已登录
-        if (loginButtons) loginButtons.style.display = 'none';
-        if (userArea) userArea.style.display = 'flex';
+        if (loginButtons) {
+            loginButtons.style.display = 'none';
+            console.log('隐藏登录按钮');
+        }
+        if (userArea) {
+            userArea.style.display = 'flex';
+            console.log('显示用户区域');
+        }
         
         // 获取用户名并更新显示
         if (userNameDisplay) {
@@ -34,6 +67,7 @@ function updateAuthUI(user) {
             const cachedName = localStorage.getItem('userName');
             if (cachedName) {
                 userNameDisplay.textContent = cachedName;
+                console.log('从缓存获取用户名:', cachedName);
             } else {
                 // 从数据库获取
                 database.ref(`users/${user.uid}`).once('value')
@@ -43,6 +77,7 @@ function updateAuthUI(user) {
                         
                         // 更新显示
                         userNameDisplay.textContent = userName;
+                        console.log('从数据库获取用户名:', userName);
                         
                         // 保存到本地存储
                         localStorage.setItem('userName', userName);
@@ -50,6 +85,7 @@ function updateAuthUI(user) {
                     .catch(error => {
                         console.error('获取用户名失败:', error);
                         userNameDisplay.textContent = user.email;
+                        localStorage.setItem('userName', user.email);
                     });
             }
         }
@@ -58,10 +94,30 @@ function updateAuthUI(user) {
         localStorage.setItem('userLoggedIn', 'true');
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('userUid', user.uid);
+        
+        // 确保表单可见
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) {
+            messageForm.style.display = 'block';
+            console.log('显示消息表单');
+        }
     } else {
         // 用户未登录
-        if (loginButtons) loginButtons.style.display = 'flex';
-        if (userArea) userArea.style.display = 'none';
+        if (loginButtons) {
+            loginButtons.style.display = 'flex';
+            console.log('显示登录按钮');
+        }
+        if (userArea) {
+            userArea.style.display = 'none';
+            console.log('隐藏用户区域');
+        }
+        
+        // 隐藏表单
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) {
+            messageForm.style.display = 'none';
+            console.log('隐藏消息表单');
+        }
         
         // 清除localStorage中的登录状态
         localStorage.removeItem('userLoggedIn');

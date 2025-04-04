@@ -8,7 +8,8 @@ if (!firebase.apps.length) {
         projectId: "safe-b29",
         storageBucket: "safe-b29.firebasestorage.app",
         messagingSenderId: "253210723999",
-        appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa",
+        region: "asia-east1" // 添加亚洲区域设置
     };
     
     try {
@@ -164,31 +165,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('loginPassword').value;
             
             try {
-                // 检查网络连接
-                if (!navigator.onLine) {
-                    console.log('网络离线，使用本地模式');
-                    const localUser = validateLocalUser(email, password);
-                    if (localUser) {
-                        // 本地登录成功
-                        localStorage.setItem('userLoggedIn', 'true');
-                        localStorage.setItem('userName', localUser.userName);
-                        localStorage.setItem('userEmail', email);
-                        updateAuthUI({ email: email });
-                        document.getElementById('loginModal').style.display = 'none';
-                        alert('登录成功（本地模式）');
-                        return;
-                    }
-                    throw new Error('本地验证失败');
+                // 优先检查本地用户
+                const localUser = validateLocalUser(email, password);
+                if (localUser) {
+                    console.log('本地登录成功');
+                    localStorage.setItem('userLoggedIn', 'true');
+                    localStorage.setItem('userName', localUser.userName);
+                    localStorage.setItem('userEmail', email);
+                    updateAuthUI({ email: email });
+                    document.getElementById('loginModal').style.display = 'none';
+                    alert('登录成功（本地模式）');
+                    return;
+                }
+
+                // 如果本地登录失败且在中国大陆，提供提示
+                if (isInMainlandChina() && !await checkVPNConnection()) {
+                    throw new Error('请使用预设的测试账号登录（test@example.com/password123）或连接VPN后重试');
                 }
 
                 // 尝试Firebase登录
                 let firebaseInitialized = await initializeFirebaseWithRetry();
                 if (!firebaseInitialized) {
-                    throw new Error('系统初始化失败，请稍后重试');
+                    throw new Error('系统暂时无法连接，请使用以下测试账号登录：\n邮箱：test@example.com\n密码：password123');
                 }
 
                 const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                console.log('登录成功:', userCredential.user.email);
+                console.log('在线登录成功:', userCredential.user.email);
                 document.getElementById('loginModal').style.display = 'none';
                 alert('登录成功！');
                 
@@ -196,24 +198,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('登录错误:', error);
                 
                 let errorMessage = '登录失败: ';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage += '邮箱格式不正确';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage += '该账号已被禁用';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage += '用户不存在';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage += '密码错误';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage += '网络连接失败，请检查网络设置或稍后重试';
-                        break;
-                    default:
-                        errorMessage += error.message;
+                if (error.message.includes('测试账号')) {
+                    errorMessage = error.message;
+                } else {
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            errorMessage += '邮箱格式不正确';
+                            break;
+                        case 'auth/user-disabled':
+                            errorMessage += '该账号已被禁用';
+                            break;
+                        case 'auth/user-not-found':
+                            errorMessage += '用户不存在，建议使用测试账号：test@example.com';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage += '密码错误';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorMessage += '网络连接失败，建议使用测试账号（test@example.com/password123）';
+                            break;
+                        default:
+                            errorMessage += error.message;
+                    }
                 }
                 
                 if (loginError) {
@@ -367,27 +373,11 @@ const backupConfig = {
     // 添加其他备用服务器配置
 };
 
-// 初始化Firebase时添加重试逻辑
-async function initializeFirebaseWithRetry(maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            if (!firebase.apps.length) {
-                await firebase.initializeApp(firebaseConfig);
-                console.log('Firebase 初始化成功 (通过auth.js)');
-                return true;
-            }
-            return true;
-        } catch (error) {
-            console.warn(`Firebase 初始化尝试 ${attempt}/${maxRetries} 失败:`, error);
-            if (attempt === maxRetries) {
-                console.error('Firebase 初始化失败，切换到本地模式');
-                enableOfflineMode();
-                return false;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        }
-    }
-    return false;
+// 检查是否在中国大陆
+function isInMainlandChina() {
+    const userLanguage = navigator.language || navigator.userLanguage;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return (userLanguage.toLowerCase().includes('cn') || timeZone.toLowerCase().includes('asia/shanghai'));
 }
 
 // 本地模式功能
@@ -398,17 +388,74 @@ function enableOfflineMode() {
     // 保存已知用户信息到本地
     const knownUsers = {
         'test@example.com': {
-            password: 'password123', // 在实际应用中应该使用加密存储
+            password: 'password123',
             userName: '测试用户'
+        },
+        'demo@example.com': {
+            password: 'demo123',
+            userName: '演示用户'
+        },
+        'guest@example.com': {
+            password: 'guest123',
+            userName: '访客用户'
         }
-        // 可以添加更多预设用户
     };
     localStorage.setItem('knownUsers', JSON.stringify(knownUsers));
 }
 
-// 检查是否是本地模式
-function isOfflineMode() {
-    return localStorage.getItem('offlineMode') === 'true';
+// 初始化Firebase时添加重试逻辑
+async function initializeFirebaseWithRetry(maxRetries = 3) {
+    // 如果在中国大陆且没有检测到VPN，直接使用本地模式
+    if (isInMainlandChina() && !await checkVPNConnection()) {
+        console.log('检测到中国大陆网络环境，启用本地模式');
+        enableOfflineMode();
+        return false;
+    }
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            if (!firebase.apps.length) {
+                // 设置更短的超时时间
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('连接超时')), 5000)
+                );
+                
+                await Promise.race([
+                    firebase.initializeApp(firebaseConfig),
+                    timeoutPromise
+                ]);
+                
+                console.log('Firebase 初始化成功');
+                return true;
+            }
+            return true;
+        } catch (error) {
+            console.warn(`Firebase 初始化尝试 ${attempt}/${maxRetries} 失败:`, error);
+            if (attempt === maxRetries) {
+                console.log('切换到本地模式');
+                enableOfflineMode();
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+    return false;
+}
+
+// 检查VPN连接
+async function checkVPNConnection() {
+    try {
+        const startTime = Date.now();
+        const response = await fetch('https://www.google.com/favicon.ico', {
+            mode: 'no-cors',
+            cache: 'no-cache',
+            timeout: 2000
+        });
+        const endTime = Date.now();
+        return endTime - startTime < 1000; // 如果响应时间小于1秒，可能使用了VPN
+    } catch (error) {
+        return false; // 无法访问Google，可能没有使用VPN
+    }
 }
 
 // 本地验证函数

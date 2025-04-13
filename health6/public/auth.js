@@ -351,6 +351,98 @@ const backupConfig = {
     // 添加其他备用服务器配置
 };
 
+// 检查是否在中国大陆
+function isInMainlandChina() {
+    const userLanguage = navigator.language || navigator.userLanguage;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return (userLanguage.toLowerCase().includes('cn') || timeZone.toLowerCase().includes('asia/shanghai'));
+}
+
+// 本地模式功能
+function enableOfflineMode() {
+    console.log('启用本地模式');
+    localStorage.setItem('offlineMode', 'true');
+    
+    // 保存已知用户信息到本地
+    const knownUsers = {
+        'test@example.com': {
+            password: 'password123',
+            userName: '测试用户'
+        },
+        'demo@example.com': {
+            password: 'demo123',
+            userName: '演示用户'
+        },
+        'guest@example.com': {
+            password: 'guest123',
+            userName: '访客用户'
+        }
+    };
+    localStorage.setItem('knownUsers', JSON.stringify(knownUsers));
+}
+
+// 初始化Firebase时添加重试逻辑
+async function initializeFirebaseWithRetry(maxRetries = 3) {
+    // 如果在中国大陆且没有检测到VPN，直接使用本地模式
+    if (isInMainlandChina() && !await checkVPNConnection()) {
+        console.log('检测到中国大陆网络环境，启用本地模式');
+        enableOfflineMode();
+        return false;
+    }
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            if (!firebase.apps.length) {
+                // 设置更短的超时时间
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('连接超时')), 5000)
+                );
+                
+                await Promise.race([
+                    firebase.initializeApp(firebaseConfig),
+                    timeoutPromise
+                ]);
+                
+                console.log('Firebase 初始化成功');
+                return true;
+            }
+            return true;
+        } catch (error) {
+            console.warn(`Firebase 初始化尝试 ${attempt}/${maxRetries} 失败:`, error);
+            if (attempt === maxRetries) {
+                console.log('切换到本地模式');
+                enableOfflineMode();
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+    return false;
+}
+
+// 检查VPN连接
+async function checkVPNConnection() {
+    try {
+        const startTime = Date.now();
+        const response = await fetch('https://www.google.com/favicon.ico', {
+            mode: 'no-cors',
+            cache: 'no-cache',
+            timeout: 2000
+        });
+        const endTime = Date.now();
+        return endTime - startTime < 1000; // 如果响应时间小于1秒，可能使用了VPN
+    } catch (error) {
+        return false; // 无法访问Google，可能没有使用VPN
+    }
+}
+
+// 本地验证函数
+function validateLocalUser(email, password) {
+    const knownUsers = JSON.parse(localStorage.getItem('knownUsers') || '{}');
+    const user = knownUsers[email];
+    return user && user.password === password ? user : null;
+}
+
 // 初始化时检查网络状态
 window.addEventListener('load', async () => {
     if (!navigator.onLine) {

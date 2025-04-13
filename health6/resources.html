@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>资料区 - 她安计划 | She Haven</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        /* 重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eeeeee;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            background-color: #ffffff;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+        }
+        
+        /* 功能导航 - 左上角 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin-left: 20px;
+        }
+        
+        .nav-links li {
+            margin-right: 20px;
+        }
+        
+        .nav-links a {
+            color: #000000;
+            text-decoration: none;
+            font-size: 1em;
+        }
+        
+        /* 添加英文翻译样式 */
+        .translation {
+            display: block;
+            font-size: 0.6em;
+            color: #666;
+            margin-top: 10px;
+            padding: 0;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+            visibility: visible; /* 确保可见 */
+            letter-spacing: 1px; /* 增加字间距 */
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            display: inline;
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 3px;
+            font-weight: normal;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* 主标题区域 */
+        .main-title {
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            height: 280px; /* 固定高度，确保上下居中 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 垂直居中 */
+            align-items: center; /* 水平居中 */
+            border-top: none; /* 移除红色上边框 */
+            border-bottom: none; /* 移除黑色下边框 */
+            margin-top: 100px; /* 增加与顶部导航栏的距离，从50px增加到100px */
+            margin-bottom: 50px; /* 增加与下方内容的距离 */
+        }
+        
+        .main-title h1 {
+            font-size: 4.5em; /* 进一步增大字体 */
+            font-weight: normal;
+            margin: 0;
+            padding: 0;
+            display: block; /* 确保显示 */
+            visibility: visible; /* 确保可见 */
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #333, #000); /* 添加水平渐变背景 */
+            -webkit-background-clip: text; /* 使渐变仅应用于文字 */
+            -webkit-text-fill-color: transparent; /* 使文字透明以显示背景 */
+            color: #000; /* 为不支持上述属性的浏览器提供后备颜色 */
+        }
+        
+        /* 删除黑线 */
+        .black-line {
+            display: none; /* 隐藏黑线 */
+        }
+        
+        /* 内容区域 */
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+        
+        /* 资料区样式 */
+        .resources-section {
+            margin: 40px 0;
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .resource-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .resource-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .resource-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .resource-info {
+            padding: 20px;
+        }
+        
+        .resource-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.4em;
+        }
+        
+        .resource-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .resource-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+        
+        .resource-link:hover {
+            background: #333;
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: right;
+            padding: 10px 20px;
+            margin-top: 40px;
+            border-top: 1px solid #eeeeee;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            /* 手机端导航栏优化 */
+            .top-nav {
+                padding: 15px 20px;
+                justify-content: center;
+                position: relative;
+            }
+            
+            .nav-links {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .nav-links li {
+                margin: 5px 2px;
+                font-size: 0.9em;
+            }
+            
+            .nav-links a {
+                font-size: 0.9em;
+                white-space: nowrap;
+            }
+            
+            /* 用户区域在手机端的样式 */
+            .user-area {
+                margin-left: auto;
+                width: auto;
+            }
+            
+            /* 主标题区域在手机端的样式 */
+            .main-title {
+                height: 200px;
+                margin-top: 120px;
+            }
+            
+            .main-title h1 {
+                font-size: 3em;
+            }
+            
+            /* 资源卡片在手机端的样式 */
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resource-card {
+                margin-bottom: 15px;
+            }
+            
+            /* 资源分类在手机端的样式 */
+            .resource-categories {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .category-btn {
+                margin: 5px 0;
+            }
+            
+            /* 确保汉堡菜单按钮在移动设备上正确显示 */
+            .menu-toggle {
+                display: flex;
+                position: absolute;
+                left: 15px;
+                top: 15px;
+            }
+        }
+        
+        /* 超小屏幕设备 */
+        @media (max-width: 480px) {
+            .nav-links li {
+                margin: 3px 1px;
+                font-size: 0.8em;
+            }
+            
+            .nav-links a {
+                font-size: 0.8em;
+            }
+            
+            .main-title h1 {
+                font-size: 2.5em;
+            }
+            
+            .resource-card-title {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+                <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
+                <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
+                <li><a href="anonymous-tree-hole.html">匿名树洞<span class="inline-translation">Anonymous Tree Hole</span></a></li>
+                <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
+                <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
+            </ul>
+        </nav>
+        
+        <!-- 用户区域 - 直接显示在导航栏中 -->
+        <div class="user-area">
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: none; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 10px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">加入我们<span class="inline-translation">Join Us</span></a>
+            </div>
+            
+            <!-- 已登录显示 -->
+            <div id="userArea" style="display: flex; align-items: center;">
+                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 10px;">用户名</span>
+                <a href="javascript:void(0)" style="margin-right: 10px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
+                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主标题区域 -->
+    <div class="main-title">
+        <h1 style="font-size: 5em;">资料区<span class="translation" style="font-size: 0.5em; margin-top: 15px;">Resources</span></h1>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content-container">
+        <!-- 资料区内容 -->
+        <section class="resources-section">
+            <div class="resources-grid">
+                <!-- 资料卡片1 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/safety1.jpg" alt="安全指南">
+                    </div>
+                    <div class="resource-info">
+                        <h3>个人安全指南<span class="translation">Personal Safety Guide</span></h3>
+                        <p class="resource-description">提供日常生活中的个人安全建议，包括出行安全、住宿安全和社交安全等方面的实用技巧。</p>
+                        <a href="personal-safety-guide.html" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+                
+                <!-- 资料卡片2 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/safety2.jpg" alt="紧急联系方式">
+                    </div>
+                    <div class="resource-info">
+                        <h3>紧急联系方式<span class="translation">Emergency Contacts</span></h3>
+                        <p class="resource-description">全国各地区紧急救援电话、警察局联系方式、妇女庇护所信息以及法律援助热线等重要联系方式。</p>
+                        <a href="emergency-contacts.html" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+                
+                <!-- 资料卡片3 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/safety3.jpg" alt="法律知识">
+                    </div>
+                    <div class="resource-info">
+                        <h3>法律知识普及<span class="translation">Legal Knowledge</span></h3>
+                        <p class="resource-description">关于人身安全、家庭暴力防治、性骚扰防范等方面的法律知识，帮助女性了解自己的权益和保护措施。</p>
+                        <a href="legal-knowledge.html" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+                
+                <!-- 资料卡片4 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/mental- health.jpg" alt="心理健康">
+                    </div>
+                    <div class="resource-info">
+                        <h3>心理健康资源<span class="translation">Mental Health Resources</span></h3>
+                        <p class="resource-description">提供心理健康相关的资源，包括心理咨询服务、情绪管理技巧和创伤后应对方法等。</p>
+                        <a href="javascript:void(0)" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+                
+                <!-- 资料卡片5 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/self_defense.png" alt="自我防卫">
+                    </div>
+                    <div class="resource-info">
+                        <h3>自我防卫技巧<span class="translation">Self-Defense Techniques</span></h3>
+                        <p class="resource-description">基础的自我防卫技巧和方法，帮助女性在面临危险时能够保护自己，提高自我防卫意识和能力。</p>
+                        <a href="javascript:void(0)" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+                
+                <!-- 资料卡片6 -->
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <img src="images/community_support.png" alt="社区支持">
+                    </div>
+                    <div class="resource-info">
+                        <h3>社区支持网络<span class="translation">Community Support</span></h3>
+                        <p class="resource-description">全国各地的女性互助组织、社区支持网络和志愿者服务信息，帮助女性找到所需的支持和帮助。</p>
+                        <a href="javascript:void(0)" class="resource-link">查看详情<span class="inline-translation">View Details</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 紧急联系内容 -->
+        <section id="emergency-contacts" class="emergency-section">
+            <h2>紧急联系电话 <span class="inline-translation">Emergency Contact Numbers</span></h2>
+            
+            <!-- 紧急提示 -->
+            <div class="emergency-note" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 30px; border-left: 4px solid #f5c6cb;">
+                <h3 style="margin-bottom: 10px; color: #721c24;">紧急情况说明 <span class="inline-translation">Emergency Note</span></h3>
+                <p>如果您正在遭遇紧急危险情况，请立即拨打当地紧急电话（如中国的110或120）。本页面提供的联系方式仅供参考，紧急情况下请优先联系官方紧急救援电话。</p>
+                <p><span class="inline-translation">If you are in an emergency situation, please immediately call your local emergency number (such as 110 or 120 in China). The contact information provided on this page is for reference only. In emergency situations, please prioritize contacting official emergency services.</span></p>
+            </div>
+            
+            <div class="contact-category" style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.5em; font-weight: normal; margin-bottom: 15px; color: #333;">官方紧急电话 <span class="inline-translation">Official Emergency Numbers</span></h3>
+                <div class="contact-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">警察报警电话 <span class="inline-translation">Police</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">110</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">用于报警、求助和举报违法犯罪行为</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">医疗急救电话 <span class="inline-translation">Medical Emergency</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">120</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">用于紧急医疗救援和急救服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">消防救援电话 <span class="inline-translation">Fire Emergency</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">119</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">用于火灾报警和各类灾害救援</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">交通事故报警电话 <span class="inline-translation">Traffic Accident</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">122</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">用于报告交通事故和交通违法行为</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-category" style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.5em; font-weight: normal; margin-bottom: 15px; color: #333;">妇女儿童救助热线 <span class="inline-translation">Women and Children Helplines</span></h3>
+                <div class="contact-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">全国妇联维权热线 <span class="inline-translation">Women's Rights Hotline</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">12338</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供妇女权益保障、家庭暴力求助等服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">工作日 9:00-17:00</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">全国反家庭暴力热线 <span class="inline-translation">Anti-Domestic Violence Hotline</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">12338</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供家庭暴力求助、法律咨询和心理支持</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">工作日 9:00-17:00</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">儿童保护热线 <span class="inline-translation">Child Protection Hotline</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">12355</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供儿童权益保护、困境儿童救助等服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">工作日 9:00-17:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-category" style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.5em; font-weight: normal; margin-bottom: 15px; color: #333;">民间救援组织 <span class="inline-translation">Non-governmental Rescue Organizations</span></h3>
+                <div class="contact-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">蓝天救援队 <span class="inline-translation">Blue Sky Rescue</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">010-64656688</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">中国最大的民间救援组织，提供各类紧急救援服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">红十字会救援队 <span class="inline-translation">Red Cross Rescue</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">010-84603999</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供紧急医疗救援和人道主义援助</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">工作日 8:30-17:00</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">山地救援队 <span class="inline-translation">Mountain Rescue Team</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">0571-87968889</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">专业山地和野外救援服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-category" style="margin-bottom: 40px;">
+                <h3 style="font-size: 1.5em; font-weight: normal; margin-bottom: 15px; color: #333;">心理援助热线 <span class="inline-translation">Psychological Support Hotlines</span></h3>
+                <div class="contact-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">北京心理危机研究与干预中心 <span class="inline-translation">Beijing Crisis Intervention Center</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">010-82951332</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供心理危机干预和自杀预防服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">希望24小时热线 <span class="inline-translation">Hope 24-Hour Hotline</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">400-161-9995</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供心理咨询和情绪支持服务</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">24小时服务</div>
+                    </div>
+                    
+                    <div class="contact-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                        <div class="contact-name" style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #000;">上海心理热线 <span class="inline-translation">Shanghai Psychological Hotline</span></div>
+                        <div class="contact-phone" style="font-size: 1.1em; color: #e74c3c; margin-bottom: 10px; font-weight: bold;">021-12320-5</div>
+                        <div class="contact-description" style="color: #666; font-size: 0.9em; margin-bottom: 10px;">提供心理健康咨询和危机干预</div>
+                        <div class="contact-hours" style="font-size: 0.85em; color: #777; font-style: italic;">每日 8:00-22:00</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p>Bruce Joey Sarah</p>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 9999; overflow: hidden;">
+        <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+            <span class="close" onclick="closeModal('loginModal')" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #555;">&times;</span>
+            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">登录<span class="translation">Login</span></h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">邮箱<span class="translation">Email</span></label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码<span class="translation">Password</span></label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="submit-btn">登录<span class="translation">Login</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 9999; overflow: hidden;">
+        <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+            <span class="close" onclick="closeModal('registerModal')" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #555;">&times;</span>
+            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">加入我们<span class="translation">Join Us</span></h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerEmail">邮箱<span class="translation">Email</span></label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密码<span class="translation">Password</span></label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码<span class="translation">Confirm Password</span></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">注册<span class="translation">Register</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 账号设置模态框 -->
+    <div id="accountSettingsModal" class="modal" style="display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 9999; overflow: hidden;">
+        <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+            <span class="close" onclick="closeModal('accountSettingsModal')" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #555;">&times;</span>
+            <h2 style="margin-top: 0; margin-bottom: 20px; text-align: center;">账号设置<span class="translation">Account Settings</span></h2>
+            <form id="accountSettingsForm">
+                <div class="form-group">
+                    <label for="userName">用户名<span class="translation">Username</span></label>
+                    <input type="text" id="userName" name="userName" required>
+                </div>
+                <button type="submit" class="submit-btn">保存<span class="translation">Save</span></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否有登录信息
+            const userName = localStorage.getItem('userName');
+            if (userName) {
+                // 已登录状态
+                document.getElementById('loginButtons').style.display = 'none';
+                document.getElementById('userArea').style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = userName;
+            } else {
+                // 未登录状态
+                document.getElementById('loginButtons').style.display = 'flex';
+                document.getElementById('userArea').style.display = 'none';
+            }
+            
+            // 添加汉堡菜单功能
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (menuToggle && navLinks) {
+                // 使用原生点击事件
+                menuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('汉堡菜单被点击');
+                    menuToggle.classList.toggle('active');
+                    navLinks.classList.toggle('active');
+                }, true);
+                
+                // 点击导航链接后自动关闭菜单
+                const navItems = document.querySelectorAll('.nav-links a');
+                navItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        console.log('导航链接被点击');
+                        menuToggle.classList.remove('active');
+                        navLinks.classList.remove('active');
+                    }, true);
+                });
+            }
+            
+            // 点击页面其他区域关闭菜单
+            document.addEventListener('click', function(event) {
+                if (menuToggle && navLinks && menuToggle.classList.contains('active')) {
+                    // 如果点击的不是菜单按钮和导航链接
+                    if (!event.target.closest('#menuToggle') && !event.target.closest('.nav-links')) {
+                        menuToggle.classList.remove('active');
+                        navLinks.classList.remove('active');
+                    }
+                }
+            });
+            
+            // 为资料卡片添加事件监听器
+            // 获取所有资料卡片的查看详情按钮
+            const resourceLinks = document.querySelectorAll('.resource-link');
+            
+            resourceLinks.forEach(link => {
+                // 添加悬停效果
+                link.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = '#333';
+                });
+                
+                link.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = '#000';
+                });
+                
+                // 如果链接是javascript:void(0)，添加点击事件
+                if (link.getAttribute('href') === 'javascript:void(0)') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('该功能正在开发中，敬请期待！');
+                    });
+                }
+            });
+            
+            // 处理URL哈希值滚动
+            if (window.location.hash) {
+                const targetElement = document.querySelector(window.location.hash);
+                if (targetElement) {
+                    // 滚动到目标元素位置，添加一些偏移量以避免被固定导航栏遮挡
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                }
+            }
+        });
+        
+        // 简单的登录函数
+        function login() {
+            document.getElementById('loginButtons').style.display = 'none';
+            document.getElementById('userArea').style.display = 'flex';
+            document.getElementById('userNameDisplay').textContent = '用户名';
+            localStorage.setItem('userName', '用户名');
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        
+        // 简单的退出函数
+        function logout() {
+            document.getElementById('loginButtons').style.display = 'flex';
+            document.getElementById('userArea').style.display = 'none';
+            localStorage.removeItem('userName');
+            alert('已成功退出登录');
+        }
+        
+        // 显示账号设置模态框
+        function showAccountSettingsModal() {
+            document.getElementById('accountSettingsModal').style.display = 'block';
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 处理登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+        });
+        
+        // 处理注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+            document.getElementById('registerModal').style.display = 'none';
+        });
+        
+        // 处理账号设置表单提交
+        document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userName = document.getElementById('userName').value;
+            document.getElementById('userNameDisplay').textContent = userName;
+            localStorage.setItem('userName', userName);
+            document.getElementById('accountSettingsModal').style.display = 'none';
+            alert('账号设置已保存');
+        });
+        
+        // 登出用户
+        function logoutUser() {
+            logout();
+        }
+    </script>
+</body>
+</html> 

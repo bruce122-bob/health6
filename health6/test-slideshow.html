@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轮播图测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .slideshow {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1;
+        }
+        
+        .prev { left: 10px; }
+        .next { right: 10px; }
+    </style>
+</head>
+<body>
+    <h1>轮播图测试</h1>
+    
+    <div class="slideshow">
+        <img src="images/safety1.jpg" class="slide active" alt="安全信息1">
+        <img src="images/safety2.jpg" class="slide" alt="安全信息2">
+        <img src="images/safety3.jpg" class="slide" alt="安全信息3">
+        <img src="images/safety4.jpg" class="slide" alt="安全信息4">
+        
+        <button class="prev" onclick="moveSlide(-1)">❮</button>
+        <button class="next" onclick="moveSlide(1)">❯</button>
+    </div>
+    
+    <script>
+        // 简单的轮播图脚本
+        let currentIndex = 0;
+        const slides = document.getElementsByClassName('slide');
+        
+        function moveSlide(direction) {
+            // 移除当前活动状态
+            slides[currentIndex].classList.remove('active');
+            
+            // 计算新索引
+            currentIndex = (currentIndex + direction + slides.length) % slides.length;
+            
+            // 添加新的活动状态
+            slides[currentIndex].classList.add('active');
+        }
+        
+        // 自动播放
+        setInterval(() => moveSlide(1), 3000);
+    </script>
+</body>
+</html> 

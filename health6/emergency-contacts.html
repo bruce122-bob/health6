@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>紧急联系方式 | 她安计划</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        /* 导航链接样式 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin: 0 10px;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 内容容器 */
+        .content-container {
+            max-width: 1000px;
+            margin: 80px auto 40px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            color: #1a3163;
+            border-bottom: 2px solid #1a3163;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            margin-left: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        /* 段落样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            color: #1a3163;
+            margin-bottom: 20px;
+            border-left: 4px solid #1a3163;
+            padding-left: 15px;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        /* 紧急联系卡片 */
+        .emergency-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .emergency-card h3 {
+            color: #e74c3c;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .emergency-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+            display: block;
+        }
+        
+        .emergency-card p {
+            color: #666;
+        }
+        
+        /* 支持热线表格 */
+        .helpline-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .helpline-table th, .helpline-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .helpline-table th {
+            background-color: #1a3163;
+            color: white;
+        }
+        
+        .helpline-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .helpline-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #1a3163;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #12234a;
+        }
+        
+        /* 重要提示 */
+        .important-note {
+            background-color: #ffebee;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .important-note h3 {
+            color: #e74c3c;
+            margin-top: 0;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 20px;
+                margin-top: 70px;
+            }
+            
+            .top-nav {
+                padding: 1rem;
+            }
+            
+            .helpline-table th, .helpline-table td {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左侧 -->
+        <ul class="nav-links">
+            <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+            <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
+            <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
+            <li><a href="anonymous-tree-hole.html">匿名树洞<span class="inline-translation">Anonymous Tree Hole</span></a></li>
+            <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
+            <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
+        </ul>
+    </div>
+
+    <div class="content-container">
+        <h1 class="page-title">紧急联系方式 <span class="inline-translation">Emergency Contacts</span></h1>
+        
+        <div class="important-note">
+            <h3>重要提示</h3>
+            <p>在遇到紧急情况时，请保持冷静，第一时间拨打相应的紧急电话。紧急电话全天候服务，无需支付任何费用。</p>
+            <p>报警时，清晰简洁地说明：您的位置、事件性质、是否有人受伤，以及您的联系方式。</p>
+        </div>
+        
+        <div class="content-section">
+            <h2>全国通用紧急电话 <span class="inline-translation">National Emergency Numbers</span></h2>
+            
+            <div class="emergency-card">
+                <h3>报警电话</h3>
+                <span class="emergency-number">110</span>
+                <p>用于报告危及人身、财产安全的紧急情况，如遭遇暴力、跟踪、骚扰、盗窃等。</p>
+            </div>
+            
+            <div class="emergency-card">
+                <h3>急救中心</h3>
+                <span class="emergency-number">120</span>
+                <p>用于紧急医疗救助，如遭遇身体伤害需要紧急救治。</p>
+            </div>
+            
+            <div class="emergency-card">
+                <h3>消防救援</h3>
+                <span class="emergency-number">119</span>
+                <p>用于火灾等紧急救援情况。</p>
+            </div>
+            
+            <div class="emergency-card">
+                <h3>交通事故</h3>
+                <span class="emergency-number">122</span>
+                <p>用于报告交通事故，或遇到交通安全相关紧急情况。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>妇女保护专线 <span class="inline-translation">Women's Protection Hotlines</span></h2>
+            
+            <table class="helpline-table">
+                <thead>
+                    <tr>
+                        <th>服务名称</th>
+                        <th>联系电话</th>
+                        <th>服务内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>全国妇联维权热线</td>
+                        <td>12338</td>
+                        <td>提供妇女维权法律咨询、家庭暴力、就业歧视等问题的援助</td>
+                    </tr>
+                    <tr>
+                        <td>中国法律援助热线</td>
+                        <td>12348</td>
+                        <td>提供法律咨询、维权指导和法律援助申请</td>
+                    </tr>
+                    <tr>
+                        <td>北京红枫妇女心理咨询服务中心</td>
+                        <td>010-64033383</td>
+                        <td>专注于遭受家庭暴力妇女的心理支持、法律咨询和庇护服务</td>
+                    </tr>
+                    <tr>
+                        <td>上海市反家暴庇护中心</td>
+                        <td>021-64339622</td>
+                        <td>提供家暴受害者临时庇护、法律和心理咨询</td>
+                    </tr>
+                    <tr>
+                        <td>广州市妇女维权与信息服务站</td>
+                        <td>020-83856661</td>
+                        <td>提供法律咨询、心理疏导和维权指引</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p><strong>注意</strong>：各地还设有当地的妇联热线和庇护中心，可通过拨打12338咨询当地资源。</p>
+        </div>
+        
+        <div class="content-section">
+            <h2>心理健康支持热线 <span class="inline-translation">Mental Health Support Hotlines</span></h2>
+            
+            <table class="helpline-table">
+                <thead>
+                    <tr>
+                        <th>服务名称</th>
+                        <th>联系电话</th>
+                        <th>服务内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>北京心理危机研究与干预中心</td>
+                        <td>010-82951332</td>
+                        <td>24小时心理危机干预热线</td>
+                    </tr>
+                    <tr>
+                        <td>上海市心理咨询热线</td>
+                        <td>021-12320-5</td>
+                        <td>专业心理健康服务热线</td>
+                    </tr>
+                    <tr>
+                        <td>希望24热线</td>
+                        <td>400-161-9995</td>
+                        <td>全国24小时心理支持热线</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="content-section">
+            <h2>使用紧急联系方式的建议 <span class="inline-translation">Tips for Using Emergency Contacts</span></h2>
+            
+            <ul>
+                <li>将重要紧急电话保存在手机通讯录，并设置为快速拨号。</li>
+                <li>遇到危险情况时，如无法正常通话，可尝试发送短信至110（部分地区支持）。</li>
+                <li>安装手机紧急求助应用，如"警民通"等官方应用，支持一键报警和位置共享。</li>
+                <li>与家人或信任的朋友建立"安全词"机制，当你说出约定的词语时，对方知道你处于危险中并需要帮助。</li>
+                <li>使用手机的"紧急联系人"功能，设置紧急情况下的联系人，部分手机支持通过多次按下电源键快速触发紧急求助。</li>
+            </ul>
+        </div>
+        
+        <a href="resources.html" class="back-btn">返回资料区 <span class="inline-translation">Back to Resources</span></a>
+    </div>
+</body>
+</html> 

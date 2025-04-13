@@ -1,0 +1,65 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "messages": {
+      ".read": true,
+      ".write": "auth != null",
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'userId', 'userEmail', 'timestamp'])",
+        "likes": {
+          "$uid": {
+            ".validate": "$uid === auth.uid"
+          }
+        }
+      }
+    },
+    "markers": {
+      ".read": true,
+      ".write": "auth != null",
+      "$markerId": {
+        ".validate": "newData.hasChildren(['lat', 'lng', 'title', 'type', 'description', 'userId', 'userEmail', 'timestamp'])"
+      }
+    },
+    "online_users": {
+      ".read": true,
+      ".write": true,
+      "$uid": {
+        ".validate": "newData.hasChildren(['timestamp', 'lastActive'])"
+      }
+    },
+    "online_ips": {
+      ".read": true,
+      ".write": true,
+      "$ip": {
+        ".validate": "newData.hasChildren(['timestamp', 'lastActive'])"
+      }
+    },
+    "counters": {
+      ".read": true,
+      "totalMessages": {
+        ".write": true,
+        ".validate": "newData.isNumber()"
+      }
+    },
+    "stats": {
+      ".read": true,
+      ".write": true,
+      "ipCount": {
+        ".validate": "newData.isNumber()"
+      },
+      "userCount": {
+        ".validate": "newData.isNumber()"
+      },
+      "pageViewCount": {
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+} 

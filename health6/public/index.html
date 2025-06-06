@@ -279,36 +279,6 @@
             line-height: 1.6;
         }
 
-        /* 统计数据区域 */
-        .stats {
-            padding: 5rem 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            text-align: center;
-        }
-
-        .stat-item {
-            padding: 1rem;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
         /* 资源区域 */
         .resources {
             padding: 5rem 0;
@@ -440,10 +410,6 @@
             .resources-grid {
                 grid-template-columns: 1fr;
             }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
 
         /* 滚动动画 */
@@ -554,30 +520,6 @@
         </div>
     </section>
 
-    <!-- 统计数据 -->
-    <section class="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item scroll-reveal">
-                    <span class="stat-number" data-count="10000">0</span>
-                    <span class="stat-label">注册用户</span>
-                </div>
-                <div class="stat-item scroll-reveal">
-                    <span class="stat-number" data-count="500">0</span>
-                    <span class="stat-label">安全地点</span>
-                </div>
-                <div class="stat-item scroll-reveal">
-                    <span class="stat-number" data-count="1000">0</span>
-                    <span class="stat-label">社区帖子</span>
-                </div>
-                <div class="stat-item scroll-reveal">
-                    <span class="stat-number" data-count="24">0</span>
-                    <span class="stat-label">小时在线支持</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- 资源区域 -->
     <section class="resources" id="resources">
         <div class="container">
@@ -673,39 +615,6 @@
         }
 
         window.addEventListener('scroll', revealOnScroll);
-
-        // 数字动画
-        function animateNumbers() {
-            const counters = document.querySelectorAll('.stat-number');
-            
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                const increment = target / 100;
-                let current = 0;
-                
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                    }
-                    counter.textContent = Math.floor(current).toLocaleString();
-                }, 20);
-            });
-        }
-
-        // 当统计区域进入视野时开始动画
-        const statsSection = document.querySelector('.stats');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateNumbers();
-                    observer.unobserve(entry.target);
-                }
-            });
-        });
-
-        observer.observe(statsSection);
 
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

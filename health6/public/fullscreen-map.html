@@ -1,256 +1,199 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安全地图 - 她安计划 | She Haven</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全地图 - She Haven</title>
+    
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- Leaflet 地图库 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- 添加定位控件 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
-    <!-- 添加搜索控件 -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Leaflet Locate Plugin -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+    
+    <!-- Leaflet Geocoder Plugin -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <!-- 添加标记聚类 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-    <script src="gaode-map.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body, html {
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            color: #333;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         
         /* 顶部导航栏 */
         .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #eaeaea;
-            padding: 10px 20px;
-            position: fixed;
-            width: 100%;
-            background-color: #ffffff;
-            z-index: 1001; /* 确保导航栏在地图和控件上方 */
-            top: 0;
-            left: 0;
-            box-sizing: border-box;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
         }
-        
-        /* 功能导航 - 左上角 */
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-brand i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+
         .nav-links {
             display: flex;
             list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .nav-links li {
-            margin: 0 10px;
+            gap: 2rem;
+            align-items: center;
         }
         
         .nav-links a {
-            color: #333;
             text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            color: #333;
+            font-weight: 500;
             transition: all 0.3s ease;
-            font-size: 1em;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            position: relative;
         }
         
         .nav-links a:hover {
-            background-color: #f5f5f5;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
         }
-        
-        /* 用户区域样式 */
+
+        .nav-links a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* 用户区域 */
         .user-area {
             display: flex;
             align-items: center;
-            margin-left: auto;
+            gap: 1rem;
         }
-        
-        .user-area a {
-            color: #333;
+
+        .user-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 25px;
             text-decoration: none;
-            padding: 5px 10px;
-            margin: 0 5px;
-            border-radius: 5px;
+            font-weight: 500;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
-        
-        .user-area a:hover {
-            background-color: #f5f5f5;
+
+        .user-btn:hover {
+            background: #667eea;
+            color: white;
         }
-        
-        /* 英文翻译样式 */
-        .translation {
-            display: block;
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 5px;
+
+        .user-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
         }
-        
-        /* 内联翻译样式 */
-        .inline-translation {
-            margin-left: 5px;
-            font-size: 0.8em;
-            color: #666;
+
+        .user-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
-        /* 主标题区域 - 隐藏不显示 */
-        .main-title {
-            display: none; /* 完全隐藏主标题区域 */
-        }
-        
+
+        /* 地图容器 */
         #fullscreenMap {
-            height: calc(100vh - 90px);
-            width: 100%;
-            margin-top: 90px; /* 顶部导航栏+功能展示栏的高度 */
-            position: relative;
-            z-index: 1; /* 确保地图在底层 */
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
         }
-        
-        /* 控制面板基础样式 */
+
+        /* 控制面板 */
         .map-controls {
             position: fixed;
-            right: 0;
-            top: 60px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px 0 0 12px;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-            width: 300px;
-            max-height: calc(100vh - 80px);
+            top: 100px;
+            right: 20px;
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            transition: all 0.3s ease;
+            max-height: calc(100vh - 120px);
             overflow-y: auto;
-            transition: transform 0.3s ease;
-            z-index: 990; /* 调整控制面板的z-index低于功能栏 */
         }
         
-        /* 控制面板收起状态 */
         .map-controls.collapsed {
             transform: translateX(100%);
         }
         
-        /* 控制面板切换按钮 - 桌面版 */
-        #toggleControlsBtn {
-            position: absolute;
-            left: -40px;
-            top: 20px;
-            width: 40px;
-            height: 40px;
-            background: #1a3163;
-            border-radius: 4px 0 0 4px;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 991;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            border: none;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            padding: 0;
-            margin: 0;
-            text-align: center;
+        .map-controls h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        /* 手机端控制面板按钮 */
-        #mobileToggleBtn {
-            display: none;
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            background: #1a3163;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer;
-            z-index: 1003;
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            -webkit-tap-highlight-color: transparent;
-            transition: all 0.3s ease;
+
+        .map-controls p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
         }
-        
-        /* 移动端按钮在展开状态下的样式 */
-        #mobileToggleBtn.expanded {
-            background-color: #e74c3c;
-            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
-            z-index: 1010; /* 确保它显示在控制面板之上 */
-            top: 65px !important;
-            right: 20px !important;
-            bottom: auto !important;
-            width: 44px;
-            height: 44px;
-            font-size: 22px;
-            border: none;
-        }
-        
-        #mobileToggleBtn:active {
-            transform: scale(0.95);
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
-        }
-        
-        /* 手机端浮动按钮图标 */
-        #mobileToggleBtn span {
-            display: block;
-            transition: transform 0.3s ease;
-        }
-        
-        #toggleControlsBtn:hover, #mobileToggleBtn:hover {
-            opacity: 0.9;
-        }
-        
-        #toggleControlsBtn:active, #mobileToggleBtn:active {
-            transform: scale(0.98);
-        }
-        
-        .map-controls.collapsed #toggleControlsBtn {
-            background: #2ecc71;
-        }
-        
+
+        /* 表单样式 */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
         
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             color: #333;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e1e1e1;
-            border-radius: 5px;
-            font-size: 14px;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
             transition: all 0.3s ease;
             background: white;
         }
@@ -258,645 +201,461 @@
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #333;
+            border-color: #667eea;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .btn {
-            background: #333;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
             cursor: pointer;
-            margin-bottom: 10px;
-            width: 100%;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 1rem;
+            font-weight: 600;
             transition: all 0.3s ease;
+            width: 100%;
         }
         
         .btn:hover {
-            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 切换按钮 */
+        #toggleControlsBtn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .auth-status {
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+        #toggleControlsBtn:hover {
+            background: #5a6fd8;
+            transform: scale(1.1);
+        }
+        
+        /* 手机端浮动按钮 */
+        #mobileToggleBtn {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            z-index: 1010;
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mobileToggleBtn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 功能工具栏 */
+        .function-toolbar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 995;
+            transition: all 0.3s ease;
+        }
+
+        .function-toolbar.collapsed {
+            transform: translateY(100%);
+        }
+
+        .resource-tabs {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+                justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .resource-link,
+        .emergency-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
             text-align: center;
-            color: #666;
+            white-space: nowrap;
+        }
+
+        .resource-link {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .resource-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .emergency-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .toggle-toolbar-btn {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 15px 15px 0 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
         
+        .toggle-toolbar-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+                position: fixed;
+            z-index: 2000;
+            left: 0;
+                top: 0;
+            width: 100%;
+                height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #667eea;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .modal input {
+                width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .modal input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .modal button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
         .form-error {
-            background: #f8f9fa;
+            background: #fee;
+            color: #c33;
+            padding: 0.5rem;
             border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
         }
-        
+
+        /* 标记样式 */
         .marker-icon {
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-        
-        .marker-icon:hover {
-            transform: scale(1.1);
-        }
-        
+
         .marker-icon.safe { background-color: #2ecc71; }
         .marker-icon.warning { background-color: #e74c3c; }
         .marker-icon.help { background-color: #f1c40f; }
-        
+
+        .popup-content {
+            padding: 1rem;
+            min-width: 250px;
+        }
+
+        .popup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-description {
+            color: #666;
+            line-height: 1.5;
+            margin: 0.5rem 0;
+        }
+
+        .popup-meta {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+
         .marker-type {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
             color: white;
-            margin: 5px 0;
+            margin-bottom: 0.5rem;
         }
-        
+
         .marker-type.safe { background-color: #2ecc71; }
         .marker-type.warning { background-color: #e74c3c; }
         .marker-type.help { background-color: #f1c40f; color: #333; }
-        
-        .popup-content {
-            padding: 15px;
-            min-width: 250px;
-        }
-        
-        .popup-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 8px;
-        }
-        
-        .popup-description {
-            color: #444;
-            line-height: 1.5;
-            margin: 10px 0;
-        }
-        
-        .popup-meta {
-            font-size: 12px;
-            color: #666;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #f0f0f0;
-        }
-        
+
         .delete-btn {
-            background: #333;
+            background: #e74c3c;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 0.8rem;
             transition: all 0.3s ease;
         }
-        
+
         .delete-btn:hover {
-            background: #000;
+            background: #c0392b;
         }
-        
-        /* 汉堡菜单按钮样式 */
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 30px;
-            height: 25px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            z-index: 1002;
-        }
-        
-        .menu-toggle span {
-            width: 30px;
-            height: 3px;
-            background: #333;
-            border-radius: 3px;
-            transition: all 0.3s linear;
-            position: relative;
-            transform-origin: 1px;
-        }
-        
-        /* 汉堡菜单动画效果 */
-        .menu-toggle.active span:nth-child(1) {
-            transform: rotate(45deg);
-        }
-        
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        
-        .menu-toggle.active span:nth-child(3) {
-            transform: rotate(-45deg);
-        }
-        
+
         /* 响应式设计 */
         @media (max-width: 768px) {
-            /* 手机端导航栏优化 */
             .top-nav {
-                padding: 15px 20px;
-                justify-content: center;
-                position: relative;
-                z-index: 1006; /* 确保导航栏在控制面板之上 */
+                padding: 1rem;
             }
-            
-            /* 隐藏桌面版的切换按钮，显示移动版的浮动按钮 */
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .map-controls {
+            position: fixed;
+                top: 0;
+                right: 0;
+            width: 100%;
+                height: 100%;
+                border-radius: 0;
+                padding-top: 100px;
+                transform: translateX(100%);
+            }
+
+            .map-controls:not(.collapsed) {
+                transform: translateX(0);
+            }
+
             #toggleControlsBtn {
                 display: none;
             }
-            
+
             #mobileToggleBtn {
                 display: flex;
             }
-            
-            /* 在地图的右下角放置按钮，避免干扰左上角的控制元素 */
-            #mobileToggleBtn {
-                top: auto;
-                bottom: 90px;
-                right: 20px;
-                z-index: 1005; /* 初始状态层级 */
+
+            .function-toolbar {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
             }
-            
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                background: #fff;
-                padding: 15px 0;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                z-index: 1002;
+
+            .resource-tabs {
                 flex-direction: column;
-                align-items: center;
-                border-radius: 0 0 10px 10px;
-                opacity: 0;
-                transition: opacity 0.2s ease;
+                gap: 0.5rem;
             }
-            
-            .nav-links li {
-                margin: 8px 0;
-                text-align: center;
-                width: 80%;
-            }
-            
-            .nav-links a {
-                font-size: 16px;
-                padding: 12px 20px;
-                display: block;
-                border-radius: 6px;
-                transition: all 0.3s ease;
-            }
-            
-            .nav-links a:hover {
-                background-color: #f0f0f0;
-            }
-            
-            /* 显示汉堡菜单按钮 */
-            .menu-toggle {
-                display: flex;
-                position: absolute;
-                left: 15px;
-                top: 13px;
-            }
-            
-            /* 用户区域在手机端的样式 */
-            .user-area {
-                margin-left: auto;
-                width: auto;
-                position: absolute;
-                right: 15px;
-            }
-            
-            /* 手机端地图控制面板样式 */
-            .map-controls {
-                position: fixed;
-                right: 0;
-                top: 0;
-                height: 100%;
-                width: 85%; 
-                max-width: 300px;
-                padding-top: 70px;
-                transform: translateX(100%);  /* 默认收起状态 */
-                border-radius: 12px 0 0 12px;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                z-index: 1005;
-                background-color: rgba(255, 255, 255, 0.97); /* 稍微透明，看起来更现代 */
-            }
-            
-            /* 手机端控制面板展开状态 */
-            .map-controls:not(.collapsed) {
-                transform: translateX(0); 
-                box-shadow: -5px 0 15px rgba(0,0,0,0.3);
-            }
-            
-            .map-controls.collapsed #toggleControlsBtn {
-                display: none; /* 在收起状态也要确保桌面按钮不可见 */
-            }
-            
-            /* 地图信息窗口在手机端的样式 */
-            .info-window {
-                max-width: 250px;
-            }
-            
-            .info-window h3 {
-                font-size: 1.1em;
-            }
-            
-            .info-window p {
-                font-size: 0.9em;
-            }
-            
-            /* 手机端强制展开的控制面板样式 */
-            .mobile-panel-expanded {
-                transform: translateX(0) !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                display: block !important;
-                box-shadow: -5px 0 20px rgba(0,0,0,0.3) !important;
-            }
-            
-            .function-toolbar {
-                padding: 8px 15px;
-                justify-content: center;
-            }
-            
-            .resource-tabs {
-                justify-content: center;
-                gap: 10px;
-                width: 100%;
-            }
-            
-            .resource-link, .emergency-btn {
-                padding: 6px 10px;
-                font-size: 13px;
-            }
-            
-            .tab-btn, .emergency-btn {
-                padding: 5px 10px;
-                font-size: 13px;
-            }
-            
-            .emergency-btn {
-                display: block;
-                text-align: center;
-                margin-top: 10px;
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            #fullscreenMap {
-                height: calc(100vh - 100px);
-                margin-top: 100px; /* 移动端适配 */
-            }
-            
-            .resource-content h3 {
-                font-size: 15px;
-            }
-            
-            .quick-tips li {
-                font-size: 13px;
-            }
-        }
-        
-        /* 超小屏幕设备 */
-        @media (max-width: 480px) {
-            .nav-links li {
-                margin: 3px 1px;
-                font-size: 0.8em;
-            }
-            
-            .nav-links a {
-                font-size: 0.8em;
-            }
-            
-            .map-controls {
-                padding: 8px;
-            }
-            
-            .control-panel h3 {
-                font-size: 1em;
-            }
-            
-            .control-btn {
-                padding: 6px 10px;
-                font-size: 0.85em;
-            }
-            
-            .info-window {
-                max-width: 200px;
-            }
-            
-            .function-toolbar {
-                padding: 6px 10px;
-            }
-            
-            .resource-tabs {
-                gap: 5px;
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            
-            .resource-link, .emergency-btn {
-                padding: 5px 8px;
-                font-size: 12px;
-                margin-bottom: 5px;
-            }
-            
-            .toggle-toolbar-btn {
-                font-size: 10px;
-                padding: 2px 10px;
-            }
-            
-            #fullscreenMap {
-                margin-top: 120px; /* 增加上边距以容纳可能的两行按钮 */
-            }
-        }
-        
-        /* 删除黑线 */
-        .black-line {
-            display: none; /* 隐藏黑线 */
-        }
-        
-        /* 顶部功能展示栏样式 */
-        .function-toolbar {
-            position: fixed;
-            top: 50px; /* 在顶部导航栏下方 */
-            left: 0;
-            width: 100%;
-            background-color: #e8eaf6; /* 更改为更明显的背景色 */
-            padding: 12px 20px; /* 增加内边距使其更醒目 */
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2); /* 加深阴影 */
-            z-index: 995; /* 确保高于地图但低于导航栏 */
-            transition: all 0.3s ease;
-            border-bottom: 2px solid #5c6bc0; /* 添加明显的边框 */
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .function-toolbar.collapsed {
-            transform: translateY(-100%);
-        }
-        
-        .resource-tabs {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            width: 100%;
-            max-width: 800px;
-        }
-        
-        .resource-link {
-            color: #1a3163;
-            text-decoration: none;
-            font-size: 15px; /* 增大字体 */
-            font-weight: 600; /* 加粗字体 */
-            transition: all 0.3s ease;
-            padding: 10px 15px; /* 增加内边距 */
-            border-radius: 4px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15); /* 加深阴影 */
-            white-space: nowrap;
-            flex: 1;
-            text-align: center;
-            border: 1px solid #c5cae9; /* 修改边框颜色 */
-            min-width: 150px;
-            position: relative; /* 添加相对定位用于伪元素 */
-            overflow: hidden; /* 确保伪元素不会溢出 */
-        }
-        
-        .resource-link:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: #3f51b5; /* 顶部边框色彩 */
-        }
-        
-        .resource-link:hover {
-            background-color: #f5f7ff; /* 更改悬停背景色 */
-            transform: translateY(-2px); /* 增加上移效果 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 增强悬停阴影 */
-        }
-        
-        .resource-link .inline-translation,
-        .emergency-btn .inline-translation {
-            display: block;
-            font-size: 0.7em;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 2px;
-        }
-        
-        .resource-link .inline-translation {
-            color: rgba(0, 0, 0, 0.6);
-        }
-        
-        /* 紧急按钮样式更加突出 */
+
+            .resource-link,
         .emergency-btn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 15px; /* 增加内边距 */
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 15px; /* 增大字体 */
-            font-weight: 600; /* 加粗字体 */
-            transition: all 0.3s ease;
-            display: inline-block;
-            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.4); /* 加深阴影 */
-            white-space: nowrap;
-            flex: 1;
-            text-align: center;
-            min-width: 150px;
-            position: relative; /* 添加相对定位用于高亮效果 */
-            overflow: hidden; /* 确保高亮效果不会溢出 */
-        }
-        
-        .emergency-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .emergency-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px); /* 增加上移效果 */
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5); /* 增强悬停阴影 */
-        }
-        
-        .emergency-btn:hover:before {
-            transform: translateX(0);
-        }
-        
-        @media (max-width: 768px) {
-            .resource-link .inline-translation,
-            .emergency-btn .inline-translation {
-                display: none; /* 在移动设备上隐藏翻译，节省空间 */
-            }
-            
-            .resource-link, .emergency-btn {
-                min-width: 0;
-                font-size: 12px;
-                padding: 8px 10px;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
         }
-        
-        /* 功能栏收起按钮样式 */
-        .toggle-toolbar-btn {
-            position: absolute;
-            bottom: -30px; /* 调整位置 */
-            left: 50%;
-            transform: translateX(-50%);
-            background: #3f51b5; /* 更改为更醒目的颜色 */
-            color: white;
-            border: none;
-            border-radius: 0 0 8px 8px; /* 增大圆角 */
-            padding: 7px 25px; /* 增加内边距 */
-            font-size: 14px; /* 增大字体 */
-            font-weight: 600; /* 加粗字体 */
-            cursor: pointer;
-            z-index: 996;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2); /* 加深阴影 */
-            transition: all 0.3s ease;
-            text-transform: uppercase; /* 大写字母 */
-            letter-spacing: 1px; /* 增加字母间距 */
-        }
-        
-        /* 收起功能栏按钮的悬停效果 */
-        .toggle-toolbar-btn:hover {
-            background-color: #303f9f; /* 更深的蓝色 */
-            padding-bottom: 10px; /* 悬停时增加底部内边距 */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.25); /* 增强阴影 */
-            transform: translateX(-50%) translateY(-2px); /* 增加上移效果 */
+
+        /* 隐藏翻译文本 */
+        .translation,
+        .inline-translation {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- 顶部导航区域 -->
-    <div class="top-nav">
-        <!-- 汉堡菜单按钮 - 仅在移动端显示 -->
-        <button class="menu-toggle" id="menuToggle" type="button" aria-label="菜单">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <a href="index-new-design.html" class="nav-brand">
+            <i class="fas fa-shield-alt"></i>
+            She Haven
+        </a>
         
-        <!-- 功能导航 - 左上角 -->
         <ul class="nav-links">
-            <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
-            <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
-            <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
-            <li><a href="anonymous-tree-hole.html">匿名树洞<span class="inline-translation">Anonymous Tree Hole</span></a></li>
-            <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
-            <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
+            <li><a href="index-new-design.html">首页</a></li>
+            <li><a href="fullscreen-map.html" class="active">安全地图</a></li>
+            <li><a href="community.html">交流社区</a></li>
+            <li><a href="resources.html">资料区</a></li>
+            <li><a href="emergency-contacts.html">紧急联系</a></li>
         </ul>
         
-        <!-- 用户区域 - 直接显示在导航栏中 -->
         <div class="user-area">
-            <!-- 未登录显示 -->
-            <div id="loginButtons" style="display: none; align-items: center;">
-                <a href="javascript:void(0)" style="color: #333; margin-right: 10px; text-decoration: none;" onclick="document.getElementById('loginModal').style.display='block'">登录<span class="inline-translation">Login</span></a>
-                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="document.getElementById('registerModal').style.display='block'">加入我们<span class="inline-translation">Join Us</span></a>
+            <div id="loginButtons" style="display: none;">
+                <a href="javascript:void(0)" class="user-btn" onclick="document.getElementById('loginModal').style.display='block'">登录</a>
+                <a href="javascript:void(0)" class="user-btn primary" onclick="document.getElementById('registerModal').style.display='block'">注册</a>
             </div>
             
-            <!-- 已登录显示 -->
-            <div id="userArea" style="display: flex; align-items: center;">
-                <span id="userNameDisplay" style="color: #333; font-weight: bold; margin-right: 10px;">用户名</span>
-                <a href="javascript:void(0)" style="margin-right: 10px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置<span class="inline-translation">Account</span></a>
-                <a href="javascript:void(0)" style="background-color: #333; color: white; padding: 5px 8px; border-radius: 4px; text-decoration: none;" onclick="logoutUser()">退出<span class="inline-translation">Logout</span></a>
+            <div id="userArea" style="display: flex; align-items: center; gap: 1rem;">
+                <span id="userNameDisplay" style="color: #333; font-weight: 600;">用户名</span>
+                <a href="javascript:void(0)" class="user-btn" onclick="showAccountSettingsModal()">设置</a>
+                <a href="javascript:void(0)" class="user-btn" onclick="logoutUser()">退出</a>
             </div>
         </div>
-    </div>
+    </nav>
 
+    <!-- 地图容器 -->
     <div id="fullscreenMap"></div>
     
     <!-- 手机端浮动控制按钮 -->
     <button id="mobileToggleBtn" type="button" aria-label="展开控制面板">
-        <span style="font-size: 24px;">⚙️</span>
+        <i class="fas fa-cog"></i>
     </button>
     
     <!-- 控制面板 -->
     <div class="map-controls collapsed" id="mapControls">
-        <button id="toggleControlsBtn" type="button">展开</button>
-        <h2>安全地图<span class="translation">Safety Map</span></h2>
+        <button id="toggleControlsBtn" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2>安全地图</h2>
         <p>在地图上标记安全或危险地点，帮助他人避开危险。</p>
-        <p class="translation">Mark safe or dangerous locations on the map to help others avoid danger.</p>
         
         <div class="form-group">
-            <label class="form-label">标题<span class="translation">Title</span></label>
-            <input type="text" id="title" placeholder="请输入标题 / Enter title">
+            <label class="form-label">标题</label>
+            <input type="text" id="title" placeholder="请输入标题">
         </div>
         
         <div class="form-group">
-            <label class="form-label">类型<span class="translation">Type</span></label>
+            <label class="form-label">类型</label>
             <select id="type">
-                <option value="">请选择类型 / Select type</option>
-                <option value="safe">安全地点 / Safe Location</option>
-                <option value="warning">危险地点 / Dangerous Location</option>
-                <option value="help">求助信息 / Help Needed</option>
+                <option value="">请选择类型</option>
+                <option value="safe">安全地点</option>
+                <option value="warning">危险地点</option>
+                <option value="help">求助信息</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label class="form-label">描述<span class="translation">Description</span></label>
-            <textarea id="description" placeholder="请输入描述 / Enter description" rows="3"></textarea>
+            <label class="form-label">描述</label>
+            <textarea id="description" placeholder="请输入描述" rows="3"></textarea>
         </div>
         
-        <button class="btn submit-marker-btn" id="submitMarker">
-            提交标记 <span class="translation">Submit Marker</span>
+        <button class="btn" id="submitMarker">
+            提交标记
         </button>
     </div>
 
-    <!-- 顶部功能展示栏 -->
+    <!-- 功能工具栏 -->
     <div class="function-toolbar" id="functionToolbar">
-        <div class="resource-tabs">
-            <a href="resources.html" class="resource-link">查看安全资料<span class="inline-translation">Safety Resources</span></a>
-            <a href="personal-safety-guide.html" class="resource-link">个人安全指南<span class="inline-translation">Safety Guide</span></a>
-            <a href="emergency-contacts.html" class="emergency-btn">紧急联系方式<span class="inline-translation">Emergency</span></a>
-        </div>
         <button class="toggle-toolbar-btn" id="toggleToolbarBtn">收起</button>
+        <div class="resource-tabs">
+            <a href="resources.html" class="resource-link">安全资料</a>
+            <a href="personal-safety-guide.html" class="resource-link">安全指南</a>
+            <a href="emergency-contacts.html" class="emergency-btn">紧急联系</a>
+        </div>
     </div>
 
     <!-- 登录模态框 -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('loginModal')">&times;</span>
-            <h2>登录 <span class="translation">Login</span></h2>
+            <h2>登录</h2>
             <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="邮箱 Email" required>
-                <input type="password" id="loginPassword" placeholder="密码 Password" required>
+                <input type="email" id="loginEmail" placeholder="邮箱" required>
+                <input type="password" id="loginPassword" placeholder="密码" required>
                 <div class="form-error" id="loginError"></div>
-                <button type="submit">登录 <span class="inline-translation">Login</span></button>
+                <button type="submit">登录</button>
             </form>
         </div>
     </div>
@@ -905,12 +664,12 @@
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('registerModal')">&times;</span>
-            <h2>加入我们 <span class="translation">Join Us</span></h2>
+            <h2>注册</h2>
             <form id="registerForm">
-                <input type="email" id="registerEmail" placeholder="邮箱 Email" required>
-                <input type="password" id="registerPassword" placeholder="密码（至少6位） Password (min 6 characters)" required minlength="6">
+                <input type="email" id="registerEmail" placeholder="邮箱" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位）" required minlength="6">
                 <div class="form-error" id="registerError"></div>
-                <button type="submit">注册 <span class="inline-translation">Register</span></button>
+                <button type="submit">注册</button>
             </form>
         </div>
     </div>
@@ -919,15 +678,24 @@
     <div id="accountSettingsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('accountSettingsModal')">&times;</span>
-            <h2>账号设置 <span class="translation">Account Settings</span></h2>
+            <h2>账号设置</h2>
             <form id="accountSettingsForm">
-                <label for="userName">用户名 <span class="inline-translation">Username</span></label>
-                <input type="text" id="userName" placeholder="用户名 Username" required>
+                <label for="userName">用户名</label>
+                <input type="text" id="userName" placeholder="用户名" required>
                 <div class="form-error" id="accountSettingsError"></div>
-                <button type="submit">保存 <span class="inline-translation">Save</span></button>
+                <button type="submit">保存</button>
             </form>
         </div>
     </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Locate Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
+    
+    <!-- Leaflet Geocoder Plugin -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <script>
         // Firebase 配置
@@ -955,12 +723,16 @@
         let map;
         let currentMarker;
         let markersLayer;
+        let mapControls;
+        let toggleControlsBtn;
+        let mobileToggleBtn;
 
         // 初始化地图
         function initMap() {
             map = L.map('fullscreenMap').setView([39.9042, 116.4074], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
             
             markersLayer = L.layerGroup().addTo(map);
@@ -1006,247 +778,38 @@
                     alert('请先登录后再添加标记！');
                     return;
                 }
-                addMarker(e.latlng);
-            });
-        }
 
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            
-            // 确保功能栏显示并初始化地图位置
-            const functionToolbar = document.getElementById('functionToolbar');
-            const fullscreenMap = document.getElementById('fullscreenMap');
-            const toggleToolbarBtn = document.getElementById('toggleToolbarBtn');
-            const mobileToggleBtn = document.getElementById('mobileToggleBtn');
-            const mapControls = document.getElementById('mapControls');
-            
-            // 确保功能栏显示
-            if (functionToolbar) {
-                functionToolbar.classList.remove('collapsed');
-                console.log('页面加载完成，确保功能栏显示');
-                
-                // 初始化地图位置和大小
-                if (fullscreenMap) {
-                    // 根据设备类型设置不同的边距
-                    const marginTop = window.innerWidth <= 768 ? '110px' : '90px';
-                    fullscreenMap.style.marginTop = marginTop;
-                    fullscreenMap.style.height = `calc(100vh - ${marginTop})`;
-                    console.log(`初始化地图位置，上边距为 ${marginTop}`);
-                }
-            }
-            
-            // 检查是否有登录信息
-            const userName = localStorage.getItem('userName');
-            if (userName) {
-                // 已登录状态
-                document.getElementById('loginButtons').style.display = 'none';
-                document.getElementById('userArea').style.display = 'flex';
-                document.getElementById('userNameDisplay').textContent = userName;
-                
-                // 加载标记
-                loadMarkers();
-            } else {
-                // 未登录状态
-                document.getElementById('loginButtons').style.display = 'flex';
-                document.getElementById('userArea').style.display = 'none';
-            }
-            
-            // 确保控制面板初始状态为收起
-            if (mapControls) {
-                // 防止重复添加类
-                if (!mapControls.classList.contains('collapsed')) {
-                    mapControls.classList.add('collapsed');
-                }
-                
-                // 检测是否在移动设备上
-                const isMobile = window.innerWidth <= 768;
-                if (isMobile) {
-                    // 确保在移动设备上初始状态正确
-                    mapControls.classList.remove('mobile-panel-expanded');
-                }
-                
-                // 初始化按钮状态
-                const toggleControlsBtn = document.getElementById('toggleControlsBtn');
-                if (toggleControlsBtn) {
-                    toggleControlsBtn.textContent = '展开';
-                    toggleControlsBtn.style.backgroundColor = '#2ecc71';
-                }
-                
-                // 确保移动端按钮初始状态正确
-                if (mobileToggleBtn) {
-                    mobileToggleBtn.innerHTML = '<span style="font-size: 24px;">⚙️</span>';
-                    mobileToggleBtn.style.backgroundColor = '#1a3163';
-                }
-                
-                // 记录面板初始化状态
-                console.log('初始化控制面板状态: 收起');
-            } else {
-                console.error('未找到地图控制面板元素');
-                return;
-            }
-            
-            // 功能栏切换
-            if (toggleToolbarBtn && functionToolbar && fullscreenMap) {
-                toggleToolbarBtn.addEventListener('click', function() {
-                    console.log('点击功能栏切换按钮');
-                    
-                    // 切换功能栏的显示状态
-                    functionToolbar.classList.toggle('collapsed');
-                    const isCollapsed = functionToolbar.classList.contains('collapsed');
-                    console.log('功能栏状态:', isCollapsed ? '折叠' : '展开');
-                    
-                    // 更新按钮文本
-                    toggleToolbarBtn.textContent = isCollapsed ? '展开' : '收起';
-                    
-                    // 调整地图的上边距
-                    if (isCollapsed) {
-                        fullscreenMap.style.marginTop = '50px';
-                        fullscreenMap.style.height = 'calc(100vh - 50px)';
-                        console.log('地图上边距调整为 50px');
-                    } else {
-                        const marginTop = window.innerWidth <= 768 ? '110px' : '90px';
-                        fullscreenMap.style.marginTop = marginTop;
-                        fullscreenMap.style.height = `calc(100vh - ${marginTop})`;
-                        console.log(`地图上边距调整为 ${marginTop}`);
-                    }
-                });
-            }
-            
-            // 监听窗口大小变化，调整地图位置
-            window.addEventListener('resize', function() {
-                const mapContainer = document.getElementById('fullscreenMap');
-                const functoolbar = document.getElementById('functionToolbar');
-                
-                if (mapContainer && functoolbar) {
-                    const isCollapsed = functoolbar.classList.contains('collapsed');
-                    
-                    if (isCollapsed) {
-                        // 如果功能栏已收起，地图上边距为50px
-                        mapContainer.style.marginTop = '50px';
-                        mapContainer.style.height = 'calc(100vh - 50px)';
-                    } else {
-                        // 如果功能栏展开，根据设备类型设置不同的上边距
-                        const marginTop = window.innerWidth <= 768 ? '110px' : '90px';
-                        mapContainer.style.marginTop = marginTop;
-                        mapContainer.style.height = `calc(100vh - ${marginTop})`;
-                    }
-                    
-                    console.log('窗口大小变化，调整地图位置，当前状态:', isCollapsed ? '功能栏已收起' : '功能栏已展开');
-                }
-            });
-            
-            // 添加汉堡菜单功能
-            const menuToggle = document.getElementById('menuToggle');
-            const navLinks = document.querySelector('.nav-links');
-            
-            if (menuToggle && navLinks) {
-                console.log('找到汉堡菜单按钮');
-                
-                // 在页面加载时确保导航菜单是关闭状态
-                if (window.innerWidth <= 768) {
-                    navLinks.style.display = 'none';
-                    console.log('初始化：导航菜单设置为关闭状态');
-                }
-                
-                // 添加点击事件处理
-                menuToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('点击汉堡菜单按钮');
-                    
-                    // 添加动画效果的类切换
-                    menuToggle.classList.toggle('active');
-                    
-                    // 切换导航菜单的显示状态
-                    if (navLinks.style.display === 'flex') {
-                        // 关闭菜单
-                        navLinks.style.opacity = '0';
-                        setTimeout(() => {
-                            navLinks.style.display = 'none';
-                        }, 200);
-                        console.log('关闭导航菜单');
-                    } else {
-                        // 打开菜单
-                        navLinks.style.display = 'flex';
-                        navLinks.style.opacity = '0';
-                        navLinks.style.position = 'absolute';
-                        navLinks.style.top = '50px';
-                        navLinks.style.left = '0';
-                        navLinks.style.width = '100%';
-                        navLinks.style.background = '#fff';
-                        navLinks.style.flexDirection = 'column';
-                        navLinks.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-                        navLinks.style.zIndex = '1002';
-                        navLinks.style.transition = 'opacity 0.2s ease';
-                        
-                        // 强制重绘后设置透明度为1，触发过渡效果
-                        setTimeout(() => {
-                            navLinks.style.opacity = '1';
-                        }, 10);
-                        console.log('打开导航菜单');
-                    }
-                });
-                
-                // 点击菜单项后自动关闭菜单
-                const navItems = navLinks.querySelectorAll('a');
-                navItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        if (window.innerWidth <= 768) {
-                            navLinks.style.opacity = '0';
-                            setTimeout(() => {
-                                navLinks.style.display = 'none';
-                            }, 200);
-                            menuToggle.classList.remove('active'); // 移除动画效果类
-                            console.log('点击导航链接，关闭菜单');
-                        }
-                    });
-                });
-                
-                // 点击页面其他区域关闭菜单
-                document.addEventListener('click', function(event) {
-                    if (window.innerWidth <= 768 && 
-                        navLinks.style.display === 'flex' && 
-                        !event.target.closest('#menuToggle') && 
-                        !event.target.closest('.nav-links')) {
-                        navLinks.style.opacity = '0';
-                        setTimeout(() => {
-                            navLinks.style.display = 'none';
-                        }, 200);
-                        menuToggle.classList.remove('active'); // 移除动画效果类
-                        console.log('点击页面其他区域，关闭菜单');
-                    }
-                });
-            } else {
-                console.error('未找到汉堡菜单按钮或导航链接');
-            }
-        });
-
-        // 添加标记
-        function addMarker(latlng) {
+                // 移除之前的临时标记
             if (currentMarker) {
                 map.removeLayer(currentMarker);
             }
 
-            const type = document.getElementById('type').value || 'help';
-            const icon = L.divIcon({
-                className: `marker-icon ${type}`,
+                // 添加新的临时标记
+                currentMarker = L.marker(e.latlng, {
+                    icon: L.divIcon({
+                        className: 'marker-icon help',
                 html: '',
                 iconSize: [25, 25]
+                    })
+                }).addTo(map);
+
+                // 展开控制面板
+                if (mapControls && mapControls.classList.contains('collapsed')) {
+                    togglePanel();
+                }
             });
 
-            currentMarker = L.marker(latlng, {icon: icon}).addTo(map);
+            // 加载已有标记
+            loadMarkers();
         }
 
         // 加载已有标记
         function loadMarkers() {
             console.log('开始加载标记数据...');
             
-            // 修改登录检查逻辑，使用localStorage检查是否登录
             const userName = localStorage.getItem('userName');
             if (!userName) {
                 console.log('用户未登录，等待登录后再加载标记');
-                // 不显示错误，只是不加载数据
                 return;
             }
             
@@ -1254,10 +817,8 @@
             
             const markersRef = firebase.database().ref('markers');
             
-            // 添加错误处理
             markersRef.on('value', (snapshot) => {
                 try {
-                    // 清除现有标记
                     markersLayer.clearLayers();
                     
                     console.log('加载标记数据:', snapshot.exists() ? '有数据' : '无数据');
@@ -1271,24 +832,20 @@
                                 
                                 console.log('处理标记数据:', markerId, markerData);
                                 
-                                // 确保经纬度存在
                                 if (!markerData.lat || !markerData.lng) {
                                     console.error('标记缺少经纬度:', markerId);
                                     return;
                                 }
                                 
-                                // 创建图标
                                 const icon = L.divIcon({
                                     className: `marker-icon ${markerData.type || 'help'}`,
                                     html: '',
                                     iconSize: [25, 25]
                                 });
                                 
-                                // 添加标记到地图
                                 const marker = L.marker([markerData.lat, markerData.lng], {icon: icon}).addTo(markersLayer);
                                 markerCount++;
                                 
-                                // 创建弹出窗口内容
                                 const popupContent = document.createElement('div');
                                 popupContent.className = 'popup-content';
                                 
@@ -1315,7 +872,6 @@
                                 meta.textContent = `由 ${displayName} 添加于 ${date.toLocaleString()}`;
                                 popupContent.appendChild(meta);
                                 
-                                // 如果是当前用户添加的标记，显示删除按钮
                                 const currentUserName = localStorage.getItem('userName');
                                 if (currentUserName && markerData.userName === currentUserName) {
                                     const deleteBtn = document.createElement('button');
@@ -1353,7 +909,6 @@
             }, (error) => {
                 console.error('从Firebase加载标记数据失败:', error);
                 
-                // 检查是否是权限错误
                 if (error.code === 'PERMISSION_DENIED') {
                     console.error('Firebase权限被拒绝，请检查数据库规则');
                     alert('无权访问标记数据，请确认您有权限访问此数据');
@@ -1363,85 +918,120 @@
             });
         }
 
-        // 提交标记
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('submitMarker').addEventListener('click', async function() {
-                if (!localStorage.getItem('userName')) {
-                    alert('请先登录后再添加标记！');
+        // 用户认证相关函数
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!email || !password) {
+                showError(errorDiv, '请填写完整信息');
                     return;
                 }
 
-                if (!currentMarker) {
-                    alert('请先在地图上点击选择位置！');
-                    return;
-                }
-
-                const title = document.getElementById('title').value;
-                const type = document.getElementById('type').value;
-                const description = document.getElementById('description').value;
-
-                if (!title || !type || !description) {
-                    alert('请填写完整信息！');
-                    return;
-                }
-                
-                const latlng = currentMarker.getLatLng();
-                console.log('准备提交标记:', {
-                    title, type, description,
-                    lat: latlng.lat,
-                    lng: latlng.lng
-                });
-                
-                try {
-                    // 获取用户名 - 从localStorage获取
-                    const userName = localStorage.getItem('userName');
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userName = user.email.split('@')[0];
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
                     
-                    // 创建标记数据
-                    const markerData = {
-                        title: title,
-                        type: type,
-                        description: description,
-                        lat: latlng.lat,
-                        lng: latlng.lng,
-                        userId: userName,
-                        userEmail: userName + '@example.com',
-                        userName: userName,
-                        timestamp: Date.now()
-                    };
-
-                    // 保存到数据库
-                    const newMarkerRef = await firebase.database().ref('markers').push(markerData);
-                    console.log('标记添加成功，ID:', newMarkerRef.key);
-                    
-                    alert('标记添加成功！');
-                    
-                    // 清空表单
-                    document.getElementById('title').value = '';
-                    document.getElementById('type').value = '';
-                    document.getElementById('description').value = '';
-                    
-                    // 移除临时标记
-                    if (currentMarker) {
-                        map.removeLayer(currentMarker);
-                        currentMarker = null;
-                    }
-
-                    // 刷新标记
+                    updateUserInterface();
+                    closeModal('loginModal');
                     loadMarkers();
                     
-                } catch (error) {
-                    console.error('添加标记失败:', error);
-                    alert('添加标记失败，请重试');
-                }
-            });
-        });
+                    console.log('用户登录成功:', userName);
+                })
+                .catch((error) => {
+                    console.error('登录失败:', error);
+                    showError(errorDiv, getErrorMessage(error.code));
+                });
+        }
 
-        // 显示不同的页面部分
-        function showSection(sectionName) {
-            if (sectionName === 'resources') {
-                window.location.href = 'index.html#resources';
-            } else if (sectionName === 'emergency') {
-                window.location.href = 'index.html#emergency';
+        function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const errorDiv = document.getElementById('registerError');
+
+            if (!email || !password) {
+                showError(errorDiv, '请填写完整信息');
+                    return;
+                }
+                
+            if (password.length < 6) {
+                showError(errorDiv, '密码至少需要6位');
+                return;
+            }
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userName = user.email.split('@')[0];
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
+                    
+                    updateUserInterface();
+                    closeModal('registerModal');
+                    loadMarkers();
+                    
+                    console.log('用户注册成功:', userName);
+                })
+                .catch((error) => {
+                    console.error('注册失败:', error);
+                    showError(errorDiv, getErrorMessage(error.code));
+                });
+        }
+
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                updateUserInterface();
+                markersLayer.clearLayers();
+                console.log('用户已退出');
+            }).catch((error) => {
+                console.error('退出失败:', error);
+            });
+        }
+
+        function updateUserInterface() {
+            const userName = localStorage.getItem('userName');
+            const loginButtons = document.getElementById('loginButtons');
+            const userArea = document.getElementById('userArea');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+
+            if (userName) {
+                loginButtons.style.display = 'none';
+                userArea.style.display = 'flex';
+                userNameDisplay.textContent = userName;
+            } else {
+                loginButtons.style.display = 'flex';
+                userArea.style.display = 'none';
+            }
+        }
+
+        function showError(errorDiv, message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function getErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/user-not-found':
+                    return '用户不存在';
+                case 'auth/wrong-password':
+                    return '密码错误';
+                case 'auth/email-already-in-use':
+                    return '邮箱已被使用';
+                case 'auth/weak-password':
+                    return '密码强度不够';
+                case 'auth/invalid-email':
+                    return '邮箱格式不正确';
+                default:
+                    return '操作失败，请重试';
             }
         }
 
@@ -1470,25 +1060,19 @@
             console.log('切换控制面板状态');
             const isCollapsed = mapControls.classList.contains('collapsed');
             
-            // 检查是否在移动设备上
             const isMobile = window.innerWidth <= 768;
             
-            // 切换面板显示状态
             if (isCollapsed) {
-                // 从收起状态到展开状态
                 mapControls.classList.remove('collapsed');
                 
-                // 在移动设备上添加额外的强制展开类
                 if (isMobile) {
                     mapControls.classList.add('mobile-panel-expanded');
                 }
                 
                 console.log('面板状态: 已展开');
             } else {
-                // 从展开状态到收起状态
                 mapControls.classList.add('collapsed');
                 
-                // 在移动设备上移除强制展开类
                 if (isMobile) {
                     mapControls.classList.remove('mobile-panel-expanded');
                 }
@@ -1496,45 +1080,162 @@
                 console.log('面板状态: 已收起');
             }
             
-            // 更新桌面端按钮的文本/样式
             if (toggleControlsBtn) {
-                toggleControlsBtn.textContent = isCollapsed ? '收起' : '展开';
-                toggleControlsBtn.style.backgroundColor = isCollapsed ? '#e74c3c' : '#2ecc71';
+                toggleControlsBtn.innerHTML = isCollapsed ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
             }
             
-            // 更新移动端按钮的图标/样式
             if (mobileToggleBtn) {
                 if (isCollapsed) {
-                    // 面板将展开，显示关闭图标
-                    mobileToggleBtn.innerHTML = '<span style="font-size: 28px; margin-top: 2px;">❌</span>';
-                    // 添加展开状态的样式类
+                    mobileToggleBtn.innerHTML = '<i class="fas fa-times"></i>';
                     mobileToggleBtn.classList.add('expanded');
                 } else {
-                    // 面板将收起，显示设置图标
-                    mobileToggleBtn.innerHTML = '<span style="font-size: 24px;">⚙️</span>';
-                    // 移除展开状态的样式类
+                    mobileToggleBtn.innerHTML = '<i class="fas fa-cog"></i>';
                     mobileToggleBtn.classList.remove('expanded');
                 }
             }
         }
         
-        // 添加桌面端按钮事件监听
+        // 工具栏切换
+        function toggleToolbar() {
+            const toolbar = document.getElementById('functionToolbar');
+            const btn = document.getElementById('toggleToolbarBtn');
+            
+            if (toolbar.classList.contains('collapsed')) {
+                toolbar.classList.remove('collapsed');
+                btn.textContent = '收起';
+            } else {
+                toolbar.classList.add('collapsed');
+                btn.textContent = '展开';
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化地图
+            initMap();
+            
+            // 获取DOM元素
+            mapControls = document.getElementById('mapControls');
+            toggleControlsBtn = document.getElementById('toggleControlsBtn');
+            mobileToggleBtn = document.getElementById('mobileToggleBtn');
+            
+            // 添加事件监听器
         if (toggleControlsBtn) {
             toggleControlsBtn.addEventListener('click', togglePanel);
-            toggleControlsBtn.addEventListener('touchend', function(e) {
-                e.preventDefault(); // 防止触摸事件后的点击事件
-                togglePanel(e);
-            });
         }
         
-        // 添加移动端按钮事件监听
         if (mobileToggleBtn) {
             mobileToggleBtn.addEventListener('click', togglePanel);
-            mobileToggleBtn.addEventListener('touchend', function(e) {
-                e.preventDefault(); // 防止触摸事件后的点击事件
-                togglePanel(e);
+            }
+
+            // 工具栏切换按钮
+            const toggleToolbarBtn = document.getElementById('toggleToolbarBtn');
+            if (toggleToolbarBtn) {
+                toggleToolbarBtn.addEventListener('click', toggleToolbar);
+            }
+
+            // 提交标记按钮
+            document.getElementById('submitMarker').addEventListener('click', async function() {
+                if (!localStorage.getItem('userName')) {
+                    alert('请先登录后再添加标记！');
+                    return;
+                }
+
+                if (!currentMarker) {
+                    alert('请先在地图上点击选择位置！');
+                    return;
+                }
+
+                const title = document.getElementById('title').value;
+                const type = document.getElementById('type').value;
+                const description = document.getElementById('description').value;
+
+                if (!title || !type || !description) {
+                    alert('请填写完整信息！');
+                    return;
+                }
+                
+                const latlng = currentMarker.getLatLng();
+                console.log('准备提交标记:', {
+                    title, type, description,
+                    lat: latlng.lat,
+                    lng: latlng.lng
+                });
+                
+                try {
+                    const userName = localStorage.getItem('userName');
+                    
+                    const markerData = {
+                        title: title,
+                        type: type,
+                        description: description,
+                        lat: latlng.lat,
+                        lng: latlng.lng,
+                        userId: userName,
+                        userEmail: userName + '@example.com',
+                        userName: userName,
+                        timestamp: Date.now()
+                    };
+
+                    const newMarkerRef = await firebase.database().ref('markers').push(markerData);
+                    console.log('标记添加成功，ID:', newMarkerRef.key);
+                    
+                    alert('标记添加成功！');
+                    
+                    document.getElementById('title').value = '';
+                    document.getElementById('type').value = '';
+                    document.getElementById('description').value = '';
+                    
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
+
+                    loadMarkers();
+                    
+                } catch (error) {
+                    console.error('添加标记失败:', error);
+                    alert('添加标记失败，请重试');
+                }
             });
-        }
+
+            // 登录表单
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+
+            // 注册表单
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                register();
+            });
+
+            // 账号设置表单
+            document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newUserName = document.getElementById('userName').value;
+                if (newUserName) {
+                    localStorage.setItem('userName', newUserName);
+                    updateUserInterface();
+                    closeModal('accountSettingsModal');
+                    alert('用户名更新成功！');
+                }
+            });
+
+            // 初始化用户界面
+            updateUserInterface();
+
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html> 

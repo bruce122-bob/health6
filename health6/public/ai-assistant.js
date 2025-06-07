@@ -1,28 +1,24 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // 主要使用测试模式，确保功能可用
-    testMode: true, // 暂时默认使用测试模式，API修复后可改为false
+    // 暂时默认使用测试模式，确保功能可用
+    testMode: true, // 由于API密钥问题，暂时使用测试模式
     
     // OpenRouter API配置
     apiKey: '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',
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-r1-distill-llama-70b', // 使用更稳定的模型
+    model: 'deepseek/deepseek-r1-distill-llama-70b', // 使用正确的模型名称
     
     // 备用配置
     backupApiKey: 'sk-4c0bde4756d4499494df9676b110c3e1',
     backupApiUrl: 'https://api.deepseek.com/v1/chat/completions',
     backupModel: 'deepseek-chat',
     
-    // 代理服务器配置
-    proxyUrls: [
-        'https://cors-anywhere.herokuapp.com/https://openrouter.ai/api/v1/chat/completions',
-        'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://openrouter.ai/api/v1/chat/completions'),
-        'https://thingproxy.freeboard.io/fetch/https://openrouter.ai/api/v1/chat/completions'
-    ],
+    // 代理服务器配置 - 暂时禁用
+    proxyUrls: [],
     
-    useProxy: true,
+    useProxy: false, // 禁用代理，直接连接
     timeout: 15000,
-    maxRetries: 2,
+    maxRetries: 1, // 减少重试次数，快速切换到测试模式
     autoSwitchToTestMode: true, // 当API出错时自动切换到测试模式
     
     // API特定配置
@@ -32,26 +28,33 @@ const AI_CONFIG = {
     // 质量优先配置
     maxTokens: 1000,
     temperature: 0.7,
-    maxHistoryLength: 8,
-    enableStreaming: false,
-    prioritizeSpeed: false,
+    maxHistoryMessages: 8,
     
-    // 质量优化模式配置
-    ultraFastMode: false,
-    quickResponseThreshold: 30000,
-    simplifyPrompts: false,
-    cacheResponses: false,
-    parallelRequests: false,
-    
-    // 新增质量控制配置
-    detailedResponses: true,
-    contextAware: true,
-    professionalMode: true,
-    
-    // 错误处理配置
-    showApiErrors: false, // 不显示API错误给用户
-    gracefulFallback: true, // 优雅降级到测试模式
-    userFriendlyErrors: true // 显示用户友好的错误信息
+    // 系统提示词
+    systemPrompt: `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供专业、温暖、有价值的帮助。
+
+**你的核心特质：**
+• 专业知识丰富：涵盖女性安全、法律维权、心理健康、职业发展、理财规划等领域
+• 回答详细准确：提供具体可行的建议和解决方案
+• 语言温暖亲切：用理解和关怀的语气与用户交流
+• 思维逻辑清晰：条理分明地组织回答内容
+
+**回答要求：**
+1. 提供详细、实用的信息，不要简单敷衍
+2. 结合具体情况给出个性化建议
+3. 必要时提供相关资源和联系方式
+4. 保持专业性的同时体现人文关怀
+5. 对敏感话题（如心理健康、安全问题）要特别谨慎和专业
+
+**特别关注领域：**
+• 女性安全防护和应急处理
+• 职场权益保护和发展建议
+• 心理健康支持和情感关怀
+• 法律知识普及和维权指导
+• 理财规划和经济独立
+• 学习成长和技能提升
+
+请用中文回答，语气要专业而温暖，内容要详实有用。记住，你是基于DeepSeek大模型的Luma AI助手。`
 };
 
 class LumaAIAssistant {
@@ -448,44 +451,16 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
     }
 
     async performAPICall(message) {
-        // 构建详细的系统提示词以提高回答质量
-        const systemPrompt = AI_CONFIG.professionalMode ? 
-            `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供专业、温暖、有价值的帮助。
-
-**你的核心特质：**
-• 专业知识丰富：涵盖女性安全、法律维权、心理健康、职业发展、理财规划等领域
-• 回答详细准确：提供具体可行的建议和解决方案
-• 语言温暖亲切：用理解和关怀的语气与用户交流
-• 思维逻辑清晰：条理分明地组织回答内容
-
-**回答要求：**
-1. 提供详细、实用的信息，不要简单敷衍
-2. 结合具体情况给出个性化建议
-3. 必要时提供相关资源和联系方式
-4. 保持专业性的同时体现人文关怀
-5. 对敏感话题（如心理健康、安全问题）要特别谨慎和专业
-
-**特别关注领域：**
-• 女性安全防护和应急处理
-• 职场权益保护和发展建议
-• 心理健康支持和情感关怀
-• 法律知识普及和维权指导
-• 理财规划和经济独立
-• 学习成长和技能提升
-
-请用中文回答，语气要专业而温暖，内容要详实有用。记住，你是基于DeepSeek大模型的Luma AI助手。` :
-            `你是Luma ✨，She Haven的专属AI助手，基于DeepSeek大模型。请用中文详细、准确地回答用户问题，提供有价值的帮助和建议。`;
-
         // 构建对话历史（保留更多对话以提高上下文理解）
-        const recentHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryLength);
+        const recentHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
         const messages = [
-            { role: 'system', content: systemPrompt },
+            { role: 'system', content: AI_CONFIG.systemPrompt },
             ...recentHistory,
             { role: 'user', content: message }
         ];
 
         console.log(`调用AI API，消息数量: ${messages.length} (质量优先模式)`);
-        console.log(`使用API密钥: ${AI_CONFIG.apiKey.substring(0, 20)}...${AI_CONFIG.apiKey.substring(-10)}`);
+        console.log(`使用API密钥: ${AI_CONFIG.apiKey.substring(0, 20)}...`);
         console.log(`API端点: ${AI_CONFIG.apiUrl}`);
 
         // 创建超时控制
@@ -503,8 +478,9 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'HTTP-Referer': 'https://she-haven.com',
-                    'X-Title': 'She Haven AI Assistant'
+                    'HTTP-Referer': AI_CONFIG.siteUrl,
+                    'X-Title': AI_CONFIG.siteName,
+                    'Origin': AI_CONFIG.siteUrl
                 },
                 name: 'OpenRouter API',
                 timeout: 15000
@@ -517,7 +493,8 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         for (const attempt of attempts) {
             attemptCount++;
             console.log(`尝试${attempt.name}... (${attemptCount}/${attempts.length})`);
-            console.log(`API密钥: ${AI_CONFIG.apiKey.substring(0, 15)}...`);
+            console.log(`API密钥长度: ${AI_CONFIG.apiKey.length}`);
+            console.log(`API密钥前缀: ${AI_CONFIG.apiKey.substring(0, 15)}...`);
 
             try {
                 const requestBody = {
@@ -533,8 +510,11 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 const requestOptions = {
                     method: 'POST',
                     headers: attempt.headers,
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify(requestBody),
+                    mode: 'cors'
                 };
+
+                console.log('请求头:', attempt.headers);
 
                 // 使用Promise.race来实现超时控制
                 const fetchPromise = fetch(attempt.url, requestOptions);
@@ -580,8 +560,8 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 );
                 
                 // 保持对话历史在合理长度内
-                if (this.conversationHistory.length > AI_CONFIG.maxHistoryLength * 2) {
-                    this.conversationHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryLength);
+                if (this.conversationHistory.length > AI_CONFIG.maxHistoryMessages * 2) {
+                    this.conversationHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
                 }
                 
                 return aiResponse;
@@ -735,7 +715,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         try {
             // 保存更少的消息以提高性能（从50条减少到20条）
             const recentMessages = this.messages.slice(-20);
-            const recentConversation = this.conversationHistory.slice(-AI_CONFIG.maxHistoryLength);
+            const recentConversation = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
             
             localStorage.setItem('ai-chat-history', JSON.stringify(recentMessages));
             localStorage.setItem('ai-conversation-history', JSON.stringify(recentConversation));

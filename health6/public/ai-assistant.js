@@ -1,50 +1,57 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // DeepSeek API配置（免费模型）
+    // 主要使用正常模式，显示真实的连接状态
+    testMode: false, // 默认使用正常模式，显示真实错误
+    
+    // DeepSeek API配置（备用）
     apiKey: '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',
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-r1-0528:free', // 免费的DeepSeek模型
+    model: 'deepseek/deepseek-r1-0528:free',
     
-    // 备用配置（原DeepSeek API）
+    // 备用配置
     backupApiKey: 'sk-4c0bde4756d4499494df9676b110c3e1',
     backupApiUrl: 'https://api.deepseek.com/v1/chat/completions',
     backupModel: 'deepseek-chat',
     
-    // 使用更可靠的代理服务器
+    // 代理服务器配置
     proxyUrls: [
         'https://cors-anywhere.herokuapp.com/https://openrouter.ai/api/v1/chat/completions',
         'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://openrouter.ai/api/v1/chat/completions'),
         'https://thingproxy.freeboard.io/fetch/https://openrouter.ai/api/v1/chat/completions'
     ],
     
-    testMode: false, // 现在有免费API，可以设置为正常模式
-    useProxy: true, // 默认使用代理来避免CORS问题
-    timeout: 15000, // 增加到15秒超时，给AI更多时间思考
-    maxRetries: 2, // 增加重试次数到2次
+    useProxy: true,
+    timeout: 15000,
+    maxRetries: 2,
     autoSwitchToTestMode: true, // 当API出错时自动切换到测试模式
     
     // API特定配置
-    siteUrl: 'https://she-haven.com', // 你的网站URL
-    siteName: 'She Haven - Luma AI Assistant', // 你的网站名称
+    siteUrl: 'https://she-haven.com',
+    siteName: 'She Haven - Luma AI Assistant',
     
-    // 质量优先配置 - 优化回答质量
-    maxTokens: 1000, // 大幅增加token数量，允许更详细的回答
-    temperature: 0.7, // 提高温度，增加创造性和多样性
-    maxHistoryLength: 8, // 增加对话历史长度，保持更好的上下文
-    enableStreaming: false, // 禁用流式传输
-    prioritizeSpeed: false, // 不再优先考虑速度
+    // 质量优先配置
+    maxTokens: 1000,
+    temperature: 0.7,
+    maxHistoryLength: 8,
+    enableStreaming: false,
+    prioritizeSpeed: false,
     
     // 质量优化模式配置
-    ultraFastMode: false, // 关闭超高速模式
-    quickResponseThreshold: 30000, // 30秒响应阈值
-    simplifyPrompts: false, // 不简化系统提示词，使用完整提示
-    cacheResponses: false, // 关闭响应缓存，确保每次都是新鲜回答
-    parallelRequests: false, // 禁用并行请求以减少服务器负载
+    ultraFastMode: false,
+    quickResponseThreshold: 30000,
+    simplifyPrompts: false,
+    cacheResponses: false,
+    parallelRequests: false,
     
     // 新增质量控制配置
-    detailedResponses: true, // 启用详细回答模式
-    contextAware: true, // 启用上下文感知
-    professionalMode: true // 启用专业模式
+    detailedResponses: true,
+    contextAware: true,
+    professionalMode: true,
+    
+    // 错误处理配置
+    showApiErrors: false, // 不显示API错误给用户
+    gracefulFallback: true, // 优雅降级到测试模式
+    userFriendlyErrors: true // 显示用户友好的错误信息
 };
 
 class LumaAIAssistant {
@@ -266,48 +273,8 @@ class LumaAIAssistant {
             console.error('发送消息失败:', error);
             this.hideTyping();
             
-            let errorMessage = '❌ 抱歉，AI助手暂时无法回复您的问题。';
-            let suggestions = '💡 建议：\n• 检查网络连接\n• 稍后重试\n• 尝试简化问题';
-            
-            if (error.message === 'INVALID_API_KEY') {
-                errorMessage = '❌ API密钥验证失败，请检查DeepSeek API密钥是否正确。';
-                suggestions = '💡 解决方法：\n• 检查API密钥是否正确\n• 确认API密钥是否有效\n• 联系管理员更新密钥\n• 点击下方按钮切换到测试模式';
-            } else if (error.message === 'INSUFFICIENT_BALANCE') {
-                errorMessage = '💳 API账户余额不足，无法继续使用AI服务。';
-                suggestions = '💡 解决方法：\n• 请联系管理员充值API账户\n• 点击下方"切换到测试模式"按钮继续体验\n• 测试模式提供完整功能演示\n• 检查DeepSeek账户余额';
-            } else if (error.message === 'RATE_LIMIT') {
-                errorMessage = '⏰ API调用频率过高，请稍后再试。';
-                suggestions = '💡 建议：\n• 等待1-2分钟后重试\n• 减少提问频率';
-            } else if (error.message === 'TIMEOUT_ERROR') {
-                errorMessage = '⏱️ 连接超时，AI服务响应较慢。';
-                suggestions = '💡 建议：\n• 检查网络连接速度\n• 重新发送问题\n• 尝试简化问题内容\n• 稍后再试';
-                
-                // 如果启用自动切换且超时，自动切换到测试模式
-                if (AI_CONFIG.autoSwitchToTestMode && !AI_CONFIG.testMode) {
-                    errorMessage += '\n\n🔄 正在自动切换到测试模式以提供快速响应...';
-                    setTimeout(() => {
-                        AI_CONFIG.testMode = true;
-                        this.updateModeDisplay();
-                    }, 1000);
-                }
-            } else if (error.message === 'SERVER_ERROR') {
-                errorMessage = '🔧 AI服务器暂时不可用，请稍后再试。';
-                suggestions = '💡 建议：\n• 等待几分钟后重试\n• 检查DeepSeek服务状态';
-            } else if (error.message === 'NETWORK_ERROR') {
-                errorMessage = '🌐 网络连接问题，无法访问AI服务。';
-                suggestions = '💡 解决方法：\n• 检查网络连接\n• 尝试刷新页面\n• 确认防火墙设置\n• 尝试使用移动网络';
-            } else if (error.message === 'ALL_METHODS_FAILED') {
-                errorMessage = '🔄 已尝试多种连接方式，但都无法成功连接到AI服务。';
-                suggestions = '💡 可能的解决方法：\n• 检查网络连接是否正常\n• 稍后再试（可能是服务器维护）\n• 尝试刷新页面\n• 点击下方按钮切换到测试模式\n• 联系技术支持获取帮助';
-            } else if (error.message === 'INVALID_RESPONSE') {
-                errorMessage = '📡 AI服务返回了异常数据，正在重新尝试...';
-                suggestions = '💡 建议：\n• 重新发送你的问题\n• 如果问题持续，请简化问题内容';
-            } else if (error.message.includes('API_ERROR_')) {
-                errorMessage = '⚠️ AI服务暂时出现问题，正在尝试其他连接方式...';
-                suggestions = '💡 建议：\n• 稍等片刻后重试\n• 检查问题是否过于复杂\n• 尝试重新表述问题';
-            }
-            
-            this.addMessage(errorMessage + '\n\n' + suggestions, 'ai', true);
+            // 统一显示连接错误，不展示具体原因
+            this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
         }
 
         // 保存聊天记录
@@ -690,7 +657,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
             if (header) {
                 header.classList.add('test-mode');
             }
-            console.log('已切换到测试模式 - 超高速响应');
+            console.log('已切换到测试模式');
         } else {
             if (modeBtn) {
                 modeBtn.innerHTML = '<i class="fas fa-robot"></i> 正常模式';
@@ -855,4 +822,4 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 // 初始化AI助手
 document.addEventListener('DOMContentLoaded', () => {
     window.lumaAssistant = new LumaAIAssistant();
-}); 
+});

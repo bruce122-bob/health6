@@ -485,6 +485,8 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         ];
 
         console.log(`调用AI API，消息数量: ${messages.length} (质量优先模式)`);
+        console.log(`使用API密钥: ${AI_CONFIG.apiKey.substring(0, 20)}...${AI_CONFIG.apiKey.substring(-10)}`);
+        console.log(`API端点: ${AI_CONFIG.apiUrl}`);
 
         // 创建超时控制
         const createTimeoutPromise = (timeout) => {
@@ -495,7 +497,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 
         // 质量优先的连接尝试策略
         const attempts = [
-            // 首选：直接调用API
+            // 首选：直接调用API（尝试不同的认证格式）
             {
                 url: AI_CONFIG.apiUrl,
                 headers: {
@@ -503,35 +505,33 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
                     'Accept': 'application/json',
                     'HTTP-Referer': AI_CONFIG.siteUrl,
-                    'X-Title': AI_CONFIG.siteName
+                    'X-Title': AI_CONFIG.siteName,
+                    'Origin': AI_CONFIG.siteUrl
                 },
                 name: '直接调用API',
                 timeout: 15000
             },
-            // 备选：使用代理
+            // 备选：尝试不同的请求头
+            {
+                url: AI_CONFIG.apiUrl,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
+                    'Accept': 'application/json'
+                },
+                name: '简化请求头调用',
+                timeout: 15000
+            },
+            // 第三选择：使用代理
             {
                 url: AI_CONFIG.proxyUrls[2], // thingproxy
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'Accept': 'application/json',
-                    'HTTP-Referer': AI_CONFIG.siteUrl,
-                    'X-Title': AI_CONFIG.siteName
+                    'Accept': 'application/json'
                 },
                 name: '代理调用',
                 timeout: 20000
-            },
-            // 最后备选：备用API
-            {
-                url: AI_CONFIG.backupApiUrl,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AI_CONFIG.backupApiKey}`,
-                    'Accept': 'application/json'
-                },
-                name: '备用DeepSeek API',
-                timeout: 15000,
-                useBackupModel: true
             }
         ];
 

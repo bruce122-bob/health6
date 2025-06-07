@@ -1,12 +1,12 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // 暂时默认使用测试模式，确保功能可用
-    testMode: true, // 由于API密钥问题，暂时使用测试模式
+    // 由于API密钥问题，默认使用测试模式确保功能可用
+    testMode: true, // API密钥需要更新，暂时使用测试模式
     
-    // OpenRouter API配置
-    apiKey: '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',
+    // OpenRouter API配置 - 需要有效的API密钥
+    apiKey: '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', // 此密钥可能已过期
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-r1-distill-llama-70b', // 使用正确的模型名称
+    model: 'deepseek/deepseek-r1-distill-llama-70b',
     
     // 备用配置
     backupApiKey: 'sk-4c0bde4756d4499494df9676b110c3e1',
@@ -16,9 +16,9 @@ const AI_CONFIG = {
     // 代理服务器配置 - 暂时禁用
     proxyUrls: [],
     
-    useProxy: false, // 禁用代理，直接连接
+    useProxy: false,
     timeout: 15000,
-    maxRetries: 1, // 减少重试次数，快速切换到测试模式
+    maxRetries: 1,
     autoSwitchToTestMode: true, // 当API出错时自动切换到测试模式
     
     // API特定配置
@@ -276,8 +276,30 @@ class LumaAIAssistant {
             console.error('发送消息失败:', error);
             this.hideTyping();
             
-            // 统一显示连接错误，不展示具体原因
-            this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
+            // 如果API失败且开启了自动切换，则切换到测试模式并重新获取回答
+            if (!AI_CONFIG.testMode && AI_CONFIG.autoSwitchToTestMode && 
+                (error.message === 'INVALID_API_KEY' || error.message === 'INSUFFICIENT_BALANCE' || 
+                 error.message === 'NETWORK_ERROR' || error.message === 'ALL_METHODS_FAILED')) {
+                
+                console.log('API失败，自动切换到测试模式');
+                AI_CONFIG.testMode = true;
+                this.updateModeUI();
+                
+                // 重新显示加载状态并获取测试回答
+                this.showTyping();
+                try {
+                    const testResponse = await this.getTestResponse(message);
+                    this.hideTyping();
+                    this.addMessage(testResponse, 'ai');
+                    console.log('测试模式回复:', testResponse);
+                } catch (testError) {
+                    this.hideTyping();
+                    this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
+                }
+            } else {
+                // 统一显示连接错误，不展示具体原因
+                this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
+            }
         }
 
         // 保存聊天记录
@@ -429,6 +451,34 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 
 记住：寻求帮助是勇敢的表现，您值得被关爱和支持。`;
         }
+        else if (lowerMessage.includes('足球') || lowerMessage.includes('运动') || lowerMessage.includes('健身')) {
+            response = `⚽ **女性运动与健康**：
+
+**足球运动的好处：**
+• **身体健康**：提高心肺功能，增强肌肉力量
+• **团队合作**：培养沟通协调和领导能力
+• **心理健康**：释放压力，增强自信心
+• **社交机会**：结识志同道合的朋友
+
+**女性参与足球的建议：**
+• **装备选择**：选择合适的运动鞋和护具
+• **循序渐进**：从基础训练开始，逐步提高
+• **注意安全**：做好热身和拉伸，避免受伤
+• **生理期调整**：根据身体状况合理安排训练
+
+**其他适合女性的运动：**
+• **瑜伽**：提高柔韧性，缓解压力
+• **游泳**：全身运动，对关节友好
+• **跑步**：简单易行，增强心肺功能
+• **力量训练**：塑造身材，提高基础代谢
+
+**运动安全提醒：**
+• 选择安全的运动场所和时间
+• 告知他人你的运动计划
+• 随身携带必要的安全用品
+
+运动不仅让身体更健康，更能让心灵更强大！`;
+        }
         else {
             // 默认智能回复
             response = `我理解您的问题："${message}"
@@ -479,8 +529,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
                     'HTTP-Referer': AI_CONFIG.siteUrl,
-                    'X-Title': AI_CONFIG.siteName,
-                    'Origin': AI_CONFIG.siteUrl
+                    'X-Title': AI_CONFIG.siteName
                 },
                 name: 'OpenRouter API',
                 timeout: 15000
@@ -761,7 +810,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 modeText.textContent = '切换到测试模式';
                 modeBtn.classList.remove('test-mode');
                 header.classList.remove('test-mode');
-                this.addMessage('🚀 已切换到正常模式。现在将调用DeepSeek大模型为你提供专业准确的回答。', 'ai');
+                this.addMessage('🚀 已切换到正常模式。正在尝试连接DeepSeek API...\n\n⚠️ 如果出现连接错误，可能是API密钥需要更新。请联系管理员或切换回测试模式。', 'ai');
             }
         }
         

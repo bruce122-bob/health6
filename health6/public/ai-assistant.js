@@ -1,17 +1,17 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // 使用新的API密钥，启用正常模式
-    testMode: false, // 使用新的API密钥，启用正常模式
+    // 使用Chutes API作为主要API，启用正常模式
+    testMode: false, // 使用Chutes API，启用正常模式
     
-    // OpenRouter API配置 - 使用新的有效API密钥
-    apiKey: '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',
-    apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-chat-v3-0324:free', // 使用免费的DeepSeek模型
+    // Chutes API配置 - 主要API
+    apiKey: 'cpk_298f4d012eeb4f3bbcdb0e7d25a4d584.151dc2509cf35b7ea67963bc87f90f29.x7w5Q3D2Qbr80212sAMhHNz3xdNYsKRJ',
+    apiUrl: 'https://llm.chutes.ai/v1/chat/completions',
+    model: 'deepseek-ai/DeepSeek-V3-0324', // 使用DeepSeek V3模型
     
-    // Chutes备用配置
-    backupApiKey: 'cpk_298f4d012eeb4f3bbcdb0e7d25a4d584.151dc2509cf35b7ea67963bc87f90f29.x7w5Q3D2Qbr80212sAMhHNz3xdNYsKRJ',
-    backupApiUrl: 'https://llm.chutes.ai/v1/chat/completions',
-    backupModel: 'deepseek-ai/DeepSeek-V3-0324',
+    // OpenRouter备用配置
+    backupApiKey: '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',
+    backupApiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+    backupModel: 'deepseek/deepseek-chat-v3-0324:free',
     
     // 代理服务器配置 - 暂时禁用
     proxyUrls: [],
@@ -117,7 +117,7 @@ class LumaAIAssistant {
                                     <li>💖 情感支持和心理健康建议</li>
                                 </ul>
                                 <p>我会用温暖、专业的方式为每一位女性提供帮助。请随时向我提问！</p>
-                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | DeepSeek V3驱动 | 专业模式</p>'}
+                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | Chutes驱动 | DeepSeek V3专业模式</p>'}
                             </div>
                         </div>
                     </div>
@@ -520,30 +520,30 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
             });
         };
 
-        // OpenRouter API调用策略
+        // API调用策略 - Chutes为主，OpenRouter为备用
         const attempts = [
-            // 主要OpenRouter API调用
+            // 主要Chutes API调用
             {
                 url: AI_CONFIG.apiUrl,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'HTTP-Referer': AI_CONFIG.siteUrl,
-                    'X-Title': AI_CONFIG.siteName
+                    'Authorization': `Bearer ${AI_CONFIG.apiKey}`
                 },
                 model: AI_CONFIG.model,
-                name: 'OpenRouter API',
+                name: 'Chutes API',
                 timeout: 15000
             },
-            // 备用Chutes API调用
+            // 备用OpenRouter API调用
             {
                 url: AI_CONFIG.backupApiUrl,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AI_CONFIG.backupApiKey}`
+                    'Authorization': `Bearer ${AI_CONFIG.backupApiKey}`,
+                    'HTTP-Referer': AI_CONFIG.siteUrl,
+                    'X-Title': AI_CONFIG.siteName
                 },
                 model: AI_CONFIG.backupModel,
-                name: 'Chutes API',
+                name: 'OpenRouter API',
                 timeout: 15000
             }
         ];
@@ -636,9 +636,13 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     lastError = new Error('TIMEOUT_ERROR');
                     continue;
                 } else if (fetchError.message === 'INVALID_API_KEY') {
-                    throw fetchError; // API密钥错误，不再重试
+                    console.log(`${attempt.name}API密钥无效，尝试下一种方式...`);
+                    lastError = fetchError;
+                    continue; // 继续尝试备用API
                 } else if (fetchError.message === 'INSUFFICIENT_BALANCE') {
-                    throw fetchError; // 余额不足，不再重试
+                    console.log(`${attempt.name}余额不足，尝试下一种方式...`);
+                    lastError = fetchError;
+                    continue; // 继续尝试备用API
                 } else if (fetchError.message.includes('CORS') || 
                           fetchError.message.includes('Failed to fetch') ||
                           fetchError.message.includes('NetworkError')) {
@@ -822,7 +826,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 modeText.textContent = '切换到测试模式';
                 modeBtn.classList.remove('test-mode');
                 header.classList.remove('test-mode');
-                this.addMessage('🚀 已切换到正常模式。现在将调用DeepSeek V3大模型为你提供专业准确的回答。', 'ai');
+                this.addMessage('🚀 已切换到正常模式。现在将调用Chutes API的DeepSeek V3大模型为你提供专业准确的回答。', 'ai');
             }
         }
         

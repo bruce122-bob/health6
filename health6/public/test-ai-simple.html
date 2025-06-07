@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手测试 - She Haven</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin: 10px;
+        }
+        
+        .test-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI助手功能测试</h1>
+        <p>这是一个简单的测试页面，用于验证Luma AI助手是否正常工作</p>
+        
+        <button class="test-button" onclick="testAIAssistant()">测试AI助手</button>
+        <button class="test-button" onclick="openAIChat()">打开AI对话</button>
+        
+        <div class="status" id="status">
+            <p>状态：等待测试...</p>
+        </div>
+    </div>
+    
+    <!-- 引入AI助手 -->
+    <link rel="stylesheet" href="ai-assistant.css">
+    <script src="ai-assistant.js"></script>
+    
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<p>${message}</p>`;
+        }
+        
+        function testAIAssistant() {
+            updateStatus('正在测试AI助手...');
+            
+            // 检查AI助手是否已加载
+            if (typeof window.lumaAssistant !== 'undefined') {
+                updateStatus('✅ AI助手已成功加载！<br>您可以看到右下角的聊天按钮。');
+            } else {
+                updateStatus('❌ AI助手未加载。正在重试...');
+                
+                // 等待一段时间后重试
+                setTimeout(() => {
+                    if (typeof window.lumaAssistant !== 'undefined') {
+                        updateStatus('✅ AI助手已成功加载！<br>您可以看到右下角的聊天按钮。');
+                    } else {
+                        updateStatus('❌ AI助手加载失败。请检查网络连接或刷新页面重试。');
+                    }
+                }, 2000);
+            }
+        }
+        
+        function openAIChat() {
+            if (typeof window.lumaAssistant !== 'undefined') {
+                window.lumaAssistant.openChat();
+                updateStatus('✅ AI对话窗口已打开！');
+            } else {
+                updateStatus('❌ AI助手未加载，无法打开对话窗口。');
+            }
+        }
+        
+        // 页面加载完成后自动测试
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testAIAssistant();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

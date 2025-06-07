@@ -1,12 +1,12 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // 主要使用正常模式，显示真实的连接状态
-    testMode: false, // 默认使用正常模式，显示真实错误
+    // 主要使用测试模式，确保功能可用
+    testMode: true, // 暂时默认使用测试模式，API修复后可改为false
     
-    // DeepSeek API配置（备用）
+    // OpenRouter API配置
     apiKey: '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',
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-r1-0528:free',
+    model: 'deepseek/deepseek-r1-distill-llama-70b', // 使用更稳定的模型
     
     // 备用配置
     backupApiKey: 'sk-4c0bde4756d4499494df9676b110c3e1',
@@ -495,43 +495,19 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
             });
         };
 
-        // 质量优先的连接尝试策略
+        // OpenRouter API调用策略
         const attempts = [
-            // 首选：直接调用API（尝试不同的认证格式）
+            // 标准OpenRouter API调用
             {
                 url: AI_CONFIG.apiUrl,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'Accept': 'application/json',
-                    'HTTP-Referer': AI_CONFIG.siteUrl,
-                    'X-Title': AI_CONFIG.siteName,
-                    'Origin': AI_CONFIG.siteUrl
+                    'HTTP-Referer': 'https://she-haven.com',
+                    'X-Title': 'She Haven AI Assistant'
                 },
-                name: '直接调用API',
+                name: 'OpenRouter API',
                 timeout: 15000
-            },
-            // 备选：尝试不同的请求头
-            {
-                url: AI_CONFIG.apiUrl,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'Accept': 'application/json'
-                },
-                name: '简化请求头调用',
-                timeout: 15000
-            },
-            // 第三选择：使用代理
-            {
-                url: AI_CONFIG.proxyUrls[2], // thingproxy
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AI_CONFIG.apiKey}`,
-                    'Accept': 'application/json'
-                },
-                name: '代理调用',
-                timeout: 20000
             }
         ];
 
@@ -541,28 +517,23 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         for (const attempt of attempts) {
             attemptCount++;
             console.log(`尝试${attempt.name}... (${attemptCount}/${attempts.length})`);
+            console.log(`API密钥: ${AI_CONFIG.apiKey.substring(0, 15)}...`);
 
             try {
-                // 根据不同的API使用不同的模型
-                const currentModel = attempt.useBackupModel ? AI_CONFIG.backupModel : AI_CONFIG.model;
-                
                 const requestBody = {
-                    model: currentModel,
+                    model: AI_CONFIG.model,
                     messages: messages,
                     max_tokens: AI_CONFIG.maxTokens,
                     temperature: AI_CONFIG.temperature,
-                    stream: AI_CONFIG.enableStreaming,
-                    // 添加更多参数以提高回答质量
-                    top_p: 0.9, // 增加多样性
-                    frequency_penalty: 0.1, // 减少重复
-                    presence_penalty: 0.1 // 鼓励新话题
+                    stream: false
                 };
+
+                console.log('请求体:', JSON.stringify(requestBody, null, 2));
 
                 const requestOptions = {
                     method: 'POST',
                     headers: attempt.headers,
-                    body: JSON.stringify(requestBody),
-                    signal: AbortController ? new AbortController().signal : undefined
+                    body: JSON.stringify(requestBody)
                 };
 
                 // 使用Promise.race来实现超时控制
@@ -584,7 +555,6 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     } else if (response.status === 402 || errorText.includes('Insufficient Balance')) {
                         throw new Error('INSUFFICIENT_BALANCE');
                     } else if (response.status >= 500) {
-                        // 服务器错误，尝试下一种方式
                         lastError = new Error('SERVER_ERROR');
                         continue;
                     } else {
@@ -594,7 +564,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 }
 
                 const data = await response.json();
-                console.log(`${attempt.name}调用成功`);
+                console.log(`${attempt.name}调用成功`, data);
                 
                 if (!data.choices || !data.choices[0] || !data.choices[0].message) {
                     lastError = new Error('INVALID_RESPONSE');

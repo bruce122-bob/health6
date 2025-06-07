@@ -4,7 +4,7 @@ const AI_CONFIG = {
     testMode: false, // 默认使用正常模式，显示真实错误
     
     // DeepSeek API配置（备用）
-    apiKey: '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',
+    apiKey: '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',
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
     model: 'deepseek/deepseek-r1-0528:free',
     

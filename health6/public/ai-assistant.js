@@ -1,25 +1,25 @@
 // Luma AI助手配置
 const AI_CONFIG = {
-    // 由于API密钥问题，默认使用测试模式确保功能可用
-    testMode: true, // API密钥需要更新，暂时使用测试模式
+    // 使用新的API密钥，启用正常模式
+    testMode: false, // 使用新的API密钥，启用正常模式
     
-    // OpenRouter API配置 - 需要有效的API密钥
-    apiKey: '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', // 此密钥可能已过期
+    // OpenRouter API配置 - 使用新的有效API密钥
+    apiKey: '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',
     apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'deepseek/deepseek-r1-distill-llama-70b',
+    model: 'deepseek/deepseek-chat-v3-0324:free', // 使用免费的DeepSeek模型
     
-    // 备用配置
-    backupApiKey: 'sk-4c0bde4756d4499494df9676b110c3e1',
-    backupApiUrl: 'https://api.deepseek.com/v1/chat/completions',
-    backupModel: 'deepseek-chat',
+    // Chutes备用配置
+    backupApiKey: 'cpk_298f4d012eeb4f3bbcdb0e7d25a4d584.151dc2509cf35b7ea67963bc87f90f29.x7w5Q3D2Qbr80212sAMhHNz3xdNYsKRJ',
+    backupApiUrl: 'https://llm.chutes.ai/v1/chat/completions',
+    backupModel: 'deepseek-ai/DeepSeek-V3-0324',
     
     // 代理服务器配置 - 暂时禁用
     proxyUrls: [],
     
     useProxy: false,
     timeout: 15000,
-    maxRetries: 1,
-    autoSwitchToTestMode: true, // 当API出错时自动切换到测试模式
+    maxRetries: 2, // 增加重试次数，尝试备用API
+    autoSwitchToTestMode: true, // 当所有API都失败时切换到测试模式
     
     // API特定配置
     siteUrl: 'https://she-haven.com',
@@ -117,7 +117,7 @@ class LumaAIAssistant {
                                     <li>💖 情感支持和心理健康建议</li>
                                 </ul>
                                 <p>我会用温暖、专业的方式为每一位女性提供帮助。请随时向我提问！</p>
-                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | DeepSeek驱动 | 专业模式</p>'}
+                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | DeepSeek V3驱动 | 专业模式</p>'}
                             </div>
                         </div>
                     </div>
@@ -522,7 +522,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 
         // OpenRouter API调用策略
         const attempts = [
-            // 标准OpenRouter API调用
+            // 主要OpenRouter API调用
             {
                 url: AI_CONFIG.apiUrl,
                 headers: {
@@ -531,7 +531,19 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     'HTTP-Referer': AI_CONFIG.siteUrl,
                     'X-Title': AI_CONFIG.siteName
                 },
+                model: AI_CONFIG.model,
                 name: 'OpenRouter API',
+                timeout: 15000
+            },
+            // 备用Chutes API调用
+            {
+                url: AI_CONFIG.backupApiUrl,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${AI_CONFIG.backupApiKey}`
+                },
+                model: AI_CONFIG.backupModel,
+                name: 'Chutes API',
                 timeout: 15000
             }
         ];
@@ -547,7 +559,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 
             try {
                 const requestBody = {
-                    model: AI_CONFIG.model,
+                    model: attempt.model, // 使用当前尝试的API对应的模型
                     messages: messages,
                     max_tokens: AI_CONFIG.maxTokens,
                     temperature: AI_CONFIG.temperature,
@@ -810,7 +822,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 modeText.textContent = '切换到测试模式';
                 modeBtn.classList.remove('test-mode');
                 header.classList.remove('test-mode');
-                this.addMessage('🚀 已切换到正常模式。正在尝试连接DeepSeek API...\n\n⚠️ 如果出现连接错误，可能是API密钥需要更新。请联系管理员或切换回测试模式。', 'ai');
+                this.addMessage('🚀 已切换到正常模式。现在将调用DeepSeek V3大模型为你提供专业准确的回答。', 'ai');
             }
         }
         

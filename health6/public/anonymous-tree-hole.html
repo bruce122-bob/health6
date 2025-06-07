@@ -76,57 +76,97 @@
         
         /* 顶部导航栏 */
         .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            position: fixed;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            backdrop-filter: blur(5px);
+            padding: 0 2rem;
         }
-        
-        /* 功能导航 - 左上角 */
-        .nav-links {
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
             display: flex;
             list-style: none;
-            margin-left: 20px;
+            gap: 2rem;
         }
-        
-        .nav-links li {
-            margin-right: 20px;
-        }
-        
-        .nav-links a {
-            color: #ffffff;
+
+        .nav-menu a {
             text-decoration: none;
-            font-size: 1em;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
         
-        /* 英文翻译样式 */
-        .translation {
-            display: block;
-            font-size: 0.6em;
-            color: #aaa;
-            margin-top: 10px;
-            padding: 0;
-            font-weight: normal;
-            font-family: 'Arial', sans-serif;
-            visibility: visible;
-            letter-spacing: 1px;
-        }
-        
-        /* 内联翻译样式 */
-        .inline-translation {
-            display: inline;
-            font-size: 0.8em;
-            color: #aaa;
-            margin-left: 3px;
-            font-weight: normal;
-            font-family: 'Arial', sans-serif;
+        /* 功能导航 - 移除旧样式 */
+        .nav-links {
+            display: none;
         }
         
         /* 主标题区域 */
@@ -140,7 +180,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-top: 100px;
+            margin-top: 120px;
             margin-bottom: 50px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
@@ -149,6 +189,13 @@
             font-size: 3em;
             margin-bottom: 10px;
             color: #ffffff;
+            font-weight: 700;
+        }
+
+        .main-title p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
         }
         
         /* 消息输入区域 */
@@ -243,8 +290,25 @@
         
         /* 响应式设计 */
         @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .auth-buttons {
+                display: none;
+            }
+
+            .main-title {
+                margin-top: 100px;
+            }
+
             .main-title h1 {
                 font-size: 2.5em;
+            }
+
+            .main-title p {
+                font-size: 1em;
+                padding: 0 20px;
             }
             
             .message-form {
@@ -260,6 +324,17 @@
             .message-form button {
                 width: 100%;
             }
+
+            .message-input-container {
+                width: 95%;
+                padding: 10px;
+            }
+        }
+        
+        /* 移除英文翻译样式 */
+        .translation,
+        .inline-translation {
+            display: none;
         }
     </style>
 </head>
@@ -270,22 +345,28 @@
     
     <!-- 顶部导航区域 -->
     <div class="top-nav">
-        <nav>
-            <ul class="nav-links">
-                <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
-                <li><a href="fullscreen-map.html">安全地图<span class="inline-translation">Safety Map</span></a></li>
-                <li><a href="community.html">交流社区<span class="inline-translation">Community</span></a></li>
-                <li><a href="anonymous-tree-hole.html">匿名树洞<span class="inline-translation">Anonymous Tree Hole</span></a></li>
-                <li><a href="resources.html">资料区<span class="inline-translation">Resources</span></a></li>
-                <li><a href="index.html#emergency">寻人启事<span class="inline-translation">Missing Person Notice</span></a></li>
-            </ul>
-        </nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">She Haven</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="fullscreen-map.html">安全地图</a></li>
+                    <li><a href="community.html">交流社区</a></li>
+                    <li><a href="anonymous-tree-hole.html">匿名树洞</a></li>
+                    <li><a href="resources.html">资料区</a></li>
+                    <li><a href="index.html#emergency">寻人启事</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-outline">登录</a>
+                <a href="register.html" class="btn btn-primary">注册</a>
+            </div>
+        </div>
     </div>
     
     <!-- 主标题区域 -->
     <div class="main-title">
-        <h1>匿名树洞<span class="translation">Anonymous Tree Hole</span></h1>
-        <p>在这里，你可以匿名分享你的想法和感受<span class="translation">Share your thoughts anonymously here</span></p>
+        <h1>匿名树洞</h1>
+        <p>在这里，你可以匿名分享你的想法和感受</p>
     </div>
     
     <!-- 滚动消息区域 -->
@@ -303,7 +384,7 @@
                 maxlength="100" 
                 required
             >
-            <button type="submit">发送 <span class="inline-translation">Send</span></button>
+            <button type="submit">发送</button>
         </form>
     </div>
     
@@ -419,28 +500,6 @@
             const messageForm = document.getElementById('messageForm');
             if (messageForm) {
                 messageForm.addEventListener('submit', handleMessageSubmit);
-            }
-            
-            // 添加汉堡菜单功能
-            const menuToggle = document.getElementById('menuToggle');
-            const navLinks = document.querySelector('.nav-links');
-            
-            if (menuToggle && navLinks) {
-                menuToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    menuToggle.classList.toggle('active');
-                    navLinks.classList.toggle('active');
-                }, true);
-                
-                // 点击导航链接后自动关闭菜单
-                const navItems = document.querySelectorAll('.nav-links a');
-                navItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        menuToggle.classList.remove('active');
-                        navLinks.classList.remove('active');
-                    });
-                });
             }
         });
     </script>

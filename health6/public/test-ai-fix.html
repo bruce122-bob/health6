@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手修复测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-assistant.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        .test-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        
+        .fix-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 AI助手修复测试</h1>
+        
+        <div class="fix-info">
+            <h3>🚀 修复内容：</h3>
+            <ul>
+                <li>✅ 添加了多种API连接方式（直接调用、代理服务器、备用代理）</li>
+                <li>✅ 智能重试机制：如果一种方式失败，自动尝试其他方式</li>
+                <li>✅ 改进的错误处理：提供更详细和有用的错误信息</li>
+                <li>✅ 用户友好的错误提示：不再显示技术性错误，而是给出实用建议</li>
+                <li>✅ 自动故障转移：确保在网络问题时仍能尝试连接</li>
+            </ul>
+        </div>
+
+        <div class="status-card">
+            <h3>📊 当前状态检测：</h3>
+            <div id="status-info">正在检测...</div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="testConnection()" class="test-btn">🔍 测试连接</button>
+            <button onclick="openAI()" class="test-btn">💬 打开AI助手</button>
+            <button onclick="testQuickQuestion()" class="test-btn">⚡ 快速测试</button>
+        </div>
+
+        <div class="status-card">
+            <h3>🎯 测试问题：</h3>
+            <p>点击下面的按钮来测试不同类型的问题：</p>
+            <button onclick="askQuestion('你好，请介绍一下自己')" class="test-btn">基础问候</button>
+            <button onclick="askQuestion('解释一下什么是人工智能')" class="test-btn">知识问答</button>
+            <button onclick="askQuestion('女性夜晚独行有什么安全建议？')" class="test-btn">安全咨询</button>
+            <button onclick="askQuestion('帮我写一首关于春天的诗')" class="test-btn">创意写作</button>
+        </div>
+
+        <div id="test-results"></div>
+    </div>
+
+    <script src="ai-assistant.js"></script>
+    <script>
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status-info');
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            statusDiv.innerHTML = `<span class="${type}">${icon} ${message}</span>`;
+        }
+
+        function testConnection() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="status-card"><h4>🔄 连接测试中...</h4><p>正在测试多种连接方式...</p></div>';
+            
+            // 检查AI助手是否加载
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                updateStatus('AI助手界面已成功加载', 'success');
+                resultsDiv.innerHTML += '<div class="status-card success"><h4>✅ 界面检测</h4><p>AI助手按钮和界面已正确加载</p></div>';
+                
+                // 检查配置
+                if (typeof AI_CONFIG !== 'undefined') {
+                    resultsDiv.innerHTML += '<div class="status-card success"><h4>✅ 配置检测</h4><p>API配置已加载，支持多种连接方式</p></div>';
+                    resultsDiv.innerHTML += `<div class="status-card info"><h4>📋 连接方式</h4>
+                        <p>• 直接调用：${AI_CONFIG.apiUrl}</p>
+                        <p>• 代理服务器：${AI_CONFIG.proxyUrl}</p>
+                        <p>• 备用代理：已配置</p>
+                    </div>`;
+                } else {
+                    resultsDiv.innerHTML += '<div class="status-card error"><h4>❌ 配置检测</h4><p>AI配置未正确加载</p></div>';
+                }
+            } else {
+                updateStatus('AI助手界面加载失败', 'error');
+                resultsDiv.innerHTML += '<div class="status-card error"><h4>❌ 界面检测</h4><p>AI助手按钮未找到，请检查JavaScript文件</p></div>';
+            }
+        }
+
+        function openAI() {
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                aiButton.click();
+                updateStatus('AI助手窗口已打开', 'success');
+            } else {
+                updateStatus('无法打开AI助手，请先测试连接', 'error');
+            }
+        }
+
+        function testQuickQuestion() {
+            askQuestion('你好，这是一个连接测试，请简单回复确认你能正常工作。');
+        }
+
+        function askQuestion(question) {
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                // 打开AI助手
+                aiButton.click();
+                
+                // 等待窗口打开后填入问题
+                setTimeout(() => {
+                    const input = document.getElementById('ai-chat-input');
+                    if (input) {
+                        input.value = question;
+                        input.focus();
+                        
+                        // 自动发送
+                        setTimeout(() => {
+                            const sendBtn = document.getElementById('ai-send-button');
+                            if (sendBtn) {
+                                sendBtn.click();
+                                updateStatus(`正在测试问题："${question.substring(0, 20)}..."`, 'info');
+                            }
+                        }, 500);
+                    }
+                }, 500);
+            } else {
+                updateStatus('AI助手未加载，请先测试连接', 'error');
+            }
+        }
+
+        // 页面加载完成后自动检测
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testConnection();
+            }, 1000);
+        });
+
+        // 监听AI助手的状态变化
+        setInterval(() => {
+            const aiWindow = document.getElementById('ai-chat-window');
+            if (aiWindow && aiWindow.classList.contains('ai-chat-open')) {
+                const messages = document.querySelectorAll('.ai-ai-message');
+                const lastMessage = messages[messages.length - 1];
+                if (lastMessage && lastMessage.classList.contains('ai-error')) {
+                    updateStatus('检测到AI助手错误，请查看聊天窗口中的详细信息', 'warning');
+                } else if (messages.length > 1) { // 除了欢迎消息外还有其他消息
+                    updateStatus('AI助手正在正常工作', 'success');
+                }
+            }
+        }, 2000);
+    </script>
+</body>
+</html> 

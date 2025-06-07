@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter API测试</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-assistant.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .api-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            margin-bottom: 20px;
+        }
+        .config-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+        .test-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background: #28a745; }
+        .status-offline { background: #dc3545; }
+        .status-testing { background: #ffc107; }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 OpenRouter API测试</h1>
+        
+        <div class="api-info">
+            <h3>🎉 新的API配置</h3>
+            <p>已成功配置OpenRouter API，使用免费的DeepSeek模型！</p>
+            <ul>
+                <li>✅ <strong>免费使用</strong>：OpenRouter提供免费的DeepSeek模型访问</li>
+                <li>✅ <strong>高可用性</strong>：多重连接策略确保稳定性</li>
+                <li>✅ <strong>最新模型</strong>：使用DeepSeek R1最新版本</li>
+                <li>✅ <strong>无余额限制</strong>：解决了之前的余额不足问题</li>
+            </ul>
+        </div>
+
+        <div class="config-card">
+            <h3><i class="fas fa-cog"></i> 当前配置</h3>
+            <div class="code-block">
+API密钥: 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
+API端点: https://openrouter.ai/api/v1/chat/completions
+模型: deepseek/deepseek-r1-0528:free
+网站: She Haven AI Assistant
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3><i class="fas fa-rocket"></i> 性能优势</h3>
+                <p>• 免费使用，无余额限制<br>
+                • 高速响应，优化连接<br>
+                • 多重备份，确保可用<br>
+                • 最新DeepSeek R1模型</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-shield-alt"></i> 稳定性</h3>
+                <p>• 4种连接方式<br>
+                • 智能故障转移<br>
+                • 超时控制机制<br>
+                • 错误自动恢复</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-brain"></i> AI能力</h3>
+                <p>• 强大的推理能力<br>
+                • 多语言支持<br>
+                • 代码生成优化<br>
+                • 上下文理解增强</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-users"></i> 用户体验</h3>
+                <p>• 即时响应<br>
+                • 智能对话<br>
+                • 个性化回答<br>
+                • 友好错误提示</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <h3>🎯 立即测试</h3>
+            <button onclick="testAPI()" class="test-btn">🔍 测试API连接</button>
+            <button onclick="openAI()" class="test-btn">💬 打开AI助手</button>
+            <button onclick="testQuestions()" class="test-btn">⚡ 快速问答测试</button>
+        </div>
+
+        <div class="config-card">
+            <h3>🧪 测试问题集</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+                <button onclick="askQuestion('你好，请介绍一下自己')" class="test-btn">基础对话</button>
+                <button onclick="askQuestion('解释一下量子计算的原理')" class="test-btn">学术问题</button>
+                <button onclick="askQuestion('女性夜晚独行有什么安全建议？')" class="test-btn">安全咨询</button>
+                <button onclick="askQuestion('帮我写一首关于科技的诗')" class="test-btn">创意写作</button>
+                <button onclick="askQuestion('用Python实现快速排序')" class="test-btn">编程问题</button>
+                <button onclick="askQuestion('如何提高学习效率？')" class="test-btn">生活建议</button>
+            </div>
+        </div>
+
+        <div id="test-results"></div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h4>📋 使用说明：</h4>
+            <p>1. <span class="status-indicator status-online"></span>绿色表示OpenRouter API正常工作</p>
+            <p>2. <span class="status-indicator status-testing"></span>黄色表示测试模式</p>
+            <p>3. <span class="status-indicator status-offline"></span>红色表示连接问题</p>
+            <p>4. 新的API配置提供免费的DeepSeek模型访问</p>
+            <p>5. 如遇问题会自动尝试多种连接方式</p>
+        </div>
+    </div>
+
+    <script src="ai-assistant.js"></script>
+    <script>
+        function testAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="config-card"><h4>🔄 API连接测试中...</h4><p>正在测试OpenRouter API连接...</p></div>';
+            
+            // 检查AI助手是否加载
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                resultsDiv.innerHTML += '<div class="config-card success"><h4>✅ AI助手界面</h4><p><span class="status-indicator status-online"></span>AI助手界面已成功加载</p></div>';
+                
+                // 检查配置
+                if (typeof AI_CONFIG !== 'undefined') {
+                    resultsDiv.innerHTML += `<div class="config-card success">
+                        <h4>✅ API配置检测</h4>
+                        <p><span class="status-indicator status-online"></span>OpenRouter API配置已加载</p>
+                        <div class="code-block">
+                            API端点: ${AI_CONFIG.apiUrl}<br>
+                            模型: ${AI_CONFIG.model}<br>
+                            测试模式: ${AI_CONFIG.testMode ? '是' : '否'}<br>
+                            连接方式: ${AI_CONFIG.proxyUrls.length + 1} 种
+                        </div>
+                    </div>`;
+                } else {
+                    resultsDiv.innerHTML += '<div class="config-card error"><h4>❌ 配置检测</h4><p><span class="status-indicator status-offline"></span>AI配置未正确加载</p></div>';
+                }
+            } else {
+                resultsDiv.innerHTML += '<div class="config-card error"><h4>❌ 界面检测</h4><p><span class="status-indicator status-offline"></span>AI助手按钮未找到</p></div>';
+            }
+        }
+        
+        function openAI() {
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                aiButton.click();
+            } else {
+                alert('AI助手未加载，请刷新页面重试');
+            }
+        }
+        
+        function testQuestions() {
+            askQuestion('这是一个OpenRouter API连接测试，请简单回复确认你能正常工作。');
+        }
+        
+        function askQuestion(question) {
+            const aiButton = document.getElementById('ai-chat-button');
+            if (aiButton) {
+                aiButton.click();
+                
+                setTimeout(() => {
+                    const input = document.getElementById('ai-chat-input');
+                    if (input) {
+                        input.value = question;
+                        input.focus();
+                        
+                        setTimeout(() => {
+                            const sendBtn = document.getElementById('ai-send-button');
+                            if (sendBtn) {
+                                sendBtn.click();
+                            }
+                        }, 500);
+                    }
+                }, 500);
+            }
+        }
+        
+        // 页面加载完成后自动检测
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testAPI();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

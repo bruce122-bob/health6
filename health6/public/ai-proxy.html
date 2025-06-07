@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI代理服务</title>
+</head>
+<body>
+    <script>
+        // 简单的代理服务，用于解决CORS问题
+        window.aiProxy = async function(url, options) {
+            try {
+                // 尝试直接调用
+                const response = await fetch(url, options);
+                return response;
+            } catch (error) {
+                console.log('直接调用失败，尝试使用代理:', error);
+                
+                // 如果直接调用失败，可以在这里添加代理逻辑
+                // 或者返回一个模拟的响应
+                throw error;
+            }
+        };
+    </script>
+</body>
+</html> 

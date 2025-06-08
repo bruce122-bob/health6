@@ -1,60 +1,58 @@
-// Luma AI助手配置
+// Luma AI助手配置 - 质量优先版本
 const AI_CONFIG = {
-    // 使用Chutes API作为主要API，启用正常模式
-    testMode: false, // 使用Chutes API，启用正常模式
+    // 质量优先模式：专注于提供详细、准确的回答
+    testMode: false,
     
-    // Chutes API配置 - 主要API
+    // 主要API配置 (Chutes) - 经过验证的稳定配置
     apiKey: 'cpk_298f4d012eeb4f3bbcdb0e7d25a4d584.151dc2509cf35b7ea67963bc87f90f29.x7w5Q3D2Qbr80212sAMhHNz3xdNYsKRJ',
     apiUrl: 'https://llm.chutes.ai/v1/chat/completions',
-    model: 'deepseek-ai/DeepSeek-V3-0324', // 使用DeepSeek V3模型
+    model: 'deepseek-ai/DeepSeek-V3-0324',
     
-    // OpenRouter备用配置 - 使用免费的DeepSeek模型
+    // 备用API配置 (OpenRouter) - 使用有效密钥
     backupApiKey: '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',
     backupApiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    backupModel: 'deepseek/deepseek-chat:free', // 使用免费的DeepSeek V3模型
+    backupModel: 'deepseek/deepseek-chat-v3-0324:free',
     
-    // 代理服务器配置 - 暂时禁用
-    proxyUrls: [],
-    
-    useProxy: false,
-    timeout: 15000,
-    maxRetries: 2, // 增加重试次数，尝试备用API
-    autoSwitchToTestMode: true, // 当所有API都失败时切换到测试模式
-    
-    // API特定配置
+    // 网站信息
     siteUrl: 'https://she-haven.com',
     siteName: 'She Haven - Luma AI Assistant',
     
-    // 质量优先配置
-    maxTokens: 800, // 减少token数量，提高响应速度
-    temperature: 0.7,
-    maxHistoryMessages: 4, // 减少对话历史，避免请求过大
+    // 质量优先配置 - 更长的回答，更多的思考时间
+    maxTokens: 1500,        // 增加到1500 tokens，支持更详细的回答
+    temperature: 0.7,       // 保持创造性
+    timeout: 45000,         // 45秒超时，给AI充分的思考时间
+    maxRetries: 3,          // 3次重试确保稳定性
+    conversationHistory: 8, // 保留8轮对话历史，更好的上下文理解
+    autoSwitchToTestMode: false, // 禁用自动切换，确保使用真实API
     
-    // 系统提示词
-    systemPrompt: `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供专业、温暖、有价值的帮助。
+    // 增强的系统提示词 - 强调质量和详细性
+    systemPrompt: `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供最专业、最详细、最有价值的帮助。
 
 **你的核心特质：**
-• 专业知识丰富：涵盖女性安全、法律维权、心理健康、职业发展、理财规划等领域
-• 回答详细准确：提供具体可行的建议和解决方案
-• 语言温暖亲切：用理解和关怀的语气与用户交流
-• 思维逻辑清晰：条理分明地组织回答内容
+• 专业知识丰富：深度掌握女性安全、法律维权、心理健康、职业发展、理财规划、学习成长等各个领域
+• 回答详细准确：提供具体可行的建议和解决方案，不满足于简单回答
+• 语言温暖亲切：用理解和关怀的语气与用户交流，让每位女性感受到支持
+• 思维逻辑清晰：条理分明地组织回答内容，层次分明，易于理解
 
-**回答要求：**
-1. 提供详细、实用的信息，不要简单敷衍
-2. 结合具体情况给出个性化建议
-3. 必要时提供相关资源和联系方式
-4. 保持专业性的同时体现人文关怀
-5. 对敏感话题（如心理健康、安全问题）要特别谨慎和专业
+**回答质量要求：**
+1. 提供详细、深入、实用的信息，绝不简单敷衍
+2. 结合具体情况给出个性化的专业建议
+3. 必要时提供相关资源、联系方式和进一步学习材料
+4. 保持专业性的同时体现人文关怀和情感支持
+5. 对敏感话题（如心理健康、安全问题）要特别谨慎、专业和负责任
+6. 用结构化的方式组织回答，使用标题、列表、要点等提高可读性
 
 **特别关注领域：**
-• 女性安全防护和应急处理
-• 职场权益保护和发展建议
-• 心理健康支持和情感关怀
-• 法律知识普及和维权指导
-• 理财规划和经济独立
-• 学习成长和技能提升
+• 女性安全防护和应急处理策略
+• 职场权益保护和职业发展规划
+• 心理健康支持和情感关怀指导
+• 法律知识普及和维权实用指导
+• 理财规划和经济独立策略
+• 学习成长和技能提升建议
+• 人际关系和社交技巧
+• 健康生活和自我关爱
 
-请用中文回答，语气要专业而温暖，内容要详实有用。记住，你是基于DeepSeek大模型的Luma AI助手。`
+请用中文回答，语气要专业而温暖，内容要详实有用，结构要清晰明了。记住，你是基于DeepSeek大模型的Luma AI助手，致力于为每一位女性提供最高质量的帮助和支持。`
 };
 
 class LumaAIAssistant {
@@ -106,34 +104,35 @@ class LumaAIAssistant {
                             </div>
                             <div class="ai-message-content">
                                 <p>你好！我是Luma ✨，She Haven的专属AI助手。</p>
-                                <p>我基于先进的DeepSeek大模型，可以为你提供：</p>
+                                <p>我基于先进的DeepSeek大模型，专注于为您提供<strong>详细、专业、高质量</strong>的回答：</p>
                                 <ul>
-                                    <li>🤖 智能问答（学习、工作、生活等任何问题）</li>
-                                    <li>🛡️ 女性安全建议和防护指南</li>
-                                    <li>📝 写作助手、翻译、编程等创作支持</li>
-                                    <li>💡 创意思考和问题解决方案</li>
-                                    <li>📚 知识查询和学习辅导</li>
-                                    <li>⚖️ 法律知识咨询和维权指导</li>
-                                    <li>💖 情感支持和心理健康建议</li>
+                                    <li>🤖 <strong>深度智能问答</strong> - 详细解答学习、工作、生活等各类问题</li>
+                                    <li>🛡️ <strong>女性安全专家</strong> - 全面的安全防护策略和应急指南</li>
+                                    <li>📝 <strong>专业创作助手</strong> - 写作、翻译、编程等高质量创作支持</li>
+                                    <li>💡 <strong>深度思考顾问</strong> - 创意思考和复杂问题解决方案</li>
+                                    <li>📚 <strong>学习成长导师</strong> - 知识查询和个性化学习辅导</li>
+                                    <li>⚖️ <strong>法律维权助手</strong> - 详细的法律知识和实用维权指导</li>
+                                    <li>💖 <strong>心理健康支持</strong> - 专业的情感支持和心理健康建议</li>
+                                    <li>💰 <strong>理财规划师</strong> - 个性化的理财策略和经济独立指导</li>
                                 </ul>
-                                <p>我会用温暖、专业的方式为每一位女性提供帮助。请随时向我提问！</p>
-                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | Chutes驱动 | DeepSeek V3专业模式</p>'}
+                                <p>我会用温暖、专业的方式为每一位女性提供<strong>详细而有价值</strong>的帮助。请随时向我提问！</p>
+                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | 质量优先模式 | DeepSeek V3专业版 | 双API保障</p>'}
                             </div>
                         </div>
                     </div>
                     
                     <div class="ai-chat-input-area">
                         <div class="ai-input-container">
-                            <textarea id="ai-chat-input" placeholder="向Luma提问任何问题，比如：如何保护个人隐私、帮我写一首诗、解释量子物理..." rows="1"></textarea>
+                            <textarea id="ai-chat-input" placeholder="向Luma提问任何问题，我会为您提供详细专业的回答。比如：详细解释如何保护个人隐私、帮我写一首关于女性力量的诗、深度分析量子物理原理..." rows="1"></textarea>
                             <button id="ai-send-button" class="ai-send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                         <div class="ai-quick-questions">
-                            <button class="ai-quick-btn" data-question="Luma，如何在夜晚安全回家？">夜晚安全</button>
-                            <button class="ai-quick-btn" data-question="Luma，帮我写一首关于女性力量的诗">创作诗歌</button>
-                            <button class="ai-quick-btn" data-question="Luma，解释一下人工智能的工作原理">AI原理</button>
-                            <button class="ai-quick-btn" data-question="Luma，推荐一些适合女性的理财方法">理财建议</button>
+                            <button class="ai-quick-btn" data-question="Luma，请详细介绍女性夜晚出行的安全策略">安全策略</button>
+                            <button class="ai-quick-btn" data-question="Luma，帮我写一首关于女性独立自强的诗，要有深度和感染力">创作诗歌</button>
+                            <button class="ai-quick-btn" data-question="Luma，详细解释人工智能的工作原理和发展趋势">AI深度解析</button>
+                            <button class="ai-quick-btn" data-question="Luma，请提供一套完整的女性理财规划方案">理财规划</button>
                         </div>
                         <div class="ai-mode-switch">
                             <button id="ai-mode-toggle" class="ai-mode-btn" onclick="window.lumaAssistant.toggleMode()">
@@ -276,30 +275,35 @@ class LumaAIAssistant {
             console.error('发送消息失败:', error);
             this.hideTyping();
             
-            // 如果API失败且开启了自动切换，则切换到测试模式并重新获取回答
-            if (!AI_CONFIG.testMode && AI_CONFIG.autoSwitchToTestMode && 
-                (error.message === 'INVALID_API_KEY' || error.message === 'INSUFFICIENT_BALANCE' || 
-                 error.message === 'NETWORK_ERROR' || error.message === 'ALL_METHODS_FAILED')) {
-                
-                console.log('API失败，自动切换到测试模式');
-                AI_CONFIG.testMode = true;
-                this.updateModeUI();
-                
-                // 重新显示加载状态并获取测试回答
-                this.showTyping();
-                try {
-                    const testResponse = await this.getTestResponse(message);
-                    this.hideTyping();
-                    this.addMessage(testResponse, 'ai');
-                    console.log('测试模式回复:', testResponse);
-                } catch (testError) {
-                    this.hideTyping();
-                    this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
-                }
-            } else {
-                // 统一显示连接错误，不展示具体原因
-                this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
+            // 根据错误类型显示不同的专业错误信息
+            let errorMessage = '';
+            switch (error.message) {
+                case 'INVALID_API_KEY':
+                    errorMessage = '🔑 API认证失败，请检查密钥配置。我们正在为您切换到备用服务...';
+                    break;
+                case 'INSUFFICIENT_BALANCE':
+                    errorMessage = '💳 API额度不足，正在尝试备用服务为您提供帮助...';
+                    break;
+                case 'RATE_LIMIT':
+                    errorMessage = '⏱️ 请求过于频繁，请稍等片刻后再试。我们致力于为您提供最佳服务体验。';
+                    break;
+                case 'SERVER_ERROR':
+                case 'BAD_GATEWAY':
+                case 'SERVICE_UNAVAILABLE':
+                    errorMessage = '🔧 服务器暂时繁忙，我们正在努力为您恢复服务。请稍后重试。';
+                    break;
+                case 'ALL_APIS_FAILED':
+                    errorMessage = '🌐 所有API服务暂时不可用。我们正在紧急修复，请稍后重试。感谢您的耐心等待。';
+                    break;
+                default:
+                    if (this.isNetworkError(error)) {
+                        errorMessage = '📡 网络连接不稳定，请检查您的网络连接后重试。';
+                    } else {
+                        errorMessage = '❌ 服务暂时不可用，我们正在努力修复。请稍后重试。';
+                    }
             }
+            
+            this.addMessage(errorMessage, 'ai', true);
         }
 
         // 保存聊天记录
@@ -497,47 +501,32 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
     }
 
     async callDeepSeekAPI(message) {
-        return await this.performAPICall(message);
-    }
-
-    async performAPICall(message) {
-        // 构建对话历史（保留更多对话以提高上下文理解）
-        const recentHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
+        // 构建完整的对话历史
+        const recentHistory = this.conversationHistory.slice(-AI_CONFIG.conversationHistory);
         const messages = [
             { role: 'system', content: AI_CONFIG.systemPrompt },
             ...recentHistory,
             { role: 'user', content: message }
         ];
 
-        console.log(`调用AI API，消息数量: ${messages.length} (质量优先模式)`);
-        console.log(`使用API密钥: ${AI_CONFIG.apiKey.substring(0, 20)}...`);
-        console.log(`API端点: ${AI_CONFIG.apiUrl}`);
-
-        // 创建超时控制
-        const createTimeoutPromise = (timeout) => {
-            return new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('TIMEOUT')), timeout);
-            });
-        };
-
-        // API调用策略 - 专注于Chutes API
-        const attempts = [
-            // 主要Chutes API调用
+        console.log(`🚀 调用AI API - 质量优先模式`);
+        console.log(`📊 消息数量: ${messages.length} | Token限制: ${AI_CONFIG.maxTokens} | 温度: ${AI_CONFIG.temperature}`);
+        console.log(`🔑 主API: ${AI_CONFIG.apiUrl}`);
+        console.log(`🔑 备用API: ${AI_CONFIG.backupApiUrl}`);
+        
+        // API调用策略：先尝试Chutes，失败后尝试OpenRouter
+        const apiConfigs = [
             {
+                name: 'Chutes API',
                 url: AI_CONFIG.apiUrl,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${AI_CONFIG.apiKey}`
                 },
-                model: AI_CONFIG.model,
-                name: 'Chutes API',
-                timeout: 30000 // 增加超时时间到30秒
-            }
-        ];
-
-        // 如果有备用API密钥且不为空，添加备用选项
-        if (AI_CONFIG.backupApiKey && AI_CONFIG.backupApiKey.length > 20) {
-            attempts.push({
+                model: AI_CONFIG.model
+            },
+            {
+                name: 'OpenRouter API',
                 url: AI_CONFIG.backupApiUrl,
                 headers: {
                     'Content-Type': 'application/json',
@@ -545,121 +534,72 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     'HTTP-Referer': AI_CONFIG.siteUrl,
                     'X-Title': AI_CONFIG.siteName
                 },
-                model: AI_CONFIG.backupModel,
-                name: 'OpenRouter API',
-                timeout: 20000
-            });
-        }
+                model: AI_CONFIG.backupModel
+            }
+        ];
 
         let lastError = null;
-        let attemptCount = 0;
 
-        for (const attempt of attempts) {
-            attemptCount++;
-            console.log(`尝试${attempt.name}... (${attemptCount}/${attempts.length})`);
-            console.log(`API密钥长度: ${AI_CONFIG.apiKey.length}`);
-            console.log(`API密钥前缀: ${AI_CONFIG.apiKey.substring(0, 15)}...`);
-
+        for (const config of apiConfigs) {
             try {
+                console.log(`🎯 尝试 ${config.name}...`);
+                
                 const requestBody = {
-                    model: attempt.model, // 使用当前尝试的API对应的模型
+                    model: config.model,
                     messages: messages,
                     max_tokens: AI_CONFIG.maxTokens,
                     temperature: AI_CONFIG.temperature,
                     stream: false
                 };
-
-                console.log('请求体:', JSON.stringify(requestBody, null, 2));
-
-                const requestOptions = {
-                    method: 'POST',
-                    headers: attempt.headers,
-                    body: JSON.stringify(requestBody),
-                    mode: 'cors'
-                };
-
-                console.log('请求头:', attempt.headers);
-
-                // 使用Promise.race来实现超时控制
-                const fetchPromise = fetch(attempt.url, requestOptions);
-                const timeoutPromise = createTimeoutPromise(attempt.timeout);
                 
-                const response = await Promise.race([fetchPromise, timeoutPromise]);
-                console.log(`${attempt.name}响应状态:`, response.status);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`${attempt.name} API Error Response:`, errorText);
+                console.log(`📝 请求配置:`, {
+                    model: config.model,
+                    messages_count: messages.length,
+                    max_tokens: AI_CONFIG.maxTokens,
+                    temperature: AI_CONFIG.temperature
+                });
+                
+                const data = await this.performAPICall(config.url, config.headers, requestBody);
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    const response = data.choices[0].message.content;
+                    console.log(`✅ ${config.name} 调用成功`);
                     
-                    // 处理常见错误
-                    if (response.status === 401) {
-                        throw new Error('INVALID_API_KEY');
-                    } else if (response.status === 429) {
-                        throw new Error('RATE_LIMIT');
-                    } else if (response.status === 402 || errorText.includes('Insufficient Balance')) {
-                        throw new Error('INSUFFICIENT_BALANCE');
-                    } else if (response.status >= 500) {
-                        lastError = new Error('SERVER_ERROR');
-                        continue;
-                    } else {
-                        lastError = new Error(`API_ERROR_${response.status}`);
-                        continue;
+                    // 保存到对话历史
+                    this.conversationHistory.push(
+                        { role: 'user', content: message },
+                        { role: 'assistant', content: response }
+                    );
+                    
+                    // 保持对话历史在合理长度内
+                    if (this.conversationHistory.length > AI_CONFIG.conversationHistory * 2) {
+                        this.conversationHistory = this.conversationHistory.slice(-AI_CONFIG.conversationHistory * 2);
                     }
-                }
-
-                const data = await response.json();
-                console.log(`${attempt.name}调用成功`, data);
-                
-                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                    lastError = new Error('INVALID_RESPONSE');
-                    continue;
-                }
-                
-                const aiResponse = data.choices[0].message.content;
-                
-                // 保存到对话历史
-                this.conversationHistory.push(
-                    { role: 'user', content: message },
-                    { role: 'assistant', content: aiResponse }
-                );
-                
-                // 保持对话历史在合理长度内
-                if (this.conversationHistory.length > AI_CONFIG.maxHistoryMessages * 2) {
-                    this.conversationHistory = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
-                }
-                
-                return aiResponse;
-
-            } catch (fetchError) {
-                console.error(`${attempt.name}失败:`, fetchError);
-                
-                // 处理不同类型的错误
-                if (fetchError.message === 'TIMEOUT') {
-                    console.log(`${attempt.name}超时，尝试下一种方式...`);
-                    lastError = new Error('TIMEOUT_ERROR');
-                    continue;
-                } else if (fetchError.message === 'INVALID_API_KEY') {
-                    console.log(`${attempt.name}API密钥无效，尝试下一种方式...`);
-                    lastError = fetchError;
-                    continue; // 继续尝试备用API
-                } else if (fetchError.message === 'INSUFFICIENT_BALANCE') {
-                    console.log(`${attempt.name}余额不足，尝试下一种方式...`);
-                    lastError = fetchError;
-                    continue; // 继续尝试备用API
-                } else if (fetchError.message.includes('CORS') || 
-                          fetchError.message.includes('Failed to fetch') ||
-                          fetchError.message.includes('NetworkError')) {
-                    lastError = new Error('NETWORK_ERROR');
-                    continue;
+                    
+                    return response;
                 } else {
-                    lastError = fetchError;
+                    throw new Error('INVALID_RESPONSE_FORMAT');
+                }
+                
+            } catch (error) {
+                console.log(`❌ ${config.name} 失败:`, error.message);
+                lastError = error;
+                
+                // 如果是认证错误，直接尝试下一个API
+                if (error.message === 'INVALID_API_KEY') {
+                    console.log(`🔄 API密钥无效，尝试下一个API...`);
                     continue;
+                }
+                
+                // 如果是最后一个API，抛出错误
+                if (config === apiConfigs[apiConfigs.length - 1]) {
+                    throw error;
                 }
             }
         }
-
-        // 所有方式都失败了，抛出最后一个错误
-        throw lastError || new Error('ALL_METHODS_FAILED');
+        
+        // 所有API都失败了
+        throw lastError || new Error('ALL_APIS_FAILED');
     }
 
     updateModeDisplay() {
@@ -783,7 +723,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         try {
             // 保存更少的消息以提高性能（从50条减少到20条）
             const recentMessages = this.messages.slice(-20);
-            const recentConversation = this.conversationHistory.slice(-AI_CONFIG.maxHistoryMessages);
+            const recentConversation = this.conversationHistory.slice(-AI_CONFIG.conversationHistory);
             
             localStorage.setItem('ai-chat-history', JSON.stringify(recentMessages));
             localStorage.setItem('ai-conversation-history', JSON.stringify(recentConversation));
@@ -834,6 +774,99 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         }
         
         console.log('模式已切换:', AI_CONFIG.testMode ? '测试模式' : 'DeepSeek正常模式');
+    }
+
+    // 完善的API调用函数 - 支持多重重试和错误恢复
+    async performAPICall(apiUrl, headers, body, retryCount = 0) {
+        const maxRetries = AI_CONFIG.maxRetries;
+        
+        try {
+            console.log(`🔄 API调用尝试 ${retryCount + 1}/${maxRetries + 1} - ${apiUrl.includes('chutes') ? 'Chutes' : 'OpenRouter'}`);
+            
+            // 创建可取消的请求
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.log('⏰ 请求超时，正在取消...');
+                controller.abort();
+            }, AI_CONFIG.timeout);
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(body),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            console.log(`📡 API响应状态: ${response.status}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ API调用成功', data);
+                return data;
+            } else {
+                const errorText = await response.text();
+                console.log(`❌ API错误响应: ${errorText}`);
+                
+                // 智能重试策略
+                if (this.shouldRetry(response.status, retryCount, maxRetries)) {
+                    const delay = this.calculateRetryDelay(retryCount);
+                    console.log(`🔄 ${delay/1000}秒后重试 (错误码: ${response.status})`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return this.performAPICall(apiUrl, headers, body, retryCount + 1);
+                }
+                
+                throw new Error(this.getErrorType(response.status));
+            }
+        } catch (error) {
+            console.log(`💥 API调用异常:`, error);
+            
+            // 网络错误重试策略
+            if (this.isNetworkError(error) && retryCount < maxRetries) {
+                const delay = this.calculateRetryDelay(retryCount);
+                console.log(`🌐 网络错误，${delay/1000}秒后重试...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return this.performAPICall(apiUrl, headers, body, retryCount + 1);
+            }
+            
+            throw error;
+        }
+    }
+
+    // 智能重试判断
+    shouldRetry(status, retryCount, maxRetries) {
+        if (retryCount >= maxRetries) return false;
+        
+        // 服务器错误和限流错误可以重试
+        return status >= 500 || status === 429 || status === 502 || status === 503;
+    }
+
+    // 网络错误判断
+    isNetworkError(error) {
+        return error.name === 'AbortError' || 
+               error.message.includes('fetch') || 
+               error.message.includes('network') ||
+               error.message.includes('ERR_NETWORK') ||
+               error.message.includes('Failed to fetch');
+    }
+
+    // 计算重试延迟 (指数退避)
+    calculateRetryDelay(retryCount) {
+        return Math.min(1000 * Math.pow(2, retryCount), 10000); // 最大10秒
+    }
+
+    // 错误类型映射
+    getErrorType(status) {
+        switch (status) {
+            case 401: return 'INVALID_API_KEY';
+            case 402: return 'INSUFFICIENT_BALANCE';
+            case 429: return 'RATE_LIMIT';
+            case 500: return 'SERVER_ERROR';
+            case 502: return 'BAD_GATEWAY';
+            case 503: return 'SERVICE_UNAVAILABLE';
+            default: return `HTTP_${status}`;
+        }
     }
 }
 

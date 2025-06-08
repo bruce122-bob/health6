@@ -8,10 +8,10 @@ const AI_CONFIG = {
     apiUrl: 'https://llm.chutes.ai/v1/chat/completions',
     model: 'deepseek-ai/DeepSeek-V3-0324', // 使用DeepSeek V3模型
     
-    // OpenRouter备用配置
+    // OpenRouter备用配置 - 使用免费的DeepSeek模型
     backupApiKey: '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',
     backupApiUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    backupModel: 'deepseek/deepseek-chat-v3-0324:free',
+    backupModel: 'deepseek/deepseek-chat:free', // 使用免费的DeepSeek V3模型
     
     // 代理服务器配置 - 暂时禁用
     proxyUrls: [],
@@ -26,9 +26,9 @@ const AI_CONFIG = {
     siteName: 'She Haven - Luma AI Assistant',
     
     // 质量优先配置
-    maxTokens: 1000,
+    maxTokens: 800, // 减少token数量，提高响应速度
     temperature: 0.7,
-    maxHistoryMessages: 8,
+    maxHistoryMessages: 4, // 减少对话历史，避免请求过大
     
     // 系统提示词
     systemPrompt: `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供专业、温暖、有价值的帮助。
@@ -520,7 +520,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
             });
         };
 
-        // API调用策略 - Chutes为主，OpenRouter为备用
+        // API调用策略 - 专注于Chutes API
         const attempts = [
             // 主要Chutes API调用
             {
@@ -531,10 +531,13 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 },
                 model: AI_CONFIG.model,
                 name: 'Chutes API',
-                timeout: 15000
-            },
-            // 备用OpenRouter API调用
-            {
+                timeout: 30000 // 增加超时时间到30秒
+            }
+        ];
+
+        // 如果有备用API密钥且不为空，添加备用选项
+        if (AI_CONFIG.backupApiKey && AI_CONFIG.backupApiKey.length > 20) {
+            attempts.push({
                 url: AI_CONFIG.backupApiUrl,
                 headers: {
                     'Content-Type': 'application/json',
@@ -544,9 +547,9 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 },
                 model: AI_CONFIG.backupModel,
                 name: 'OpenRouter API',
-                timeout: 15000
-            }
-        ];
+                timeout: 20000
+            });
+        }
 
         let lastError = null;
         let attemptCount = 0;

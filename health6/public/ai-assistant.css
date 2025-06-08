@@ -215,7 +215,7 @@
     padding: 20px;
     overflow-y: auto;
     scroll-behavior: smooth;
-    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    background: #ffffff;
 }
 
 .ai-chat-messages::-webkit-scrollbar {
@@ -565,84 +565,55 @@
     }
 }
 
-/* 模式切换按钮样式 - 美化版 */
+/* 模式切换按钮样式 - 简洁版 */
 .ai-mode-switch {
     padding: 16px 24px;
-    border-top: 1px solid rgba(102, 126, 234, 0.1);
-    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    border-top: 1px solid #e9ecef;
+    background: #ffffff;
     display: flex;
     justify-content: center;
-    border-radius: 0 0 24px 24px;
+    border-radius: 0 0 16px 16px;
 }
 
 .ai-mode-btn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 50%, #17a2b8 100%);
+    background: #28a745;
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
-    font-weight: 600;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+    font-weight: 500;
 }
 
 .ai-mode-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
-    background: linear-gradient(135deg, #218838 0%, #1ea085 50%, #138496 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    background: #218838;
 }
 
 .ai-mode-btn i {
-    font-size: 15px;
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+    font-size: 14px;
 }
 
-/* 测试模式时的样式调整 - 美化版 */
+/* 测试模式时的样式调整 - 简洁版 */
 .ai-chat-header.test-mode {
-    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 50%, #e83e8c 100%);
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
 }
 
 .ai-mode-btn.test-mode {
-    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 50%, #6f42c1 100%);
-    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
+    background: #dc3545;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
 }
 
 .ai-mode-btn.test-mode:hover {
-    background: linear-gradient(135deg, #c82333 0%, #d91a72 50%, #5a32a3 100%);
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
-}
-
-/* 额外的美化效果 */
-.ai-chat-window::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(240, 147, 251, 0.02) 100%);
-    pointer-events: none;
-    border-radius: 24px;
-}
-
-.ai-message-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: inherit;
-    border-radius: inherit;
-    opacity: 0.8;
-    z-index: -1;
+    background: #c82333;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 /* 加载动画 */

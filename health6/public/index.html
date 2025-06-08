@@ -615,10 +615,11 @@
         </div>
     </footer>
 
+    <!-- Luma AI助手已集成 - 右下角浮动按钮 -->
     <!-- AI助手样式 -->
     <link rel="stylesheet" href="ai-assistant.css">
     
-    <!-- AI助手脚本 -->
+    <!-- AI助手脚本 - 质量优先版本 -->
     <script src="ai-assistant-v2.js?v=2.0"></script>
 
     <script>
@@ -661,6 +662,12 @@
             } else {
                 navbar.style.background = 'rgba(255, 255, 255, 0.95)';
             }
+        });
+
+        // AI助手初始化确认
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 She Haven主页已加载');
+            console.log('✨ Luma AI助手已集成 - 请查看右下角');
         });
     </script>
 </body>

@@ -169,11 +169,16 @@
 
         function updateProgress(value) {
             progressValue = value;
-            document.getElementById('progress').style.width = value + '%';
+            const progressBar = document.getElementById('progress');
+            if (progressBar) {
+                progressBar.style.width = value + '%';
+            }
         }
 
         function log(message, type = 'info') {
             const logDiv = document.getElementById('test-log');
+            if (!logDiv) return;
+            
             const timestamp = new Date().toLocaleTimeString();
             const logEntry = document.createElement('div');
             logEntry.innerHTML = `[${timestamp}] ${message}`;
@@ -183,11 +188,16 @@
         }
 
         function clearLog() {
-            document.getElementById('test-log').innerHTML = '';
+            const logDiv = document.getElementById('test-log');
+            if (logDiv) {
+                logDiv.innerHTML = '';
+            }
         }
 
         function updateOverallStatus(status, message, type = 'info') {
             const statusDiv = document.getElementById('overall-status');
+            if (!statusDiv) return;
+            
             statusDiv.className = `status-card ${type}`;
             statusDiv.innerHTML = `
                 <h3><i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i> ${status}</h3>
@@ -199,15 +209,37 @@
         }
 
         function displayConfig() {
-            document.getElementById('test-mode').textContent = AI_CONFIG.testMode ? '是' : '否';
-            document.getElementById('main-api').textContent = AI_CONFIG.apiUrl;
-            document.getElementById('main-model').textContent = AI_CONFIG.model;
-            document.getElementById('backup-api').textContent = AI_CONFIG.backupApiUrl || '未配置';
-            document.getElementById('timeout').textContent = AI_CONFIG.timeout + 'ms';
-            document.getElementById('max-tokens').textContent = AI_CONFIG.maxTokens;
+            // 检查AI_CONFIG是否存在
+            if (typeof AI_CONFIG === 'undefined') {
+                log('⚠️ AI配置未加载，请检查ai-assistant-v2.js文件', 'warning');
+                return;
+            }
+            
+            const elements = {
+                'test-mode': AI_CONFIG.testMode ? '是' : '否',
+                'main-api': AI_CONFIG.apiUrl,
+                'main-model': AI_CONFIG.model,
+                'backup-api': AI_CONFIG.backupApiUrl || '未配置',
+                'timeout': AI_CONFIG.timeout + 'ms',
+                'max-tokens': AI_CONFIG.maxTokens
+            };
+            
+            for (const [id, value] of Object.entries(elements)) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                }
+            }
         }
 
         async function testMainAPI() {
+            // 检查AI_CONFIG是否存在
+            if (typeof AI_CONFIG === 'undefined') {
+                log('❌ AI配置未加载，无法测试API', 'error');
+                updateOverallStatus('配置错误', 'AI助手配置文件未正确加载', 'error');
+                return;
+            }
+            
             log('开始测试主要API (Chutes)...', 'info');
             updateProgress(25);
             
@@ -230,7 +262,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     log('✅ 主要API连接成功！', 'success');
-                    log(`响应: ${data.choices[0].message.content}`, 'success');
+                    if (data.choices && data.choices[0] && data.choices[0].message) {
+                        log(`响应: ${data.choices[0].message.content}`, 'success');
+                    }
                     updateOverallStatus('主要API正常', 'Chutes API连接成功，AI助手可正常使用', 'success');
                 } else {
                     const errorText = await response.text();
@@ -246,6 +280,12 @@
         }
 
         async function testBackupAPI() {
+            // 检查AI_CONFIG是否存在
+            if (typeof AI_CONFIG === 'undefined') {
+                log('❌ AI配置未加载，无法测试备用API', 'error');
+                return;
+            }
+            
             if (!AI_CONFIG.backupApiKey || AI_CONFIG.backupApiKey.length < 20) {
                 log('⚠️ 备用API未配置或密钥无效', 'warning');
                 return;
@@ -272,7 +312,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     log('✅ 备用API连接成功！', 'success');
-                    log(`响应: ${data.choices[0].message.content}`, 'success');
+                    if (data.choices && data.choices[0] && data.choices[0].message) {
+                        log(`响应: ${data.choices[0].message.content}`, 'success');
+                    }
                 } else {
                     const errorText = await response.text();
                     log(`❌ 备用API失败: ${response.status} - ${errorText}`, 'error');

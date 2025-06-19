@@ -514,12 +514,63 @@
 
         // Firebase 配置和初始化
         const firebaseConfig = {
-            // 您的 Firebase 配置
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
         };
 
         // 初始化 Firebase
         if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+            } catch (error) {
+                console.error('Firebase 初始化失败:', error);
+            }
+        }
+
+        // 监听Firebase认证状态变化
+        firebase.auth().onAuthStateChanged((user) => {
+            console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+            updateAuthUI(user);
+        });
+
+        // 更新认证UI
+        function updateAuthUI(user) {
+            const authButtons = document.querySelector('.auth-buttons');
+            
+            if (user) {
+                // 用户已登录，显示用户信息
+                const userName = user.email.split('@')[0];
+                authButtons.innerHTML = `
+                    <span style="color: #333; margin-right: 15px;">欢迎，${userName}</span>
+                    <a href="javascript:void(0)" class="btn btn-outline" onclick="logout()">退出</a>
+                `;
+            } else {
+                // 用户未登录，显示登录注册按钮
+                authButtons.innerHTML = `
+                    <a href="index.html" class="btn btn-outline">登录</a>
+                    <a href="index.html" class="btn btn-primary">注册</a>
+                `;
+            }
+        }
+
+        // 退出登录
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                console.log('退出成功');
+                alert('已成功退出登录');
+                // 跳转到主页
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('退出失败:', error);
+                alert('退出失败: ' + error.message);
+            }
         }
     </script>
 </body>

@@ -286,14 +286,14 @@ class LumaAIAssistant {
                 this.updateModeUI();
                 
                 // 重新显示加载状态并获取测试回答
-                this.showTyping();
-                try {
+                        this.showTyping();
+                        try {
                     const testResponse = await this.getTestResponse(message);
-                    this.hideTyping();
+                            this.hideTyping();
                     this.addMessage(testResponse, 'ai');
                     console.log('测试模式回复:', testResponse);
-                } catch (testError) {
-                    this.hideTyping();
+                        } catch (testError) {
+                            this.hideTyping();
                     this.addMessage('❌ 连接错误，请稍后重试。', 'ai', true);
                 }
             } else {
@@ -545,7 +545,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 model: AI_CONFIG.backupModel,
                 name: 'OpenRouter API',
                 timeout: 15000
-            }
+                }
         ];
 
         let lastError = null;
@@ -837,4 +837,4 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 // 初始化AI助手
 document.addEventListener('DOMContentLoaded', () => {
     window.lumaAssistant = new LumaAIAssistant();
-});
+}); 

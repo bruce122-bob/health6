@@ -381,6 +381,38 @@
     </div>
 
     <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+            } catch (error) {
+                console.error('Firebase 初始化失败:', error);
+            }
+        }
+
+        // 监听Firebase认证状态变化
+        firebase.auth().onAuthStateChanged((user) => {
+            console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+            // 这里可以根据登录状态显示不同的内容或功能
+            if (user) {
+                console.log('用户已登录:', user.email);
+            } else {
+                console.log('用户未登录');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // 平滑滚动到锚点
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {

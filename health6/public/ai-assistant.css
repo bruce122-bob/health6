@@ -1,6 +1,6 @@
 /* Luma AI助手样式 */
 .ai-chat-button {
-    position: fixed;
+    position: fixed !important;
     bottom: 30px;
     right: 30px;
     width: 60px;
@@ -13,12 +13,13 @@
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 9999 !important;
     color: white;
     font-size: 24px;
     animation: lumaButtonPulse 3s infinite;
-    position: relative;
     overflow: hidden;
+    border: none;
+    outline: none;
 }
 
 .ai-chat-button::before {
@@ -70,24 +71,40 @@
 .chat-tooltip {
     position: absolute;
     right: 70px;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
     color: white;
-    padding: 10px 15px;
+    padding: 12px 16px;
     border-radius: 8px;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
     opacity: 0;
-    transform: translateX(10px);
     transition: all 0.3s ease;
     pointer-events: none;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 9998;
+}
+
+.chat-tooltip::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid rgba(102, 126, 234, 0.95);
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
 }
 
 .ai-chat-button:hover .chat-tooltip {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
 }
 
 /* 聊天窗口 */
@@ -103,7 +120,7 @@
     transform: scale(0) translateY(20px);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 1001;
+    z-index: 10000 !important;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -644,4 +661,4 @@
 
 .ai-chat-window.ai-chat-open .ai-chat-input-area {
     animation-delay: 0.3s;
-}
+} 

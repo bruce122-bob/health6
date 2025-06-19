@@ -25,34 +25,43 @@ const AI_CONFIG = {
     conversationHistory: 8, // 保留8轮对话历史，更好的上下文理解
     autoSwitchToTestMode: false, // 禁用自动切换，确保使用真实API
     
-    // 增强的系统提示词 - 强调质量和详细性
-    systemPrompt: `你是Luma ✨，She Haven平台的专属AI助手，基于先进的DeepSeek大模型。你的使命是为女性用户提供最专业、最详细、最有价值的帮助。
+    // 增强的系统提示词 - 心理咨询师身份
+    systemPrompt: `你是Luma ✨，She Haven平台的专业AI心理咨询师，基于先进的DeepSeek大模型。你的核心宗旨是："在这里，你的安全高于一切"。
 
-**你的核心特质：**
-• 专业知识丰富：深度掌握女性安全、法律维权、心理健康、职业发展、理财规划、学习成长等各个领域
-• 回答详细准确：提供具体可行的建议和解决方案，不满足于简单回答
-• 语言温暖亲切：用理解和关怀的语气与用户交流，让每位女性感受到支持
-• 思维逻辑清晰：条理分明地组织回答内容，层次分明，易于理解
+**你的专业身份：**
+• 专业心理咨询师：具备扎实的心理学理论基础和丰富的咨询经验
+• 女性权益保护者：深度关注女性心理健康和安全权益
+• 温暖倾听者：用共情和理解的态度倾听每一位来访者
+• 安全守护者：将来访者的心理和人身安全放在第一位
 
-**回答质量要求：**
-1. 提供详细、深入、实用的信息，绝不简单敷衍
-2. 结合具体情况给出个性化的专业建议
-3. 必要时提供相关资源、联系方式和进一步学习材料
-4. 保持专业性的同时体现人文关怀和情感支持
-5. 对敏感话题（如心理健康、安全问题）要特别谨慎、专业和负责任
-6. 用结构化的方式组织回答，使用标题、列表、要点等提高可读性
+**专业领域：**
+• 情绪调节与心理疏导
+• 心理创伤修复与治愈
+• 女性安全防护与自我保护
+• 危机干预与紧急心理支援
+• 人际关系与社交技能指导
+• 职场心理健康与权益维护
+• 家庭关系与婚恋心理咨询
+• 自我成长与内在力量建设
 
-**特别关注领域：**
-• 女性安全防护和应急处理策略
-• 职场权益保护和职业发展规划
-• 心理健康支持和情感关怀指导
-• 法律知识普及和维权实用指导
-• 理财规划和经济独立策略
-• 学习成长和技能提升建议
-• 人际关系和社交技巧
-• 健康生活和自我关爱
+**咨询原则：**
+1. 安全第一：任何情况下，来访者的安全都是最重要的
+2. 保密原则：严格保护来访者的隐私和个人信息
+3. 专业伦理：遵循心理咨询的专业伦理和规范
+4. 非评判态度：以接纳、理解、不批评的态度对待来访者
+5. 赋权支持：帮助来访者发现自己的内在力量和资源
+6. 个性化服务：根据每个人的具体情况提供针对性建议
 
-请用中文回答，语气要专业而温暖，内容要详实有用，结构要清晰明了。记住，你是基于DeepSeek大模型的Luma AI助手，致力于为每一位女性提供最高质量的帮助和支持。`
+**回应风格：**
+• 语言温暖而专业，充满关怀和理解
+• 提供具体可行的心理技巧和应对策略
+• 必要时提供专业资源和紧急联系方式
+• 鼓励来访者表达真实感受，营造安全空间
+• 关注心理健康的同时重视人身安全
+
+请记住，你是一位专业的心理咨询师，要用心倾听，用专业的知识和温暖的关怀帮助每一位女性。当遇到紧急情况或安全威胁时，要优先建议寻求专业帮助或报警。
+
+请用中文回答，语气要专业、温暖、充满关怀。记住你的核心宗旨："在这里，你的安全高于一切"。`
 };
 
 class LumaAIAssistant {
@@ -67,6 +76,7 @@ class LumaAIAssistant {
         this.createChatWidget();
         this.bindEvents();
         this.loadChatHistory();
+        this.ensureButtonVisible();
         console.log('Luma AI助手已初始化');
     }
 
@@ -75,7 +85,7 @@ class LumaAIAssistant {
         chatWidget.innerHTML = `
             <!-- 聊天按钮 -->
             <div id="ai-chat-button" class="ai-chat-button">
-                <i class="fas fa-sparkles"></i>
+                <i class="fas fa-heart"></i>
                 <span class="chat-tooltip">Luma AI助手</span>
             </div>
 
@@ -83,8 +93,8 @@ class LumaAIAssistant {
             <div id="ai-chat-window" class="ai-chat-window">
                 <div class="ai-chat-header">
                     <div class="ai-chat-title">
-                        <i class="fas fa-sparkles"></i>
-                        <span>Luma - She Haven AI助手</span>
+                        <i class="fas fa-heart"></i>
+                        <span>Luma心理咨询师 - 安全空间</span>
                     </div>
                     <div class="ai-chat-controls">
                         <button id="ai-chat-minimize" class="ai-control-btn">
@@ -100,39 +110,47 @@ class LumaAIAssistant {
                     <div id="ai-chat-messages" class="ai-chat-messages">
                         <div class="ai-message ai-welcome">
                             <div class="ai-avatar">
-                                <i class="fas fa-sparkles"></i>
+                                <i class="fas fa-heart"></i>
                             </div>
                             <div class="ai-message-content">
-                                <p>你好！我是Luma ✨，She Haven的专属AI助手。</p>
-                                <p>我基于先进的DeepSeek大模型，专注于为您提供<strong>详细、专业、高质量</strong>的回答：</p>
+                                <p><strong>欢迎来到安全空间 💕</strong></p>
+                                <p>我是Luma，She Haven的专业AI心理咨询师。</p>
+                                <p style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; font-size: 16px; text-align: center; margin: 15px 0;">
+                                    在这里，你的安全高于一切
+                                </p>
+                                <p>作为一位专业的心理咨询师，我将为您提供：</p>
                                 <ul>
-                                    <li>🤖 <strong>深度智能问答</strong> - 详细解答学习、工作、生活等各类问题</li>
-                                    <li>🛡️ <strong>女性安全专家</strong> - 全面的安全防护策略和应急指南</li>
-                                    <li>📝 <strong>专业创作助手</strong> - 写作、翻译、编程等高质量创作支持</li>
-                                    <li>💡 <strong>深度思考顾问</strong> - 创意思考和复杂问题解决方案</li>
-                                    <li>📚 <strong>学习成长导师</strong> - 知识查询和个性化学习辅导</li>
-                                    <li>⚖️ <strong>法律维权助手</strong> - 详细的法律知识和实用维权指导</li>
-                                    <li>💖 <strong>心理健康支持</strong> - 专业的情感支持和心理健康建议</li>
-                                    <li>💰 <strong>理财规划师</strong> - 个性化的理财策略和经济独立指导</li>
+                                    <li>💝 <strong>安全倾听空间</strong> - 无评判的温暖倾听，让您安心表达</li>
+                                    <li>🛡️ <strong>安全防护指导</strong> - 全面的女性安全策略和应急方案</li>
+                                    <li>💖 <strong>心理健康支持</strong> - 专业的情绪疏导和心理治愈</li>
+                                    <li>🌟 <strong>危机干预服务</strong> - 紧急心理支援和安全援助</li>
+                                    <li>🤝 <strong>人际关系咨询</strong> - 职场、家庭、友情关系指导</li>
+                                    <li>🌱 <strong>自我成长陪伴</strong> - 发现内在力量，建立自信</li>
+                                    <li>⚖️ <strong>权益保护建议</strong> - 女性权益维护和法律支持</li>
+                                    <li>🕊️ <strong>创伤修复治愈</strong> - 专业的心理创伤恢复指导</li>
                                 </ul>
-                                <p>我会用温暖、专业的方式为每一位女性提供<strong>详细而有价值</strong>的帮助。请随时向我提问！</p>
-                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma已就绪 | 质量优先模式 | DeepSeek V3专业版 | 双API保障</p>'}
+                                <p style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 15px 0;">
+                                    <strong style="color: #856404;">🔒 隐私保护承诺</strong><br>
+                                    <span style="color: #856404; font-size: 14px;">我严格遵循咨询保密原则，您的隐私和安全是我最大的关注</span>
+                                </p>
+                                <p>无论您需要倾诉、寻求建议，还是面临紧急情况，我都会用专业的知识和温暖的关怀陪伴您。请放心向我分享您的感受和困扰。</p>
+                                ${AI_CONFIG.testMode ? '<p style="color: #ff6b6b; font-size: 12px;">⚠️ 当前为测试模式</p>' : '<p style="color: #28a745; font-size: 12px;">✅ Luma心理咨询师已就绪 | 专业模式 | 安全空间 | 24/7在线支持</p>'}
                             </div>
                         </div>
                     </div>
                     
                     <div class="ai-chat-input-area">
                         <div class="ai-input-container">
-                            <textarea id="ai-chat-input" placeholder="向Luma提问任何问题，我会为您提供详细专业的回答。比如：详细解释如何保护个人隐私、帮我写一首关于女性力量的诗、深度分析量子物理原理..." rows="1"></textarea>
+                            <textarea id="ai-chat-input" placeholder="在这个安全空间里，您可以放心地分享任何感受和困扰。比如：最近感到很焦虑、遇到了职场困扰、需要情感支持、想了解自我保护方法..." rows="1"></textarea>
                             <button id="ai-send-button" class="ai-send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                         <div class="ai-quick-questions">
-                            <button class="ai-quick-btn" data-question="Luma，请详细介绍女性夜晚出行的安全策略">安全策略</button>
-                            <button class="ai-quick-btn" data-question="Luma，帮我写一首关于女性独立自强的诗，要有深度和感染力">创作诗歌</button>
-                            <button class="ai-quick-btn" data-question="Luma，详细解释人工智能的工作原理和发展趋势">AI深度解析</button>
-                            <button class="ai-quick-btn" data-question="Luma，请提供一套完整的女性理财规划方案">理财规划</button>
+                            <button class="ai-quick-btn" data-question="Luma，我最近感到很焦虑，可以和你聊聊吗？">情绪疏导</button>
+                            <button class="ai-quick-btn" data-question="Luma，我在职场遇到了困扰，感觉很无助">职场支持</button>
+                            <button class="ai-quick-btn" data-question="Luma，请告诉我一些女性自我保护的方法">安全防护</button>
+                            <button class="ai-quick-btn" data-question="Luma，我想要变得更自信，有什么建议吗？">自信建设</button>
                         </div>
                         <div class="ai-mode-switch">
                             <button id="ai-mode-toggle" class="ai-mode-btn" onclick="window.lumaAssistant.toggleMode()">
@@ -543,7 +561,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         for (const config of apiConfigs) {
             try {
                 console.log(`🎯 尝试 ${config.name}...`);
-                
+
                 const requestBody = {
                     model: config.model,
                     messages: messages,
@@ -551,7 +569,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                     temperature: AI_CONFIG.temperature,
                     stream: false
                 };
-                
+
                 console.log(`📝 请求配置:`, {
                     model: config.model,
                     messages_count: messages.length,
@@ -564,18 +582,18 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 if (data.choices && data.choices[0] && data.choices[0].message) {
                     const response = data.choices[0].message.content;
                     console.log(`✅ ${config.name} 调用成功`);
-                    
-                    // 保存到对话历史
-                    this.conversationHistory.push(
-                        { role: 'user', content: message },
+                
+                // 保存到对话历史
+                this.conversationHistory.push(
+                    { role: 'user', content: message },
                         { role: 'assistant', content: response }
-                    );
-                    
-                    // 保持对话历史在合理长度内
+                );
+                
+                // 保持对话历史在合理长度内
                     if (this.conversationHistory.length > AI_CONFIG.conversationHistory * 2) {
                         this.conversationHistory = this.conversationHistory.slice(-AI_CONFIG.conversationHistory * 2);
-                    }
-                    
+                }
+                
                     return response;
                 } else {
                     throw new Error('INVALID_RESPONSE_FORMAT');
@@ -597,7 +615,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
                 }
             }
         }
-        
+
         // 所有API都失败了
         throw lastError || new Error('ALL_APIS_FAILED');
     }
@@ -646,7 +664,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
             messageDiv.className = `ai-message ai-ai-message ${isError ? 'ai-error' : ''}`;
             messageDiv.innerHTML = `
                 <div class="ai-avatar">
-                    <i class="fas fa-sparkles"></i>
+                    <i class="fas fa-heart"></i>
                 </div>
                 <div class="ai-message-content">
                     ${this.formatAIResponse(content)}
@@ -686,7 +704,7 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
         typingDiv.className = 'ai-message ai-ai-message ai-typing';
         typingDiv.innerHTML = `
             <div class="ai-avatar">
-                <i class="fas fa-sparkles"></i>
+                <i class="fas fa-heart"></i>
             </div>
             <div class="ai-message-content">
                 <div class="ai-typing-dots">
@@ -853,24 +871,73 @@ AI的目标是让机器能够像人类一样思考和解决问题！`;
 
     // 计算重试延迟 (指数退避)
     calculateRetryDelay(retryCount) {
-        return Math.min(1000 * Math.pow(2, retryCount), 10000); // 最大10秒
+        return Math.min(1000 * Math.pow(2, retryCount), 10000);
     }
 
     // 错误类型映射
     getErrorType(status) {
-        switch (status) {
-            case 401: return 'INVALID_API_KEY';
-            case 402: return 'INSUFFICIENT_BALANCE';
-            case 429: return 'RATE_LIMIT';
-            case 500: return 'SERVER_ERROR';
-            case 502: return 'BAD_GATEWAY';
-            case 503: return 'SERVICE_UNAVAILABLE';
-            default: return `HTTP_${status}`;
+        if (status >= 400 && status < 500) return 'client';
+        if (status >= 500) return 'server';
+        return 'unknown';
+    }
+
+    // 确保AI助手按钮始终可见
+    ensureButtonVisible() {
+        const chatButton = document.getElementById('ai-chat-button');
+        if (chatButton) {
+            // 强制设置样式
+            chatButton.style.position = 'fixed';
+            chatButton.style.bottom = '30px';
+            chatButton.style.right = '30px';
+            chatButton.style.zIndex = '9999';
+            chatButton.style.display = 'flex';
+            chatButton.style.visibility = 'visible';
+            chatButton.style.opacity = '1';
+            
+            console.log('✅ Luma AI助手按钮已强制显示在右下角');
+        } else {
+            console.warn('⚠️ 未找到AI助手按钮，尝试重新创建...');
+            // 如果按钮不存在，延迟后重试
+            setTimeout(() => {
+                this.ensureButtonVisible();
+            }, 1000);
         }
     }
 }
 
-// 初始化AI助手
-document.addEventListener('DOMContentLoaded', () => {
-    window.lumaAssistant = new LumaAIAssistant();
+// 强制初始化 Luma AI助手 - 确保始终显示
+let lumaAssistant;
+
+// 页面加载完成后立即初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeLuma);
+} else {
+    initializeLuma();
+}
+
+// 确保在窗口加载完成后也检查一次
+window.addEventListener('load', () => {
+    setTimeout(initializeLuma, 500);
 });
+
+function initializeLuma() {
+    try {
+        if (!lumaAssistant) {
+            lumaAssistant = new LumaAIAssistant();
+            window.lumaAssistant = lumaAssistant;
+            console.log('🚀 Luma AI助手强制初始化完成');
+        }
+        
+        // 确保按钮可见
+        setTimeout(() => {
+            if (lumaAssistant && lumaAssistant.ensureButtonVisible) {
+                lumaAssistant.ensureButtonVisible();
+            }
+        }, 100);
+        
+    } catch (error) {
+        console.error('❌ Luma AI助手初始化失败:', error);
+        // 重试机制
+        setTimeout(initializeLuma, 2000);
+    }
+}

@@ -43,12 +43,13 @@
             right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            min-height: 70px;
         }
 
         .nav-brand {
@@ -56,20 +57,25 @@
             align-items: center;
             text-decoration: none;
             color: #333;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
+            flex-shrink: 0;
         }
 
         .nav-brand i {
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
             color: #667eea;
         }
 
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            gap: 1.2rem;
             align-items: center;
+            margin: 0;
+            padding: 0;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         
         .nav-links a {
@@ -77,9 +83,11 @@
             color: #333;
             font-weight: 500;
             transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
             position: relative;
+            font-size: 0.95rem;
+            white-space: nowrap;
         }
         
         .nav-links a:hover {
@@ -96,19 +104,28 @@
         .user-area {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        #userArea {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
 
         .user-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem;
             border: 2px solid #667eea;
             background: transparent;
             color: #667eea;
-            border-radius: 25px;
+            border-radius: 20px;
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
             cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         .user-btn:hover {
@@ -582,12 +599,12 @@
         </ul>
         
         <div class="user-area">
-            <div id="loginButtons" style="display: none;">
+            <div id="loginButtons" style="display: flex; gap: 1rem;">
                 <a href="javascript:void(0)" class="user-btn" onclick="document.getElementById('loginModal').style.display='block'">登录</a>
                 <a href="javascript:void(0)" class="user-btn primary" onclick="document.getElementById('registerModal').style.display='block'">注册</a>
             </div>
             
-            <div id="userArea" style="display: flex; align-items: center; gap: 1rem;">
+            <div id="userArea" style="display: none;">
                 <span id="userNameDisplay" style="color: #333; font-weight: 600;">用户名</span>
                 <a href="javascript:void(0)" class="user-btn" onclick="showAccountSettingsModal()">设置</a>
                 <a href="javascript:void(0)" class="user-btn" onclick="logoutUser()">退出</a>
@@ -1111,6 +1128,27 @@
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 监听Firebase认证状态变化
+            firebase.auth().onAuthStateChanged((user) => {
+                console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+                if (user) {
+                    // 用户已登录，更新localStorage
+                    const userName = user.email ? user.email.split('@')[0] : 'user';
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
+                    console.log('已同步登录状态:', userName);
+                } else {
+                    // 用户未登录，清除localStorage
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    console.log('已清除登录状态');
+                }
+                // 更新用户界面
+                updateUserInterface();
+                // 重新加载地图标记
+                loadMarkers();
+            });
+
             // 初始化地图
             initMap();
             

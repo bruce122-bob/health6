@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>She Haven - 她的安全港湾</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 英雄区域 */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            z-index: 2;
+            position: relative;
+            animation: fadeInUp 1s ease-out;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 1;
+            color: white;
+            font-weight: 700;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero .description {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            line-height: 1.8;
+            color: white;
+            font-weight: 500;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-white {
+            background: white;
+            color: #667eea;
+        }
+
+        /* 特色功能区域 */
+        .features {
+            padding: 5rem 0;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 资源区域 */
+        .resources {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .resource-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .resource-image {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .resource-content {
+            padding: 2rem;
+        }
+
+        .resource-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .resource-content p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ecf0f1;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            line-height: 1.8;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #34495e;
+            color: #95a5a6;
+        }
+
+        /* 动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero .description {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid,
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 滚动动画 */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">She Haven</a>
+            <ul class="nav-menu">
+                <li><a href="index-new-design.html">首页</a></li>
+                <li><a href="fullscreen-map.html">安全地图</a></li>
+                <li><a href="resources.html">安全资源</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="anonymous-tree-hole.html">匿名树洞</a></li>
+                <li><a href="emergency-contacts.html">紧急联系</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#" class="btn btn-outline">登录</a>
+                <a href="#" class="btn btn-primary">注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>She Haven</h1>
+            <p class="subtitle">她的安全港湾</p>
+            <p class="description">
+                一个致力于女性安全与权益的在线平台，提供安全资源、社区支持和紧急帮助。
+                让每一位女性的声音都能被听见，让女性安全成为看得见的权利。
+            </p>
+            <div class="hero-buttons">
+                <a href="#features" class="btn btn-white btn-large">探索功能</a>
+                <a href="#resources" class="btn btn-outline btn-large">安全资源</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特色功能 -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title scroll-reveal">
+                <h2>核心功能</h2>
+                <p>为女性安全提供全方位的保护和支持</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>安全指南</h3>
+                    <p>提供全面的个人安全指南，包括出行安全、住宿安全、社交安全等实用建议，帮助女性提高安全意识。</p>
+                    <a href="personal-safety-guide.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>安全地图</h3>
+                    <p>实时更新的安全地图，标记安全区域和危险地带，帮助用户规划安全路线，避开潜在风险。</p>
+                    <a href="fullscreen-map.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>社区支持</h3>
+                    <p>建立女性互助社区，分享经验、提供支持，让每位女性都能在这里找到理解和帮助。</p>
+                    <a href="community.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3>匿名树洞</h3>
+                    <p>安全的匿名倾诉空间，在星空下分享你的想法和感受，获得心灵的慰藉和支持。</p>
+                    <a href="anonymous-tree-hole.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h3>紧急联系</h3>
+                    <p>快速访问紧急联系方式，包括报警电话、心理咨询热线、法律援助等重要联系信息。</p>
+                    <a href="emergency-contacts.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>法律知识</h3>
+                    <p>普及女性权益相关的法律知识，提供法律咨询和援助信息，保护女性合法权益。</p>
+                    <a href="legal-knowledge.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>寻人启事</h3>
+                    <p>发布和查看寻人启事，利用社区力量帮助寻找失踪人员，提高找回成功率。</p>
+                    <a href="missing-persons.html" class="btn btn-primary" style="margin-top: 1rem;">查看详情</a>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">
+                        <i class="fas fa-sparkles"></i>
+                    </div>
+                    <h3>Luma AI助手</h3>
+                    <p>专属智能助手Luma，基于先进AI技术，提供24/7智能问答、安全建议和贴心服务。</p>
+                    <a href="ai-assistant-demo.html" class="btn btn-primary" style="margin-top: 1rem;">体验Luma</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 资源区域 -->
+    <section class="resources" id="resources">
+        <div class="container">
+            <div class="section-title scroll-reveal">
+                <h2>安全资源</h2>
+                <p>丰富的安全知识和实用工具</p>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card scroll-reveal">
+                    <div class="resource-image">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>个人安全指南</h3>
+                        <p>详细的个人安全防护指南，涵盖日常生活中的各种安全场景和应对策略。</p>
+                        <a href="personal-safety-guide.html" class="btn btn-primary">查看详情</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-reveal">
+                    <div class="resource-image">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>法律知识普及</h3>
+                        <p>女性权益保护相关的法律知识，帮助了解自身权利和维权途径。</p>
+                        <a href="legal-knowledge.html" class="btn btn-primary">查看详情</a>
+                    </div>
+                </div>
+                <div class="resource-card scroll-reveal">
+                    <div class="resource-image">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>心理健康支持</h3>
+                        <p>提供心理健康资源和专业咨询服务，关注女性心理健康。</p>
+                        <a href="#" class="btn btn-primary">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>She Haven</h3>
+                    <p>致力于为女性提供安全保护和权益维护的综合平台。我们相信每一个她都值得被温柔以待。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <p><a href="#home">首页</a></p>
+                    <p><a href="#features">功能介绍</a></p>
+                    <p><a href="#resources">安全资源</a></p>
+                    <p><a href="emergency-contacts.html">紧急联系</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <p>邮箱: bob2010122@qq.com</p>
+                    <h3 style="margin-top: 2rem;">初创团队</h3>
+                    <p>Bruce</p>
+                    <p>Sarah</p>
+                    <p>Joey</p>
+                </div>
+                <div class="footer-section">
+                    <h3>关注我们</h3>
+                    <p><a href="#">微信公众号</a></p>
+                    <p><a href="#">新浪微博</a></p>
+                    <p><a href="#">抖音号</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 She Haven. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Luma AI助手已集成 - 右下角浮动按钮 -->
+    <!-- AI助手样式 -->
+    <link rel="stylesheet" href="ai-assistant.css">
+    
+    <!-- AI助手脚本 - 质量优先版本 -->
+    <script src="ai-assistant-v2.js?v=2.0"></script>
+
+    <script>
+        // 滚动动画
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.scroll-reveal');
+            
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('revealed');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // AI助手初始化确认
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 She Haven主页已加载');
+            console.log('✨ Luma AI助手已集成 - 请查看右下角');
+        });
+    </script>
+</body>
+</html> 

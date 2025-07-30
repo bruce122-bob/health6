@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻人启事详情 - 韩依贝</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin-right: 20px;
+        }
+        
+        .nav-links li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links li a:hover {
+            color: #000;
+        }
+        
+        /* 详情页特定样式 */
+        .detail-container {
+            max-width: 1000px;
+            margin: 100px auto 30px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .person-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+        
+        .person-image {
+            width: 250px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .person-basic-info {
+            flex: 1;
+        }
+        
+        .person-basic-info h1 {
+            color: #000;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+        }
+        
+        .info-section h2 {
+            color: #000;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .info-item i {
+            color: #555;
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .description {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .contact-section {
+            background-color: #f5f5f5;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 1px solid #ddd;
+        }
+        
+        .contact-section h2 {
+            color: #000;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .contact-methods {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .contact-method {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        
+        .contact-method i {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white !important;
+            text-decoration: none !important;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .back-button:hover {
+            background-color: #000;
+        }
+        
+        .translation {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .person-header {
+                flex-direction: column;
+            }
+            
+            .person-image {
+                margin-right: 0;
+                margin-bottom: 20px;
+                width: 100%;
+                height: auto;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-methods {
+                flex-direction: column;
+            }
+            
+            .detail-container {
+                padding: 15px;
+                margin-top: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左侧 -->
+        <ul class="nav-links">
+            <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+            <li><a href="index.html#emergency">返回寻人启事<span class="inline-translation">Back</span></a></li>
+        </ul>
+        
+        <!-- 用户区域 - 直接显示在导航栏中 -->
+        <div style="margin-left: auto; display: flex; align-items: center;">
+            <!-- 未登录显示 -->
+            <div id="loginButtons" style="display: flex; align-items: center;">
+                <a href="javascript:void(0)" style="color: #333; margin-right: 15px; text-decoration: none;" onclick="showLoginModal()">登录</a>
+                <a href="javascript:void(0)" style="color: #333; text-decoration: none;" onclick="showRegisterModal()">注册</a>
+            </div>
+            
+            <!-- 已登录显示 -->
+            <div id="userArea" style="display: none; align-items: center;">
+                <span id="userNameDisplay" style="color: #000; font-weight: bold; margin-right: 15px;">用户名</span>
+                <a href="javascript:void(0)" style="margin-right: 15px; color: #333; text-decoration: none;" onclick="showAccountSettingsModal()">账号设置</a>
+                <a href="javascript:void(0)" style="background-color: #000; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" onclick="logout()">退出</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情内容 -->
+    <div class="detail-container">
+        <div class="person-header">
+            <img src="images/missing-person-hanyibei.jpg" alt="韩依贝" class="person-image">
+            <div class="person-basic-info">
+                <h1>韩依贝 <span class="translation">Missing Person</span></h1>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>失踪日期: 2023年10月17日</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>最后出现地点: 山西省阳泉市盂县南娄镇西南关村</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>失踪时长: <span id="missingDuration">计算中...</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>个人信息 <span class="translation">Personal Information</span></h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-user"></i>
+                    <span>姓名: 韩依贝</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-venus-mars"></i>
+                    <span>性别: 女</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-birthday-cake"></i>
+                    <span>年龄: 14岁</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>学历: 初三学生</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-home"></i>
+                    <span>户籍: 广东省清远市</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-pin"></i>
+                    <span>失踪地: 山西省阳泉市盂县</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h2>外貌特征 <span class="translation">Appearance</span></h2>
+            <p class="description">
+                失踪时穿着白色卫衣、蓝黑色牛仔裤，一件黑色轻薄单衣未带走。
+            </p>
+        </div>
+        
+        <div class="info-section">
+            <h2>失踪情况 <span class="translation">Missing Circumstances</span></h2>
+            <p class="description">
+                10月17日，来自广东省清远市的14岁初三女生韩依贝，因叛逆被父亲带回山西省阳泉市盂县南娄镇西南关村老家，却意外走失。失踪当天下午4点奶奶发现其不见，失踪前她无明显异常，只是早饭和午饭吃得少，下午3点50分左右监控显示她在村头小路独自漫步面带微笑，之后便毫无踪迹。她的身份证、手机等贵重物品留在家中，游戏账号未登录，微信电话无法接通。一周过去仍无消息，身无分文不知去向。父亲心急报警并求当地警方、村民和村干部帮忙寻找，截至10月23日中午女孩仍未找到。
+            </p>
+        </div>
+        
+        <div class="contact-section">
+            <h2>联系方式 <span class="translation">Contact Information</span></h2>
+            <p>如果您有任何关于韩依贝的信息，请立即联系以下方式：</p>
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <i class="fas fa-phone"></i>
+                    <h3>家属电话</h3>
+                    <p>138-XXXX-XXXX</p>
+                </div>
+                <div class="contact-method">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>警方热线</h3>
+                    <p>110</p>
+                </div>
+                <div class="contact-method">
+                    <i class="fas fa-building"></i>
+                    <h3>当地派出所</h3>
+                    <p>0351-XXXXXXX</p>
+                </div>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-button">
+            返回首页 <span class="translation">Back to Home</span>
+        </a>
+    </div>
+    
+    <script>
+        // 计算失踪时长
+        function calculateMissingDuration() {
+            const missingDate = new Date('2023-10-17T00:00:00');
+            const now = new Date();
+            const diff = now - missingDate;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            document.getElementById('missingDuration').textContent = `${days}天${hours}小时`;
+        }
+        
+        // 页面加载完成后计算失踪时长
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateMissingDuration();
+            // 每小时更新一次失踪时长
+            setInterval(calculateMissingDuration, 3600000);
+        });
+        
+        // 显示登录模态框
+        function showLoginModal() {
+            alert('登录功能暂未实现');
+        }
+        
+        // 显示注册模态框
+        function showRegisterModal() {
+            alert('注册功能暂未实现');
+        }
+        
+        // 显示账号设置模态框
+        function showAccountSettingsModal() {
+            alert('账号设置功能暂未实现');
+        }
+        
+        // 退出登录
+        function logout() {
+            alert('退出登录功能暂未实现');
+        }
+        
+        // 显示不同的页面部分
+        function showSection(sectionName) {
+            if (sectionName === 'safety-map') {
+                window.location.href = 'fullscreen-map.html';
+            } else if (sectionName === 'community') {
+                window.location.href = 'community.html';
+            } else if (sectionName === 'resources') {
+                window.location.href = 'resources.html';
+            } else if (sectionName === 'emergency') {
+                window.location.href = 'index.html#emergency';
+            }
+        }
+    </script>
+</body>
+</html> 

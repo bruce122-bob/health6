@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全地图 - She Haven</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Leaflet Locate Plugin -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+    
+    <!-- Leaflet Geocoder Plugin -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 1.5rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 70px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 1.4rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .nav-brand i {
+            margin-right: 0.4rem;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.2rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            position: relative;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* 用户区域 */
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        #userArea {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .user-btn {
+            padding: 0.4rem 0.8rem;
+            border: 2px solid #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .user-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .user-btn.primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+        }
+
+        .user-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 地图容器 */
+        #fullscreenMap {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        /* 控制面板 */
+        .map-controls {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            transition: all 0.3s ease;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        .map-controls.collapsed {
+            transform: translateX(100%);
+        }
+        
+        .map-controls h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .map-controls p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 切换按钮 */
+        #toggleControlsBtn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #toggleControlsBtn:hover {
+            background: #5a6fd8;
+            transform: scale(1.1);
+        }
+        
+        /* 手机端浮动按钮 */
+        #mobileToggleBtn {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            z-index: 1010;
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mobileToggleBtn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 功能工具栏 */
+        .function-toolbar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 995;
+            transition: all 0.3s ease;
+        }
+
+        .function-toolbar.collapsed {
+            transform: translateY(100%);
+        }
+
+        .resource-tabs {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+                justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .resource-link,
+        .emergency-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .resource-link {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .resource-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .emergency-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+        }
+
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .toggle-toolbar-btn {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 15px 15px 0 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-toolbar-btn:hover {
+            background: #5a6fd8;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+                position: fixed;
+            z-index: 2000;
+            left: 0;
+                top: 0;
+            width: 100%;
+                height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #667eea;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .modal input {
+                width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .modal input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .modal button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-error {
+            background: #fee;
+            color: #c33;
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* 标记样式 */
+        .marker-icon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .marker-icon.safe { background-color: #2ecc71; }
+        .marker-icon.warning { background-color: #e74c3c; }
+        .marker-icon.help { background-color: #f1c40f; }
+
+        .popup-content {
+            padding: 1rem;
+            min-width: 250px;
+        }
+
+        .popup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-description {
+            color: #666;
+            line-height: 1.5;
+            margin: 0.5rem 0;
+        }
+
+        .popup-meta {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .marker-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .marker-type.safe { background-color: #2ecc71; }
+        .marker-type.warning { background-color: #e74c3c; }
+        .marker-type.help { background-color: #f1c40f; color: #333; }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .map-controls {
+            position: fixed;
+                top: 0;
+                right: 0;
+            width: 100%;
+                height: 100%;
+                border-radius: 0;
+                padding-top: 100px;
+                transform: translateX(100%);
+            }
+
+            .map-controls:not(.collapsed) {
+                transform: translateX(0);
+            }
+
+            #toggleControlsBtn {
+                display: none;
+            }
+
+            #mobileToggleBtn {
+                display: flex;
+            }
+
+            .function-toolbar {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+            }
+
+            .resource-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .resource-link,
+        .emergency-btn {
+            width: 100%;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 隐藏翻译文本 */
+        .translation,
+        .inline-translation {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <a href="index.html" class="nav-brand">
+            <i class="fas fa-shield-alt"></i>
+            She Haven
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="fullscreen-map.html" class="active">安全地图</a></li>
+            <li><a href="community.html">交流社区</a></li>
+            <li><a href="resources.html">资料区</a></li>
+            <li><a href="emergency-contacts.html">紧急联系</a></li>
+        </ul>
+        
+        <div class="user-area">
+            <div id="loginButtons" style="display: flex; gap: 1rem;">
+                <a href="javascript:void(0)" class="user-btn" onclick="document.getElementById('loginModal').style.display='block'">登录</a>
+                <a href="javascript:void(0)" class="user-btn primary" onclick="document.getElementById('registerModal').style.display='block'">注册</a>
+            </div>
+            
+            <div id="userArea" style="display: none;">
+                <span id="userNameDisplay" style="color: #333; font-weight: 600;">用户名</span>
+                <a href="javascript:void(0)" class="user-btn" onclick="showAccountSettingsModal()">设置</a>
+                <a href="javascript:void(0)" class="user-btn" onclick="logoutUser()">退出</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 地图容器 -->
+    <div id="fullscreenMap"></div>
+    
+    <!-- 手机端浮动控制按钮 -->
+    <button id="mobileToggleBtn" type="button" aria-label="展开控制面板">
+        <i class="fas fa-cog"></i>
+    </button>
+    
+    <!-- 控制面板 -->
+    <div class="map-controls collapsed" id="mapControls">
+        <button id="toggleControlsBtn" type="button">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2>安全地图</h2>
+        <p>在地图上标记安全或危险地点，帮助他人避开危险。</p>
+        
+        <div class="form-group">
+            <label class="form-label">标题</label>
+            <input type="text" id="title" placeholder="请输入标题">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">类型</label>
+            <select id="type">
+                <option value="">请选择类型</option>
+                <option value="safe">安全地点</option>
+                <option value="warning">危险地点</option>
+                <option value="help">求助信息</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">描述</label>
+            <textarea id="description" placeholder="请输入描述" rows="3"></textarea>
+        </div>
+        
+        <button class="btn" id="submitMarker">
+            提交标记
+        </button>
+    </div>
+
+    <!-- 功能工具栏 -->
+    <div class="function-toolbar" id="functionToolbar">
+        <button class="toggle-toolbar-btn" id="toggleToolbarBtn">收起</button>
+        <div class="resource-tabs">
+            <a href="resources.html" class="resource-link">安全资料</a>
+            <a href="personal-safety-guide.html" class="resource-link">安全指南</a>
+            <a href="emergency-contacts.html" class="emergency-btn">紧急联系</a>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>登录</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="邮箱" required>
+                <input type="password" id="loginPassword" placeholder="密码" required>
+                <div class="form-error" id="loginError"></div>
+                <button type="submit">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>注册</h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="邮箱" required>
+                <input type="password" id="registerPassword" placeholder="密码（至少6位）" required minlength="6">
+                <div class="form-error" id="registerError"></div>
+                <button type="submit">注册</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 账号设置模态框 -->
+    <div id="accountSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('accountSettingsModal')">&times;</span>
+            <h2>账号设置</h2>
+            <form id="accountSettingsForm">
+                <label for="userName">用户名</label>
+                <input type="text" id="userName" placeholder="用户名" required>
+                <div class="form-error" id="accountSettingsError"></div>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Locate Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
+    
+    <!-- Leaflet Geocoder Plugin -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase初始化成功');
+            } catch (error) {
+                console.error('Firebase初始化失败:', error);
+            }
+        }
+
+        // 全局变量
+        let map;
+        let currentMarker;
+        let markersLayer;
+        let mapControls;
+        let toggleControlsBtn;
+        let mobileToggleBtn;
+
+        // 初始化地图
+        function initMap() {
+            map = L.map('fullscreenMap').setView([39.9042, 116.4074], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            markersLayer = L.layerGroup().addTo(map);
+
+            // 添加定位控件
+            L.control.locate({
+                position: 'topleft',
+                strings: {
+                    title: "显示我的位置"
+                }
+            }).addTo(map);
+            
+            // 添加搜索地点控件
+            const geocoder = L.Control.geocoder({
+                position: 'topleft',
+                placeholder: '搜索地点...',
+                defaultMarkGeocode: true,
+                geocoder: L.Control.Geocoder.nominatim({
+                    geocodingQueryParams: {
+                        'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8'
+                    }
+                })
+            }).addTo(map);
+            
+            // 搜索结果处理
+            geocoder.on('markgeocode', function(e) {
+                const bbox = e.geocode.bbox;
+                const poly = L.polygon([
+                    bbox.getSouthEast(),
+                    bbox.getNorthEast(),
+                    bbox.getNorthWest(),
+                    bbox.getSouthWest()
+                ]).addTo(map);
+                map.fitBounds(poly.getBounds());
+                setTimeout(function() {
+                    map.removeLayer(poly);
+                }, 3000);
+            });
+
+            // 点击地图添加标记
+            map.on('click', function(e) {
+                if (!localStorage.getItem('userName')) {
+                    alert('请先登录后再添加标记！');
+                    return;
+                }
+
+                // 移除之前的临时标记
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+                // 添加新的临时标记
+                currentMarker = L.marker(e.latlng, {
+                    icon: L.divIcon({
+                        className: 'marker-icon help',
+                html: '',
+                iconSize: [25, 25]
+                    })
+                }).addTo(map);
+
+                // 展开控制面板
+                if (mapControls && mapControls.classList.contains('collapsed')) {
+                    togglePanel();
+                }
+            });
+
+            // 加载已有标记
+            loadMarkers();
+        }
+
+        // 加载已有标记
+        function loadMarkers() {
+            console.log('开始加载标记数据...');
+            
+            const userName = localStorage.getItem('userName');
+            if (!userName) {
+                console.log('用户未登录，等待登录后再加载标记');
+                return;
+            }
+            
+            console.log('当前用户:', userName);
+            
+            const markersRef = firebase.database().ref('markers');
+            
+            markersRef.on('value', (snapshot) => {
+                try {
+                    markersLayer.clearLayers();
+                    
+                    console.log('加载标记数据:', snapshot.exists() ? '有数据' : '无数据');
+                    
+                    if (snapshot.exists()) {
+                        let markerCount = 0;
+                        snapshot.forEach((childSnapshot) => {
+                            try {
+                                const markerData = childSnapshot.val();
+                                const markerId = childSnapshot.key;
+                                
+                                console.log('处理标记数据:', markerId, markerData);
+                                
+                                if (!markerData.lat || !markerData.lng) {
+                                    console.error('标记缺少经纬度:', markerId);
+                                    return;
+                                }
+                                
+                                const icon = L.divIcon({
+                                    className: `marker-icon ${markerData.type || 'help'}`,
+                                    html: '',
+                                    iconSize: [25, 25]
+                                });
+                                
+                                const marker = L.marker([markerData.lat, markerData.lng], {icon: icon}).addTo(markersLayer);
+                                markerCount++;
+                                
+                                const popupContent = document.createElement('div');
+                                popupContent.className = 'popup-content';
+                                
+                                const title = document.createElement('div');
+                                title.className = 'popup-title';
+                                title.textContent = markerData.title || '无标题';
+                                popupContent.appendChild(title);
+                                
+                                const typeLabel = document.createElement('div');
+                                typeLabel.className = `marker-type ${markerData.type || 'help'}`;
+                                typeLabel.textContent = markerData.type === 'safe' ? '安全地点' : 
+                                                       markerData.type === 'warning' ? '危险警告' : '求助信息';
+                                popupContent.appendChild(typeLabel);
+                                
+                                const description = document.createElement('div');
+                                description.className = 'popup-description';
+                                description.textContent = markerData.description || '无描述';
+                                popupContent.appendChild(description);
+                                
+                                const meta = document.createElement('div');
+                                meta.className = 'popup-meta';
+                                const date = new Date(markerData.timestamp || Date.now());
+                                const displayName = markerData.userName || (markerData.userEmail ? markerData.userEmail.split('@')[0] : '匿名用户');
+                                meta.textContent = `由 ${displayName} 添加于 ${date.toLocaleString()}`;
+                                popupContent.appendChild(meta);
+                                
+                                const currentUserName = localStorage.getItem('userName');
+                                if (currentUserName && markerData.userName === currentUserName) {
+                                    const deleteBtn = document.createElement('button');
+                                    deleteBtn.className = 'delete-btn';
+                                    deleteBtn.textContent = '删除标记';
+                                    deleteBtn.onclick = function() {
+                                        if (confirm('确定要删除这个标记吗？')) {
+                                            firebase.database().ref(`markers/${markerId}`).remove()
+                                                .then(() => {
+                                                    map.closePopup();
+                                                    console.log('标记删除成功');
+                                                })
+                                                .catch((error) => {
+                                                    console.error('删除标记失败:', error);
+                                                    alert('删除标记失败，请重试');
+                                                });
+                                        }
+                                    };
+                                    popupContent.appendChild(deleteBtn);
+                                }
+                                
+                                marker.bindPopup(popupContent);
+                            } catch (error) {
+                                console.error('处理单个标记失败:', error);
+                            }
+                        });
+                        console.log(`成功加载 ${markerCount} 个标记`);
+                    } else {
+                        console.log('没有找到标记数据');
+                    }
+                } catch (error) {
+                    console.error('处理标记数据时出错:', error);
+                    alert('加载标记数据失败，请刷新页面重试');
+                }
+            }, (error) => {
+                console.error('从Firebase加载标记数据失败:', error);
+                
+                if (error.code === 'PERMISSION_DENIED') {
+                    console.error('Firebase权限被拒绝，请检查数据库规则');
+                    alert('无权访问标记数据，请确认您有权限访问此数据');
+                } else {
+                    alert('加载标记数据失败: ' + error.message);
+                }
+            });
+        }
+
+        // 用户认证相关函数
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!email || !password) {
+                showError(errorDiv, '请填写完整信息');
+                    return;
+                }
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userName = user.email.split('@')[0];
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
+                    
+                    updateUserInterface();
+                    closeModal('loginModal');
+                    loadMarkers();
+                    
+                    console.log('用户登录成功:', userName);
+                })
+                .catch((error) => {
+                    console.error('登录失败:', error);
+                    showError(errorDiv, getErrorMessage(error.code));
+                });
+        }
+
+        function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const errorDiv = document.getElementById('registerError');
+
+            if (!email || !password) {
+                showError(errorDiv, '请填写完整信息');
+                    return;
+                }
+                
+            if (password.length < 6) {
+                showError(errorDiv, '密码至少需要6位');
+                return;
+            }
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userName = user.email.split('@')[0];
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
+                    
+                    updateUserInterface();
+                    closeModal('registerModal');
+                    loadMarkers();
+                    
+                    console.log('用户注册成功:', userName);
+                })
+                .catch((error) => {
+                    console.error('注册失败:', error);
+                    showError(errorDiv, getErrorMessage(error.code));
+                });
+        }
+
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                updateUserInterface();
+                markersLayer.clearLayers();
+                console.log('用户已退出');
+            }).catch((error) => {
+                console.error('退出失败:', error);
+            });
+        }
+
+        function updateUserInterface() {
+            const userName = localStorage.getItem('userName');
+            const loginButtons = document.getElementById('loginButtons');
+            const userArea = document.getElementById('userArea');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+
+            if (userName) {
+                loginButtons.style.display = 'none';
+                userArea.style.display = 'flex';
+                userNameDisplay.textContent = userName;
+            } else {
+                loginButtons.style.display = 'flex';
+                userArea.style.display = 'none';
+            }
+        }
+
+        function showError(errorDiv, message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function getErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/user-not-found':
+                    return '用户不存在';
+                case 'auth/wrong-password':
+                    return '密码错误';
+                case 'auth/email-already-in-use':
+                    return '邮箱已被使用';
+                case 'auth/weak-password':
+                    return '密码强度不够';
+                case 'auth/invalid-email':
+                    return '邮箱格式不正确';
+                default:
+                    return '操作失败，请重试';
+            }
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 显示账号设置模态框
+        function showAccountSettingsModal() {
+            document.getElementById('accountSettingsModal').style.display = 'block';
+        }
+
+        // 登出用户
+        function logoutUser() {
+            logout();
+        }
+
+        // 面板切换函数
+        function togglePanel(e) {
+            if (e) {
+                    e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            console.log('切换控制面板状态');
+            const isCollapsed = mapControls.classList.contains('collapsed');
+            
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isCollapsed) {
+                mapControls.classList.remove('collapsed');
+                
+                if (isMobile) {
+                    mapControls.classList.add('mobile-panel-expanded');
+                }
+                
+                console.log('面板状态: 已展开');
+            } else {
+                mapControls.classList.add('collapsed');
+                
+                if (isMobile) {
+                    mapControls.classList.remove('mobile-panel-expanded');
+                }
+                
+                console.log('面板状态: 已收起');
+            }
+            
+            if (toggleControlsBtn) {
+                toggleControlsBtn.innerHTML = isCollapsed ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+            }
+            
+            if (mobileToggleBtn) {
+                if (isCollapsed) {
+                    mobileToggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    mobileToggleBtn.classList.add('expanded');
+                } else {
+                    mobileToggleBtn.innerHTML = '<i class="fas fa-cog"></i>';
+                    mobileToggleBtn.classList.remove('expanded');
+                }
+            }
+        }
+        
+        // 工具栏切换
+        function toggleToolbar() {
+            const toolbar = document.getElementById('functionToolbar');
+            const btn = document.getElementById('toggleToolbarBtn');
+            
+            if (toolbar.classList.contains('collapsed')) {
+                toolbar.classList.remove('collapsed');
+                btn.textContent = '收起';
+            } else {
+                toolbar.classList.add('collapsed');
+                btn.textContent = '展开';
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听Firebase认证状态变化
+            firebase.auth().onAuthStateChanged((user) => {
+                console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+                if (user) {
+                    // 用户已登录，更新localStorage
+                    const userName = user.email ? user.email.split('@')[0] : 'user';
+                    localStorage.setItem('userName', userName);
+                    localStorage.setItem('userEmail', user.email);
+                    console.log('已同步登录状态:', userName);
+                } else {
+                    // 用户未登录，清除localStorage
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    console.log('已清除登录状态');
+                }
+                // 更新用户界面
+                updateUserInterface();
+                // 重新加载地图标记
+                loadMarkers();
+            });
+
+            // 初始化地图
+            initMap();
+            
+            // 获取DOM元素
+            mapControls = document.getElementById('mapControls');
+            toggleControlsBtn = document.getElementById('toggleControlsBtn');
+            mobileToggleBtn = document.getElementById('mobileToggleBtn');
+            
+            // 添加事件监听器
+        if (toggleControlsBtn) {
+            toggleControlsBtn.addEventListener('click', togglePanel);
+        }
+        
+        if (mobileToggleBtn) {
+            mobileToggleBtn.addEventListener('click', togglePanel);
+            }
+
+            // 工具栏切换按钮
+            const toggleToolbarBtn = document.getElementById('toggleToolbarBtn');
+            if (toggleToolbarBtn) {
+                toggleToolbarBtn.addEventListener('click', toggleToolbar);
+            }
+
+            // 提交标记按钮
+            document.getElementById('submitMarker').addEventListener('click', async function() {
+                if (!localStorage.getItem('userName')) {
+                    alert('请先登录后再添加标记！');
+                    return;
+                }
+
+                if (!currentMarker) {
+                    alert('请先在地图上点击选择位置！');
+                    return;
+                }
+
+                const title = document.getElementById('title').value;
+                const type = document.getElementById('type').value;
+                const description = document.getElementById('description').value;
+
+                if (!title || !type || !description) {
+                    alert('请填写完整信息！');
+                    return;
+                }
+                
+                const latlng = currentMarker.getLatLng();
+                console.log('准备提交标记:', {
+                    title, type, description,
+                    lat: latlng.lat,
+                    lng: latlng.lng
+                });
+                
+                try {
+                    const userName = localStorage.getItem('userName');
+                    
+                    const markerData = {
+                        title: title,
+                        type: type,
+                        description: description,
+                        lat: latlng.lat,
+                        lng: latlng.lng,
+                        userId: userName,
+                        userEmail: userName + '@example.com',
+                        userName: userName,
+                        timestamp: Date.now()
+                    };
+
+                    const newMarkerRef = await firebase.database().ref('markers').push(markerData);
+                    console.log('标记添加成功，ID:', newMarkerRef.key);
+                    
+                    alert('标记添加成功！');
+                    
+                    document.getElementById('title').value = '';
+                    document.getElementById('type').value = '';
+                    document.getElementById('description').value = '';
+                    
+                    if (currentMarker) {
+                        map.removeLayer(currentMarker);
+                        currentMarker = null;
+                    }
+
+                    loadMarkers();
+                    
+                } catch (error) {
+                    console.error('添加标记失败:', error);
+                    alert('添加标记失败，请重试');
+                }
+            });
+
+            // 登录表单
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+
+            // 注册表单
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                register();
+            });
+
+            // 账号设置表单
+            document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newUserName = document.getElementById('userName').value;
+                if (newUserName) {
+                    localStorage.setItem('userName', newUserName);
+                    updateUserInterface();
+                    closeModal('accountSettingsModal');
+                    alert('用户名更新成功！');
+                }
+            });
+
+            // 初始化用户界面
+            updateUserInterface();
+
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

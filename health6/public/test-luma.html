@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luma AI助手测试 - She Haven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .test-container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .test-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .test-description {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .test-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .test-instruction {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .sparkle {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">
+            <i class="fas fa-sparkles sparkle"></i>
+            Luma AI助手
+            <i class="fas fa-sparkles sparkle"></i>
+        </h1>
+        
+        <p class="test-subtitle">She Haven的专属智能助手</p>
+        
+        <div class="test-description">
+            <p>欢迎体验全新的Luma AI助手！Luma是She Haven平台专门为女性用户设计的智能助手，基于先进的DeepSeek大模型，具备强大的对话能力和专业的女性安全知识。</p>
+        </div>
+
+        <div class="test-features">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-sparkles"></i>
+                </div>
+                <div class="feature-title">智能对话</div>
+                <div class="feature-desc">基于DeepSeek大模型，提供自然流畅的对话体验</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="feature-title">安全专家</div>
+                <div class="feature-desc">专业的女性安全知识和防护建议</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="feature-title">贴心服务</div>
+                <div class="feature-desc">温暖、专业的女性化服务体验</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="feature-title">高速响应</div>
+                <div class="feature-desc">优化的API配置，3-5秒快速响应</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="feature-title">优雅设计</div>
+                <div class="feature-desc">星光主题，渐变动效，视觉体验升级</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="feature-title">响应式</div>
+                <div class="feature-desc">完美适配桌面端和移动端设备</div>
+            </div>
+        </div>
+
+        <div class="test-instruction">
+            <i class="fas fa-info-circle"></i>
+            点击右下角的星光按钮开始与Luma对话！
+        </div>
+    </div>
+
+    <!-- Luma AI助手样式 -->
+    <link rel="stylesheet" href="ai-assistant.css">
+    
+    <!-- Luma AI助手脚本 -->
+    <script src="ai-assistant.js"></script>
+</body>
+</html> 

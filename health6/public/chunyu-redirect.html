@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在跳转到春雨医生</title>
+    <style>
+        /* 采用与主网站一致的深蓝色主题 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1a3163; /* 深蓝色背景 */
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #fff;
+        }
+
+        .redirect-container {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .platform-logo {
+            max-width: 120px;
+            margin-bottom: 20px;
+            filter: brightness(1.2);
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin: 15px 0;
+            font-weight: normal;
+            color: #fff;
+        }
+
+        .description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+        .platform-features {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 120px;
+            margin: 5px;
+            padding: 10px;
+        }
+
+        .feature-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .feature-desc {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .redirect-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            animation: progress 3s linear;
+        }
+
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        .timer {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .platform-features {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-container">
+        <img src="chunyu-logo.png" alt="春雨医生" class="platform-logo">
+        <h1>正在为您跳转到春雨医生</h1>
+        <p class="description">春雨医生是专业的在线问诊平台，为您提供24小时在线心理咨询服务</p>
+        
+        <div class="platform-features">
+            <div class="feature">
+                <div class="feature-icon">👨‍⚕️</div>
+                <div class="feature-title">专业医师</div>
+                <div class="feature-desc">三甲医院专家在线问诊</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⏰</div>
+                <div class="feature-title">24小时服务</div>
+                <div class="feature-desc">随时随地在线咨询</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">便捷问诊</div>
+                <div class="feature-desc">手机APP轻松咨询</div>
+            </div>
+        </div>
+
+        <a href="https://www.chunyuyisheng.com/pc/doctors/?diagnosis=心理咨询" class="redirect-btn">立即前往</a>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+        <p class="timer">页面将在 <span id="countdown">3</span> 秒后自动跳转</p>
+    </div>
+
+    <script>
+        let count = 3;
+        const countdownElement = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            count--;
+            countdownElement.textContent = count;
+            if (count <= 0) {
+                clearInterval(timer);
+                window.location.href = 'https://www.chunyuyisheng.com/pc/doctors/?diagnosis=心理咨询';
+            }
+        }, 1000);
+    </script>
+</body>
+</html> 

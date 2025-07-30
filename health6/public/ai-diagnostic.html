@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手诊断 - She Haven</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .diagnostic-section {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+        }
+        
+        .diagnostic-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-ok {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .status-warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .test-button:hover {
+            opacity: 0.9;
+        }
+        
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .refresh-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 AI助手诊断工具</h1>
+        
+        <div class="diagnostic-section">
+            <h3>📁 文件加载状态</h3>
+            <div class="status-item">
+                <span>ai-assistant.css</span>
+                <span id="css-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>ai-assistant.js</span>
+                <span id="js-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>Font Awesome图标</span>
+                <span id="fa-status" class="status-warning">检查中...</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h3>🤖 AI助手对象状态</h3>
+            <div class="status-item">
+                <span>window.lumaAssistant</span>
+                <span id="assistant-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>LumaAIAssistant类</span>
+                <span id="class-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>DOM元素创建</span>
+                <span id="dom-status" class="status-warning">检查中...</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h3>🌐 网络和API状态</h3>
+            <div class="status-item">
+                <span>网络连接</span>
+                <span id="network-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>API配置</span>
+                <span id="api-config-status" class="status-warning">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span>CORS设置</span>
+                <span id="cors-status" class="status-warning">检查中...</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-section">
+            <h3>🔧 功能测试</h3>
+            <button class="test-button" onclick="testChatOpen()">测试聊天窗口打开</button>
+            <button class="test-button" onclick="testMessageSend()">测试消息发送</button>
+            <button class="test-button" onclick="testAPICall()">测试API调用</button>
+            <button class="test-button" onclick="clearLogs()">清空日志</button>
+        </div>
+        
+        <button class="refresh-btn" onclick="runFullDiagnostic()">🔄 运行完整诊断</button>
+        
+        <div class="diagnostic-section">
+            <h3>📋 诊断日志</h3>
+            <div class="log-area" id="diagnostic-log">
+                等待诊断开始...
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入AI助手 -->
+    <link rel="stylesheet" href="ai-assistant.css">
+    <script src="ai-assistant.js"></script>
+    
+    <script>
+        let diagnosticLog = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            diagnosticLog.push(logEntry);
+            updateLogDisplay();
+            console.log(logEntry);
+        }
+        
+        function updateLogDisplay() {
+            const logArea = document.getElementById('diagnostic-log');
+            logArea.textContent = diagnosticLog.join('\n');
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLogs() {
+            diagnosticLog = [];
+            updateLogDisplay();
+        }
+        
+        function setStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status-${status}`;
+            element.textContent = message;
+        }
+        
+        function checkFileLoading() {
+            log('开始检查文件加载状态...');
+            
+            // 检查CSS
+            const cssLinks = document.querySelectorAll('link[href*="ai-assistant.css"]');
+            if (cssLinks.length > 0) {
+                setStatus('css-status', 'ok', '✅ 已加载');
+                log('ai-assistant.css 文件已正确引入');
+            } else {
+                setStatus('css-status', 'error', '❌ 未找到');
+                log('ai-assistant.css 文件未找到', 'error');
+            }
+            
+            // 检查JS
+            const jsScripts = document.querySelectorAll('script[src*="ai-assistant.js"]');
+            if (jsScripts.length > 0) {
+                setStatus('js-status', 'ok', '✅ 已加载');
+                log('ai-assistant.js 文件已正确引入');
+            } else {
+                setStatus('js-status', 'error', '❌ 未找到');
+                log('ai-assistant.js 文件未找到', 'error');
+            }
+            
+            // 检查Font Awesome
+            const faLinks = document.querySelectorAll('link[href*="font-awesome"]');
+            if (faLinks.length > 0) {
+                setStatus('fa-status', 'ok', '✅ 已加载');
+                log('Font Awesome 图标库已正确引入');
+            } else {
+                setStatus('fa-status', 'warning', '⚠️ 未找到');
+                log('Font Awesome 图标库未找到', 'warning');
+            }
+        }
+        
+        function checkAIAssistant() {
+            log('开始检查AI助手对象状态...');
+            
+            // 检查LumaAIAssistant类
+            if (typeof LumaAIAssistant !== 'undefined') {
+                setStatus('class-status', 'ok', '✅ 已定义');
+                log('LumaAIAssistant 类已正确定义');
+            } else {
+                setStatus('class-status', 'error', '❌ 未定义');
+                log('LumaAIAssistant 类未定义', 'error');
+            }
+            
+            // 检查window.lumaAssistant实例
+            if (typeof window.lumaAssistant !== 'undefined') {
+                setStatus('assistant-status', 'ok', '✅ 已初始化');
+                log('window.lumaAssistant 实例已正确初始化');
+            } else {
+                setStatus('assistant-status', 'error', '❌ 未初始化');
+                log('window.lumaAssistant 实例未初始化', 'error');
+            }
+            
+            // 检查DOM元素
+            const chatButton = document.getElementById('ai-chat-button');
+            const chatWidget = document.getElementById('ai-chat-widget');
+            if (chatButton && chatWidget) {
+                setStatus('dom-status', 'ok', '✅ 已创建');
+                log('AI助手DOM元素已正确创建');
+            } else {
+                setStatus('dom-status', 'error', '❌ 未创建');
+                log('AI助手DOM元素未创建', 'error');
+            }
+        }
+        
+        function checkNetworkAndAPI() {
+            log('开始检查网络和API状态...');
+            
+            // 检查网络连接
+            if (navigator.onLine) {
+                setStatus('network-status', 'ok', '✅ 已连接');
+                log('网络连接正常');
+            } else {
+                setStatus('network-status', 'error', '❌ 未连接');
+                log('网络连接异常', 'error');
+            }
+            
+            // 检查API配置
+            if (typeof AI_CONFIG !== 'undefined') {
+                setStatus('api-config-status', 'ok', '✅ 已配置');
+                log('AI_CONFIG 配置对象已定义');
+                log(`API端点: ${AI_CONFIG.apiEndpoint}`);
+                log(`测试模式: ${AI_CONFIG.testMode ? '开启' : '关闭'}`);
+            } else {
+                setStatus('api-config-status', 'error', '❌ 未配置');
+                log('AI_CONFIG 配置对象未定义', 'error');
+            }
+            
+            // CORS检查（简单检查）
+            setStatus('cors-status', 'warning', '⚠️ 需测试');
+            log('CORS设置需要通过实际API调用测试');
+        }
+        
+        function testChatOpen() {
+            log('测试聊天窗口打开功能...');
+            if (window.lumaAssistant && typeof window.lumaAssistant.openChat === 'function') {
+                try {
+                    window.lumaAssistant.openChat();
+                    log('✅ 聊天窗口打开成功');
+                } catch (error) {
+                    log(`❌ 聊天窗口打开失败: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ AI助手未初始化或openChat方法不存在', 'error');
+            }
+        }
+        
+        function testMessageSend() {
+            log('测试消息发送功能...');
+            if (window.lumaAssistant && typeof window.lumaAssistant.addMessage === 'function') {
+                try {
+                    window.lumaAssistant.addMessage('这是一条测试消息', 'user');
+                    window.lumaAssistant.addMessage('这是AI的测试回复', 'ai');
+                    log('✅ 消息发送功能正常');
+                } catch (error) {
+                    log(`❌ 消息发送功能异常: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ AI助手未初始化或addMessage方法不存在', 'error');
+            }
+        }
+        
+        async function testAPICall() {
+            log('测试API调用功能...');
+            if (window.lumaAssistant && typeof window.lumaAssistant.getTestResponse === 'function') {
+                try {
+                    const response = await window.lumaAssistant.getTestResponse('测试消息');
+                    log('✅ 测试模式API调用成功');
+                    log(`响应内容: ${response.substring(0, 100)}...`);
+                } catch (error) {
+                    log(`❌ API调用失败: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ AI助手未初始化或API方法不存在', 'error');
+            }
+        }
+        
+        function runFullDiagnostic() {
+            log('=== 开始运行完整诊断 ===');
+            clearLogs();
+            
+            setTimeout(() => {
+                checkFileLoading();
+                checkAIAssistant();
+                checkNetworkAndAPI();
+                log('=== 诊断完成 ===');
+            }, 500);
+        }
+        
+        // 页面加载完成后自动运行诊断
+        window.addEventListener('load', () => {
+            setTimeout(runFullDiagnostic, 1000);
+        });
+    </script>
+</body>
+</html> 

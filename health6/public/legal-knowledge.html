@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>法律知识普及 | 她安计划</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        /* 导航链接样式 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin: 0 10px;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 内容容器 */
+        .content-container {
+            max-width: 1000px;
+            margin: 100px auto 60px;
+            padding: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 15px;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            color: #2c3e50;
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 2.5em;
+            position: relative;
+        }
+        
+        .page-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #9b59b6, #2c3e50);
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            margin-left: 5px;
+            font-size: 0.7em;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+        
+        /* 段落样式 */
+        .content-section {
+            margin-bottom: 50px;
+        }
+        
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            border-left: 5px solid #9b59b6;
+            padding: 10px 0 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 0 5px 5px 0;
+            font-size: 1.8em;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 1.8;
+        }
+        
+        /* 法律内容容器 */
+        .legal-content {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #9b59b6;
+        }
+        
+        .legal-content h3 {
+            color: #8e44ad;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .legal-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .legal-content h4 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            font-size: 1.2em;
+        }
+        
+        .legal-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .legal-content ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .legal-content li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 5px;
+            line-height: 1.6;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #9b59b6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* 打印按钮 */
+        .print-btn {
+            display: inline-block;
+            margin-top: 30px;
+            margin-left: 15px;
+            padding: 12px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .print-btn:hover {
+            background-color: #636e72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* 法条引用 */
+        .law-quote {
+            background-color: #f1f8ff;
+            border-left: 4px solid #9b59b6;
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            color: #34495e;
+        }
+        
+        /* 案例效果 */
+        .case-example {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.95em;
+            position: relative;
+        }
+        
+        .case-example:before {
+            content: "案例";
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: #9b59b6;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+        
+        /* 法律关键词强调 */
+        .key-term {
+            color: #8e44ad;
+            font-weight: bold;
+        }
+        
+        /* 速查表 */
+        .quick-reference {
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px dashed #9b59b6;
+        }
+        
+        .quick-reference h4 {
+            color: #8e44ad;
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* 底部按钮容器 */
+        .action-buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 25px;
+                margin-top: 80px;
+                border-radius: 10px;
+            }
+            
+            .top-nav {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2em;
+            }
+            
+            .content-section h2 {
+                font-size: 1.5em;
+            }
+            
+            .legal-content {
+                padding: 20px;
+            }
+            
+            .legal-content h3 {
+                font-size: 1.3em;
+            }
+        }
+        
+        @media print {
+            .top-nav, .action-buttons {
+                display: none;
+            }
+            
+            .content-container {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+            
+            body {
+                font-size: 12pt;
+            }
+            
+            .legal-content {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="content-container">
+        <h1 class="page-title">法律知识普及 <span class="inline-translation">Legal Knowledge</span></h1>
+        
+        <div class="content-section">
+            <h2>一、人身安全保护的核心法律依据</h2>
+            
+            <div class="legal-content">
+                <h3>1. 刑事犯罪的法律制裁</h3>
+                <p><span class="key-term">故意伤害罪</span>（《刑法》第 234 条）：暴力殴打、限制人身自由等行为构成犯罪，最高可判处死刑。</p>
+                <div class="case-example">
+                    例如，王某因猥亵儿童被判处有期徒刑二年六个月。
+                </div>
+                
+                <p><span class="key-term">强奸罪</span>（《刑法》第 236 条）：以暴力、胁迫或其他手段强奸妇女，处三年以上十年以下有期徒刑，情节恶劣者可判死刑。</p>
+                
+                <p><span class="key-term">强制猥亵罪</span>（《刑法》第 237 条）：以暴力、胁迫或其他方法强制猥亵他人，处五年以下有期徒刑，聚众或公共场所实施者加重处罚。</p>
+
+                <h3>2. 民事权益的救济途径</h3>
+                <p>遭受人身侵害后，可提起刑事附带民事诉讼，主张医疗费、误工费及精神损害赔偿。</p>
+                <p>若加害人无力赔偿，可申请司法救助或通过妇联、法律援助机构获取帮助。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>二、家庭暴力防治的法律武器</h2>
+            
+            <div class="legal-content">
+                <h3>1. 《反家庭暴力法》的核心条款</h3>
+                <p><span class="key-term">定义</span>：家庭暴力包括身体、精神侵害，如殴打、辱骂、恐吓、限制人身自由等。</p>
+                
+                <h4>人身安全保护令：</h4>
+                <p><span class="key-term">申请条件</span>：有明确被申请人、具体请求及家暴证据（如报警记录、医疗证明、威胁短信）。</p>
+                
+                <p><span class="key-term">保护措施</span>：禁止施暴者实施暴力、骚扰、跟踪，责令迁出住所，有效期最长 6 个月。</p>
+                
+                <p><span class="key-term">执行机制</span>：法院裁定后，公安机关协助执行，违反者可被拘留或追究刑事责任。</p>
+                
+                <div class="law-quote">
+                    《反家庭暴力法》第25条规定："人民法院作出人身安全保护令后，应当送达申请人、被申请人、公安机关以及居民委员会、村民委员会等有关组织。人身安全保护令由人民法院执行，公安机关以及居民委员会、村民委员会等应当协助执行。"
+                </div>
+
+                <h3>2. 多部门协同救助</h3>
+                <p>受害人可向公安机关报案、法院起诉，或向妇联、居委会、工作单位求助，相关机构需及时处理。</p>
+                <p>离婚诉讼中，家暴可作为法定离婚理由，无过错方有权请求损害赔偿。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>三、性骚扰防范的法律边界</h2>
+            
+            <div class="legal-content">
+                <h3>1. 法律定义与责任</h3>
+                <p><span class="key-term">行为界定</span>：《民法典》第 1010 条明确，违背他人意愿的言语、文字、图像、肢体行为均属性骚扰，受害者不限于女性。</p>
+                
+                <div class="law-quote">
+                    《民法典》第1010条规定："违背他人意愿，以言语、文字、图像、肢体行为等方式对他人实施性骚扰的，受害人有权依法请求行为人承担民事责任。"
+                </div>
+                
+                <p><span class="key-term">单位义务</span>：机关、企业、学校需建立预防、投诉、调查机制，未履行义务可被责令整改或处罚。</p>
+
+                <h3>2. 维权路径与证据</h3>
+                <p><span class="key-term">投诉与报案</span>：向用人单位、公安机关投诉，或直接提起民事诉讼，要求停止侵害、赔礼道歉、赔偿损失。</p>
+                
+                <p><span class="key-term">举证要点</span>：保留骚扰短信、录音、监控录像、证人证言等证据，单位需配合调查。</p>
+                
+                <p><span class="key-term">法律后果</span>：情节严重者可构成治安违法或刑事犯罪，最高可处五年以上有期徒刑。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>四、法律救济的实用建议</h2>
+            
+            <div class="legal-content">
+                <h3>1. 紧急应对措施</h3>
+                <p>遭遇暴力或威胁时，立即拨打 110 报警，要求出具报警回执并验伤。</p>
+                <p>申请人身安全保护令可通过法院官网或线下窗口提交，紧急情况下可口头申请。</p>
+
+                <h3>2. 长期维权策略</h3>
+                <p><span class="key-term">保存证据链</span>：包括医疗记录、报警记录、聊天记录、证人证言等，形成完整证据链。</p>
+                
+                <p><span class="key-term">寻求社会支持</span>：联系妇联（12338 热线）、法律援助中心或公益律师，获取免费法律咨询与代理服务。</p>
+                
+                <p><span class="key-term">利用新修订的《妇女权益保障法》</span>（2023 年施行）：明确禁止就业性别歧视、保障农村妇女财产权，并增设检察公益诉讼等救济途径。</p>
+                
+                <div class="quick-reference">
+                    <h4>法律条文速查：</h4>
+                    <ul>
+                        <li>家庭暴力：《反家庭暴力法》第 23-32 条</li>
+                        <li>性骚扰：《民法典》第 1010 条、《妇女权益保障法》第 23-26 条</li>
+                        <li>人身伤害：《刑法》第 234-237 条</li>
+                    </ul>
+                </div>
+                
+                <p>女性在遭遇侵害时，应及时采取法律行动，通过多途径维护自身权益。法律既是保护盾，也是利剑，善用法律工具可有效遏制侵权行为，推动社会性别平等。</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="print-btn" onclick="window.print()">打印资料 <span class="inline-translation">Print Guide</span></button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 平滑滚动到锚点
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

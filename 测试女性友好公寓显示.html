@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试女性友好公寓显示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .apartment-item {
+            border: 2px solid #FF6B9D;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #FFF5F8;
+        }
+        .shelter-item {
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        .type-badge {
+            background: #FF6B9D;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .shelter-badge {
+            background: #2196F3;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>女性友好公寓显示测试</h1>
+        
+        <div class="test-section">
+            <h2>数据加载测试</h2>
+            <div id="dataStatus">正在检查数据...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>女性友好公寓列表</h2>
+            <div id="apartmentList">正在加载...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>庇护所列表（对比）</h2>
+            <div id="shelterList">正在加载...</div>
+        </div>
+    </div>
+
+    <script src="shelter-data.js"></script>
+    <script>
+        // 检查数据是否正确加载
+        function checkData() {
+            const statusDiv = document.getElementById('dataStatus');
+            if (typeof shelterData !== 'undefined') {
+                statusDiv.innerHTML = `
+                    <p style="color: green;">✅ 数据加载成功！</p>
+                    <p>总数据条数: ${shelterData.length}</p>
+                    <p>女性友好公寓数量: ${shelterData.filter(item => item.type === 'apartment').length}</p>
+                    <p>庇护所数量: ${shelterData.filter(item => item.type === 'shelter').length}</p>
+                `;
+            } else {
+                statusDiv.innerHTML = '<p style="color: red;">❌ 数据加载失败！</p>';
+            }
+        }
+
+        // 显示女性友好公寓
+        function displayApartments() {
+            const apartmentList = document.getElementById('apartmentList');
+            const apartments = shelterData.filter(item => item.type === 'apartment');
+            
+            if (apartments.length === 0) {
+                apartmentList.innerHTML = '<p style="color: orange;">⚠️ 未找到女性友好公寓数据</p>';
+                return;
+            }
+
+            let html = '';
+            apartments.forEach(apartment => {
+                html += `
+                    <div class="apartment-item">
+                        <h3 style="color: #FF6B9D; margin: 0 0 10px 0; display: flex; align-items: center;">
+                            <i class="fas fa-building" style="margin-right: 8px;"></i>
+                            ${apartment.name}
+                            <span class="type-badge">女性友好公寓</span>
+                        </h3>
+                        <p><strong>地址：</strong>${apartment.address}</p>
+                        <p><strong>城市：</strong>${apartment.city}, ${apartment.province}</p>
+                        <p><strong>联系方式：</strong>${apartment.phone}</p>
+                        <p><strong>特色服务：</strong>${apartment.services.join(', ')}</p>
+                        ${apartment.specialNote ? `<p><strong>特别说明：</strong>${apartment.specialNote}</p>` : ''}
+                        <p><strong>描述：</strong>${apartment.description}</p>
+                    </div>
+                `;
+            });
+            apartmentList.innerHTML = html;
+        }
+
+        // 显示庇护所（对比）
+        function displayShelters() {
+            const shelterList = document.getElementById('shelterList');
+            const shelters = shelterData.filter(item => item.type === 'shelter').slice(0, 3); // 只显示前3个作为对比
+            
+            if (shelters.length === 0) {
+                shelterList.innerHTML = '<p style="color: orange;">⚠️ 未找到庇护所数据</p>';
+                return;
+            }
+
+            let html = '';
+            shelters.forEach(shelter => {
+                html += `
+                    <div class="shelter-item">
+                        <h3 style="color: #2196F3; margin: 0 0 10px 0; display: flex; align-items: center;">
+                            <i class="fas fa-shield-alt" style="margin-right: 8px;"></i>
+                            ${shelter.name}
+                            <span class="shelter-badge">反家暴庇护所</span>
+                        </h3>
+                        <p><strong>地址：</strong>${shelter.address}</p>
+                        <p><strong>城市：</strong>${shelter.city}, ${shelter.province}</p>
+                        <p><strong>联系方式：</strong>${shelter.phone}</p>
+                        <p><strong>提供服务：</strong>${shelter.services.join(', ')}</p>
+                        <p><strong>描述：</strong>${shelter.description}</p>
+                    </div>
+                `;
+            });
+            shelterList.innerHTML = html;
+        }
+
+        // 页面加载完成后执行测试
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                checkData();
+                displayApartments();
+                displayShelters();
+            }, 100);
+        });
+    </script>
+</body>
+</html> 

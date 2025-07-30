@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手问题解决方案</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-assistant.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .solution-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .problem-card {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+        }
+        .solution-card {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        .solution-card h3 {
+            color: #155724;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .solution-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .solution-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .test-mode-btn {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+        .test-mode-btn:hover {
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-content h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .step-content p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .api-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="solution-container">
+        <h1>🔧 AI助手问题解决方案</h1>
+        
+        <div class="problem-card">
+            <h3><i class="fas fa-exclamation-triangle"></i> 检测到的问题</h3>
+            <p><strong>API账户余额不足</strong> - DeepSeek API账户没有足够的余额来处理AI请求。</p>
+            <p>错误代码：INSUFFICIENT_BALANCE (402)</p>
+        </div>
+
+        <div class="solution-card">
+            <h3><i class="fas fa-lightbulb"></i> 立即解决方案</h3>
+            <p><strong>推荐：使用测试模式</strong> - 无需API余额，立即体验完整功能</p>
+            <div style="text-align: center; margin: 15px 0;">
+                <button onclick="switchToTestMode()" class="solution-btn test-mode-btn">
+                    <i class="fas fa-flask"></i> 立即切换到测试模式
+                </button>
+                <a href="test-ai-optimized.html" class="solution-btn">
+                    <i class="fas fa-external-link-alt"></i> 打开测试页面
+                </a>
+            </div>
+        </div>
+
+        <div class="api-info">
+            <h3><i class="fas fa-info-circle"></i> 关于DeepSeek API</h3>
+            <p>DeepSeek是一个强大的AI大模型服务，提供：</p>
+            <ul>
+                <li>🆓 <strong>免费额度</strong>：新用户注册可获得免费API调用额度</li>
+                <li>💰 <strong>付费套餐</strong>：用完免费额度后可购买付费套餐</li>
+                <li>🔑 <strong>API密钥</strong>：每个账户都有独立的API密钥</li>
+                <li>📊 <strong>使用监控</strong>：可在控制台查看使用情况和余额</li>
+            </ul>
+        </div>
+
+        <div class="solution-card">
+            <h3><i class="fas fa-tools"></i> 长期解决方案</h3>
+            
+            <div class="steps">
+                <h4>方案1：申请新的免费API密钥</h4>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>访问DeepSeek官网</h4>
+                        <p>前往 <a href="https://platform.deepseek.com" target="_blank">https://platform.deepseek.com</a></p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>注册新账户</h4>
+                        <p>使用不同的邮箱注册新账户，获得免费额度</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>获取API密钥</h4>
+                        <p>在控制台中创建新的API密钥</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>更新配置</h4>
+                        <p>将新的API密钥更新到AI助手配置中</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="steps">
+                <h4>方案2：充值现有账户</h4>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>登录DeepSeek控制台</h4>
+                        <p>使用现有账户登录</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>查看余额</h4>
+                        <p>在控制台中查看当前余额和使用情况</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>购买套餐</h4>
+                        <p>选择合适的付费套餐进行充值</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="solution-card">
+            <h3><i class="fas fa-rocket"></i> 测试模式优势</h3>
+            <ul>
+                <li>✅ <strong>完全免费</strong>：不消耗任何API额度</li>
+                <li>✅ <strong>功能完整</strong>：体验所有AI助手功能</li>
+                <li>✅ <strong>智能回复</strong>：根据问题类型提供相应回答</li>
+                <li>✅ <strong>即时可用</strong>：无需等待，立即开始使用</li>
+                <li>✅ <strong>教育演示</strong>：了解AI助手的能力和特性</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <h3>🎯 现在就开始体验</h3>
+            <button onclick="switchToTestMode()" class="solution-btn test-mode-btn">
+                <i class="fas fa-play"></i> 启动测试模式
+            </button>
+            <a href="index.html" class="solution-btn">
+                <i class="fas fa-home"></i> 返回主页
+            </a>
+            <a href="test-ai-optimized.html" class="solution-btn">
+                <i class="fas fa-cog"></i> 高级测试
+            </a>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+            <p><strong>💡 提示：</strong>测试模式提供了完整的AI助手体验，是了解功能的最佳方式。当API问题解决后，可以随时切换回正常模式。</p>
+        </div>
+    </div>
+
+    <script src="ai-assistant.js"></script>
+    <script>
+        function switchToTestMode() {
+            // 如果AI助手已加载，直接切换模式
+            if (window.aiAssistant) {
+                AI_CONFIG.testMode = true;
+                window.aiAssistant.updateModeUI();
+                alert('✅ 已切换到测试模式！现在可以免费体验AI助手的所有功能。');
+            } else {
+                // 如果AI助手未加载，设置配置并跳转
+                localStorage.setItem('ai-test-mode', 'true');
+                alert('✅ 测试模式已启用！正在跳转到主页...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+        }
+
+        // 页面加载时检查是否需要启用测试模式
+        window.addEventListener('load', function() {
+            const testMode = localStorage.getItem('ai-test-mode');
+            if (testMode === 'true') {
+                localStorage.removeItem('ai-test-mode');
+                if (window.aiAssistant) {
+                    AI_CONFIG.testMode = true;
+                    window.aiAssistant.updateModeUI();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

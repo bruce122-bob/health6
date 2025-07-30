@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>匿名树洞 - 她安计划 | She Haven</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 银河系背景 */
+        .galaxy-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('images/galaxy-background.jpg') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            animation: galaxyMove 120s linear infinite;
+        }
+        
+        @keyframes galaxyMove {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(1deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+        
+        /* 星星效果 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        /* 顶部导航栏 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 功能导航 - 移除旧样式 */
+        .nav-links {
+            display: none;
+        }
+        
+        /* 主标题区域 */
+        .main-title {
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 120px;
+            margin-bottom: 50px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .main-title h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .main-title p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+        }
+        
+        /* 消息输入区域 */
+        .message-input-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .message-form {
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        
+        .message-form input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .message-form button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s;
+        }
+        
+        .message-form button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 滚动消息区域 */
+        .message-container {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .floating-message {
+            position: absolute;
+            white-space: nowrap;
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            color: white;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            animation: slideLeft 15s linear;
+            backdrop-filter: blur(2px);
+        }
+        
+        .planet-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-size: cover;
+        }
+        
+        @keyframes slideLeft {
+            0% {
+                transform: translateX(100vw);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .auth-buttons {
+                display: none;
+            }
+
+            .main-title {
+                margin-top: 100px;
+            }
+
+            .main-title h1 {
+                font-size: 2.5em;
+            }
+
+            .main-title p {
+                font-size: 1em;
+                padding: 0 20px;
+            }
+            
+            .message-form {
+                flex-direction: column;
+            }
+            
+            .message-form input {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .message-form button {
+                width: 100%;
+            }
+
+            .message-input-container {
+                width: 95%;
+                padding: 10px;
+            }
+        }
+        
+        /* 移除英文翻译样式 */
+        .translation,
+        .inline-translation {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 银河系背景 -->
+    <div class="galaxy-background"></div>
+    <div class="stars" id="stars"></div>
+    
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">She Haven</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="fullscreen-map.html">安全地图</a></li>
+                    <li><a href="community.html">交流社区</a></li>
+                    <li><a href="anonymous-tree-hole.html">匿名树洞</a></li>
+                    <li><a href="resources.html">资料区</a></li>
+                    <li><a href="index.html#emergency">寻人启事</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-outline">登录</a>
+                <a href="register.html" class="btn btn-primary">注册</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主标题区域 -->
+    <div class="main-title">
+        <h1>匿名树洞</h1>
+        <p>在这里，你可以匿名分享你的想法和感受</p>
+    </div>
+    
+    <!-- 滚动消息区域 -->
+    <div class="message-container" id="messageContainer">
+        <!-- 消息将通过JavaScript动态添加 -->
+    </div>
+    
+    <!-- 消息输入区域 -->
+    <div class="message-input-container">
+        <form id="messageForm" class="message-form">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="在这里输入你想说的话... Type your message here..." 
+                maxlength="100" 
+                required
+            >
+            <button type="submit">发送</button>
+        </form>
+    </div>
+    
+    <!-- 页脚 -->
+    <div class="footer" style="text-align: center; padding: 10px 0; margin-top: 40px;">
+        <p>背景图片来源: © Kota Hamori</p>
+    </div>
+    
+    <script>
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // 随机位置
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // 随机闪烁延迟
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 行星图标列表
+        const planets = [
+            { name: '水星', color: '#A9A9A9' },
+            { name: '金星', color: '#E6BE8A' },
+            { name: '地球', color: '#1E90FF' },
+            { name: '火星', color: '#CD5C5C' },
+            { name: '木星', color: '#F4A460' },
+            { name: '土星', color: '#DAA520' },
+            { name: '天王星', color: '#ADD8E6' },
+            { name: '海王星', color: '#4169E1' }
+        ];
+        
+        // 创建一条浮动消息
+        function createFloatingMessage(message) {
+            const messageContainer = document.getElementById('messageContainer');
+            const floatingMessage = document.createElement('div');
+            floatingMessage.className = 'floating-message';
+            
+            // 创建消息文本
+            const messageText = document.createElement('span');
+            messageText.textContent = message;
+            
+            // 添加到浮动消息
+            floatingMessage.appendChild(messageText);
+            
+            // 随机垂直位置
+            const randomY = Math.random() * 200 - 100;
+            floatingMessage.style.top = `calc(50% + ${randomY}px)`;
+            
+            // 添加到容器
+            messageContainer.appendChild(floatingMessage);
+            
+            // 动画结束后移除元素
+            floatingMessage.addEventListener('animationend', function() {
+                messageContainer.removeChild(floatingMessage);
+            });
+        }
+        
+        // 示例消息数组
+        const exampleMessages = [
+            "今天感觉很开心，想分享给大家",
+            "有时候真的很需要一个倾诉的地方",
+            "谢谢这个树洞，让我能够说出心里话",
+            "希望每个人都能找到自己的幸福",
+            "生活不易，但我们要坚强",
+            "有人和我一样喜欢看星星吗？",
+            "这里的氛围真的很温暖",
+            "感谢有你们的陪伴",
+            "今天学到了新知识，很开心",
+            "希望明天会更好"
+        ];
+        
+        // 随机显示示例消息
+        function showRandomMessages() {
+            setInterval(() => {
+                const randomMessage = exampleMessages[Math.floor(Math.random() * exampleMessages.length)];
+                createFloatingMessage(randomMessage);
+            }, 3000);
+        }
+        
+        // 处理消息提交
+        function handleMessageSubmit(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                createFloatingMessage(message);
+                messageInput.value = '';
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            showRandomMessages();
+            
+            // 添加消息提交事件监听
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) {
+                messageForm.addEventListener('submit', handleMessageSubmit);
+            }
+        });
+    </script>
+</body>
+</html> 

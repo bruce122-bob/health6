@@ -1,0 +1,46 @@
+{
+  "rules": {
+    "messages": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "markers": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "suggestions": {
+      ".read": true,
+      ".write": true,
+      "$suggestionId": {
+        ".validate": "newData.hasChildren(['text', 'timestamp', 'userId', 'userEmail'])"
+      }
+    },
+    "online_users": {
+      ".read": true,
+      ".write": true,
+      "$uid": {
+        ".validate": "newData.hasChildren(['timestamp', 'lastActive'])"
+      }
+    },
+    "online_ips": {
+      ".read": true,
+      ".write": true,
+      "$ip": {
+        ".validate": "newData.hasChildren(['timestamp', 'lastActive'])"
+      }
+    },
+    "stats": {
+      ".read": true,
+      ".write": true,
+      "pageViewCount": {
+        ".validate": "newData.isNumber()"
+      },
+      "userCount": {
+        ".validate": "newData.isNumber()"
+      },
+      "ipCount": {
+        ".validate": "newData.isNumber()"
+      }
+    }
+  }
+} 

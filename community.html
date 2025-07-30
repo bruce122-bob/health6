@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交流社区 | She Haven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+            background: #f8f9fa;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .page-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* 主要内容 */
+        .main-content {
+            padding: 3rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* 社区布局 */
+        .community-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .community-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .notice-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .notice-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notice-item h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .notice-item p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* 消息区域 */
+        .message-area {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .message-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #eee;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* 消息列表 */
+        .messages-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+            padding-right: 0.5rem;
+        }
+
+        .message-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .message-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .message-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .message-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .message-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .like-btn, .delete-btn {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 0.3rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .like-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .delete-btn:hover {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+        
+        /* 消息表单 */
+        .message-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .message-form h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .message-form textarea {
+            width: 100%;
+            height: 120px;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            resize: none;
+            margin-bottom: 1rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .message-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .char-count {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 空状态 */
+        .no-messages {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .no-messages i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #333;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-content button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .community-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .message-area {
+                order: 1;
+            }
+
+            .message-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filter-buttons {
+                justify-content: center;
+            }
+        }
+
+        /* 滚动动画 */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 加载和错误状态 */
+        .loading, .error-message {
+                text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #e74c3c;
+        }
+
+        .no-messages {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+        }
+
+        .no-messages i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        .no-messages p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal button:last-child {
+            background: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .modal button:last-child:hover {
+            background: #5a6268;
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-shield-alt"></i>
+                She Haven
+            </a>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="fullscreen-map.html">安全地图</a></li>
+                <li><a href="resources.html">安全资源</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="emergency-contacts.html">紧急联系</a></li>
+        </ul>
+        
+            <div class="auth-buttons">
+                <button class="btn btn-outline" onclick="showLoginModal()">登录</button>
+                <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1><i class="fas fa-users"></i> 交流社区</h1>
+            <p>分享经验，互相支持，共建安全的女性社区</p>
+            </div>
+    </section>
+
+    <!-- 主要内容 -->
+    <section class="main-content">
+        <div class="container">
+            <div class="community-layout">
+                <!-- 侧边栏 -->
+                <div class="sidebar scroll-reveal">
+                    <h3><i class="fas fa-chart-bar"></i> 社区统计</h3>
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <span>在线用户</span>
+                            <span class="stat-value" id="onlineUsers">0</span>
+        </div>
+                        <div class="stat-item">
+                            <span>今日消息</span>
+                            <span class="stat-value" id="todayMessages">0</span>
+                </div>
+                        <div class="stat-item">
+                            <span>总消息数</span>
+                            <span class="stat-value" id="totalMessages">0</span>
+                        </div>
+        </div>
+
+                    <h3><i class="fas fa-bullhorn"></i> 社区公告</h3>
+                <div class="notice-item">
+                        <h4>欢迎来到She Haven社区</h4>
+                        <p>这里是一个安全、友善的交流空间，请遵守社区规则，互相尊重。</p>
+                </div>
+                <div class="notice-item">
+                        <h4>社区规则</h4>
+                        <p>禁止发布不当内容，保护个人隐私，营造积极向上的交流环境。</p>
+                </div>
+                <div class="notice-item">
+                        <h4>安全提醒</h4>
+                        <p>请勿在社区中透露个人敏感信息，如遇紧急情况请及时求助。</p>
+            </div>
+        </div>
+
+                <!-- 消息区域 -->
+                <div class="message-area scroll-reveal">
+                    <!-- 消息控制 -->
+                    <div class="message-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="搜索消息内容...">
+                </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">全部</button>
+                            <button class="filter-btn" data-filter="recent">最新</button>
+                            <button class="filter-btn" data-filter="popular">热门</button>
+                </div>
+            </div>
+
+                    <!-- 消息列表 -->
+                    <div class="messages-container" id="messagesContainer">
+                        <div class="no-messages">
+                            <i class="fas fa-comments"></i>
+                            <p>暂无消息，成为第一个发言的人吧！</p>
+            </div>
+            </div>
+
+                    <!-- 发布消息表单 -->
+                    <div class="message-form">
+                        <h3><i class="fas fa-edit"></i> 发布消息</h3>
+                        <textarea id="messageInput" placeholder="分享您的想法、经验或寻求帮助..." maxlength="500"></textarea>
+                    <div class="form-footer">
+                            <span class="char-count">0/500</span>
+                            <button class="submit-btn" onclick="submitMessage()">
+                                <i class="fas fa-paper-plane"></i> 发布
+                            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>登录</h2>
+            <input type="text" id="loginUsername" placeholder="用户名">
+            <input type="password" id="loginPassword" placeholder="密码">
+            <button onclick="login()">登录</button>
+            <button onclick="closeModal('loginModal')" style="background: #6c757d; margin-top: 0.5rem;">取消</button>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <h2>注册</h2>
+            <input type="text" id="registerUsername" placeholder="用户名">
+            <input type="password" id="registerPassword" placeholder="密码">
+            <input type="password" id="confirmPassword" placeholder="确认密码">
+            <button onclick="register()">注册</button>
+            <button onclick="closeModal('registerModal')" style="background: #6c757d; margin-top: 0.5rem;">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase初始化成功');
+            } catch (error) {
+                console.error('Firebase初始化失败:', error);
+            }
+        }
+
+        // 全局变量
+        let currentUser = null;
+        let messagesRef = null;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('社区页面加载完成');
+            
+            // 初始化Firebase引用
+            messagesRef = firebase.database().ref('messages');
+            
+            // 检查用户认证状态
+            firebase.auth().onAuthStateChanged(function(user) {
+                currentUser = user;
+                updateUserInterface(user);
+                if (user) {
+                    loadMessages();
+            } else {
+                    showLoginPrompt();
+                }
+            });
+
+            // 初始化事件监听器
+            initializeEventListeners();
+            
+            // 初始化滚动动画
+            revealOnScroll();
+        });
+
+        // 显示登录提示
+        function showLoginPrompt() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            if (messagesContainer) {
+                messagesContainer.innerHTML = `
+                    <div class="no-messages">
+                        <i class="fas fa-lock"></i>
+                        <p>请登录后查看和发布消息</p>
+                        <button class="btn btn-primary" onclick="showLoginModal()" style="margin-top: 1rem;">立即登录</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 消息提交按钮
+            const submitBtn = document.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', submitMessage);
+            }
+
+            // 字符计数
+            const messageInput = document.getElementById('messageInput');
+            const charCount = document.querySelector('.char-count');
+            if (messageInput && charCount) {
+                messageInput.addEventListener('input', function() {
+                    const count = this.value.length;
+                    charCount.textContent = `${count}/500`;
+                    
+                    if (count > 450) {
+                        charCount.style.color = '#e74c3c';
+                    } else {
+                        charCount.style.color = '#999';
+                    }
+                });
+            }
+
+            // 过滤按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const filter = this.getAttribute('data-filter');
+                    loadMessages(filter);
+                });
+            });
+
+            // 搜索功能
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(function() {
+                    const searchTerm = this.value.trim().toLowerCase();
+                    loadMessages('all', searchTerm);
+                }, 300));
+            }
+        }
+
+        // 提交消息
+        function submitMessage() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+
+            if (!text) {
+                alert('请输入消息内容');
+                return;
+            }
+
+            if (text.length > 500) {
+                alert('消息内容不能超过500字符');
+                return;
+            }
+
+            const messageData = {
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                userName: currentUser.email.split('@')[0],
+                text: text,
+                timestamp: Date.now(),
+                likes: 0
+            };
+
+            messagesRef.push(messageData)
+                .then(() => {
+                    messageInput.value = '';
+                    document.querySelector('.char-count').textContent = '0/500';
+                    console.log('消息发送成功');
+                    loadMessages(); // 重新加载消息
+                })
+                .catch((error) => {
+                    console.error('发送消息失败:', error);
+                    alert('发送消息失败，请重试');
+                });
+        }
+
+        // 加载消息
+        function loadMessages(filter = 'all', searchTerm = '') {
+            const messagesContainer = document.getElementById('messagesContainer');
+            if (!messagesContainer) return;
+
+            // 显示加载状态
+            messagesContainer.innerHTML = '<div class="loading" style="text-align: center; padding: 2rem; color: #666;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+
+            messagesRef.orderByChild('timestamp').limitToLast(50).once('value')
+                .then((snapshot) => {
+                    messagesContainer.innerHTML = '';
+                    
+                    if (!snapshot.exists()) {
+                        messagesContainer.innerHTML = `
+                            <div class="no-messages">
+                                <i class="fas fa-comments"></i>
+                                <p>暂无消息，成为第一个发言的人吧！</p>
+                            </div>
+                        `;
+                        updateStats(0);
+                        return;
+                    }
+
+                    const messages = [];
+                    snapshot.forEach((childSnapshot) => {
+                        const message = childSnapshot.val();
+                        message.id = childSnapshot.key;
+                        messages.push(message);
+                    });
+
+                    // 按时间倒序排列
+                    messages.sort((a, b) => b.timestamp - a.timestamp);
+
+                    // 过滤消息
+                    let filteredMessages = messages;
+                    
+                    if (searchTerm) {
+                        filteredMessages = messages.filter(msg => 
+                            msg.text.toLowerCase().includes(searchTerm)
+                        );
+                    }
+
+                    if (filter === 'recent') {
+                        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+                        filteredMessages = filteredMessages.filter(msg => msg.timestamp > oneDayAgo);
+                    } else if (filter === 'popular') {
+                        filteredMessages = filteredMessages.filter(msg => msg.likes > 0);
+                        filteredMessages.sort((a, b) => b.likes - a.likes);
+                    }
+
+                    if (filteredMessages.length === 0) {
+                        messagesContainer.innerHTML = `
+                            <div class="no-messages">
+                                <i class="fas fa-search"></i>
+                                <p>没有找到匹配的消息</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // 显示消息
+                    filteredMessages.forEach(message => {
+                        displayMessage(message, messagesContainer);
+                    });
+
+                    // 更新统计
+                    updateStats(messages.length);
+                })
+                .catch((error) => {
+                    console.error('加载消息失败:', error);
+                    messagesContainer.innerHTML = `
+                        <div class="error-message" style="text-align: center; padding: 2rem; color: #e74c3c;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>加载消息失败，请刷新页面重试</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // 显示消息
+        function displayMessage(message, container) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-item';
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="message-author">
+                        <i class="fas fa-user-circle"></i>
+                        ${message.userName || message.userEmail?.split('@')[0] || '匿名用户'}
+                    </div>
+                    <div class="message-time">${formatTime(message.timestamp)}</div>
+                </div>
+                <div class="message-content">${escapeHtml(message.text)}</div>
+                <div class="message-footer">
+                    <button class="like-btn" onclick="likeMessage('${message.id}', ${message.likes || 0})">
+                        <i class="fas fa-heart"></i> ${message.likes || 0}
+                    </button>
+                    ${currentUser && currentUser.uid === message.userId ? 
+                        `<button class="delete-btn" onclick="deleteMessage('${message.id}')">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>` : ''
+                    }
+                </div>
+            `;
+            container.appendChild(messageDiv);
+        }
+
+        // 点赞消息
+        function likeMessage(messageId, currentLikes) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            const newLikes = currentLikes + 1;
+            messagesRef.child(messageId).update({ likes: newLikes })
+                .then(() => {
+                    loadMessages();
+                })
+                .catch((error) => {
+                    console.error('点赞失败:', error);
+                    alert('点赞失败，请重试');
+                });
+        }
+
+        // 删除消息
+        function deleteMessage(messageId) {
+            if (!currentUser) {
+                return;
+            }
+
+            if (confirm('确定要删除这条消息吗？')) {
+                messagesRef.child(messageId).remove()
+                    .then(() => {
+                        loadMessages();
+                        console.log('消息删除成功');
+                    })
+                    .catch((error) => {
+                        console.error('删除消息失败:', error);
+                        alert('删除失败，请重试');
+                    });
+            }
+        }
+
+        // 更新用户界面
+        function updateUserInterface(user) {
+            const authButtons = document.querySelector('.auth-buttons');
+            if (!authButtons) return;
+
+            if (user) {
+                authButtons.innerHTML = `
+                    <span style="margin-right: 1rem; color: #333; font-weight: 500;">欢迎，${user.email.split('@')[0]}</span>
+                    <button class="btn btn-outline" onclick="logout()">退出</button>
+                `;
+            } else {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline" onclick="showLoginModal()">登录</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+                `;
+            }
+        }
+
+        // 更新统计信息
+        function updateStats(messageCount) {
+            const totalMessages = document.getElementById('totalMessages');
+            if (totalMessages) {
+                totalMessages.textContent = messageCount;
+            }
+
+            // 模拟在线用户数
+            const onlineUsers = document.getElementById('onlineUsers');
+            if (onlineUsers) {
+                onlineUsers.textContent = Math.floor(Math.random() * 50) + 10;
+            }
+        }
+
+        // 用户认证函数
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            const email = username.includes('@') ? username : `${username}@shehaven.com`;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    closeModal('loginModal');
+                    console.log('登录成功');
+                })
+                .catch((error) => {
+                    console.error('登录失败:', error);
+                    alert('登录失败: ' + getErrorMessage(error.code));
+                });
+        }
+
+        function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!username || !password || !confirmPassword) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('密码至少需要6位');
+                return;
+            }
+
+            const email = username.includes('@') ? username : `${username}@shehaven.com`;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    closeModal('registerModal');
+                    console.log('注册成功');
+                })
+                .catch((error) => {
+                    console.error('注册失败:', error);
+                    alert('注册失败: ' + getErrorMessage(error.code));
+                });
+        }
+
+        function logout() {
+            firebase.auth().signOut()
+                .then(() => {
+                    console.log('退出成功');
+                    showLoginPrompt();
+                })
+                .catch((error) => {
+                    console.error('退出失败:', error);
+                });
+        }
+
+        // 工具函数
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) { // 1分钟内
+                return '刚刚';
+            } else if (diff < 3600000) { // 1小时内
+                return Math.floor(diff / 60000) + '分钟前';
+            } else if (diff < 86400000) { // 1天内
+                return Math.floor(diff / 3600000) + '小时前';
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function getErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/user-not-found':
+                    return '用户不存在';
+                case 'auth/wrong-password':
+                    return '密码错误';
+                case 'auth/email-already-in-use':
+                    return '邮箱已被使用';
+                case 'auth/weak-password':
+                    return '密码强度不够';
+                case 'auth/invalid-email':
+                    return '邮箱格式不正确';
+                default:
+                    return '操作失败，请重试';
+            }
+        }
+
+        // 滚动动画
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.scroll-reveal');
+            
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('revealed');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // 模态框函数
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,68 @@
+# 视频文件
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+*.flv
+*.webm
+
+# 图片文件（除了项目需要的）
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.svg
+
+# 文档文件
+*.docx
+*.doc
+*.pdf
+*.txt
+*.rtf
+
+# 压缩文件
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# 备份文件
+*.bak
+*.backup
+*.old
+
+# 临时文件
+*.tmp
+*.temp
+~$*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Node.js 相关
+node_modules
+npm-debug.log
+node_modules/.bin/
+
+# 特定文件夹
+视频 她安计划/
+寻人启事/
+clone/
+health6-main 2/
+upload_to_github/
+upload_to_github_complete.zip
+upload_to_github.zip
+health6_updates.bundle
+
+# 保留项目需要的图片
+!health6/public/images/
+!images/
+
+# 保留项目需要的文档
+!README.md
+!*.md

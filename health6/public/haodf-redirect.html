@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在跳转到好大夫在线</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+            font-family: Arial, sans-serif;
+        }
+
+        /* 其他样式保持相同，修改颜色主题为绿色系 */
+        .redirect-container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        /* ... 其他样式相同 ... */
+
+        .redirect-btn {
+            background: #3cb371;
+        }
+
+        .redirect-btn:hover {
+            background: #2e8b57;
+        }
+
+        .loading-progress {
+            background: #3cb371;
+        }
+
+        .feature-title {
+            color: #3cb371;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-container">
+        <img src="haodf-logo.png" alt="好大夫在线" class="platform-logo">
+        <h1>正在为您跳转到好大夫在线</h1>
+        <p class="description">好大夫在线汇集全国各大医院的优秀专家，提供专业的心理健康咨询服务</p>
+        
+        <div class="platform-features">
+            <div class="feature">
+                <div class="feature-icon">🏥</div>
+                <div class="feature-title">三甲医院</div>
+                <div class="feature-desc">权威医院专家直接问诊</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">真实评价</div>
+                <div class="feature-desc">患者真实就医反馈</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤝</div>
+                <div class="feature-title">一对一咨询</div>
+                <div class="feature-desc">专属医生贴心服务</div>
+            </div>
+        </div>
+
+        <a href="https://www.haodf.com/jibing/xinlijiankang/daifu_all_all_all_all_all" class="redirect-btn">立即前往</a>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+        <p class="timer">页面将在 <span id="countdown">3</span> 秒后自动跳转</p>
+    </div>
+
+    <script>
+        let count = 3;
+        const countdownElement = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            count--;
+            countdownElement.textContent = count;
+            if (count <= 0) {
+                clearInterval(timer);
+                window.location.href = 'https://www.haodf.com/jibing/xinlijiankang/daifu_all_all_all_all_all';
+            }
+        }, 1000);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>卫生用品质量问题调查 - 她安计划 | She Haven</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        /* 新闻页面特定样式 */
+        .news-container {
+            max-width: 800px;
+            margin: 120px auto 50px;
+            padding: 0 20px;
+        }
+        
+        .news-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .news-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .news-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        
+        .news-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .news-content {
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        
+        .news-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        
+        .quote {
+            font-style: italic;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #333;
+            background-color: #f9f9f9;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #000;
+        }
+        
+        @media (max-width: 768px) {
+            .news-title {
+                font-size: 1.5em;
+            }
+            
+            .news-content {
+                font-size: 1em;
+            }
+        }
+        
+        /* 新导航栏样式 */
+        .new-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin-right: 20px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover {
+            color: #e74c3c;
+        }
+        
+        .inline-translation {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        /* 汉堡菜单样式 */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 35px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 1001;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 6px;
+            border-radius: 4px;
+            border: 2px solid #333;
+        }
+        
+        .menu-toggle span {
+            display: block;
+            height: 4px;
+            width: 100%;
+            background-color: #000;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+        
+        /* 移动端导航样式 */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                position: absolute;
+                left: 10px;
+                top: 15px;
+            }
+            
+            .new-nav {
+                padding: 15px 20px;
+                justify-content: center;
+                position: relative;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: -100%;
+                width: 70%;
+                max-width: 250px;
+                height: calc(100vh - 60px);
+                background-color: #fff;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+                transition: all 0.3s ease;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+                overflow-y: auto;
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .nav-links li {
+                margin: 10px 0;
+                width: 100%;
+            }
+            
+            .nav-links a {
+                font-size: 16px;
+                width: 100%;
+                display: block;
+            }
+            
+            /* 确保登录和注册按钮始终可见 */
+            .user-area {
+                display: flex !important;
+                margin-left: auto;
+                z-index: 1000;
+                position: absolute;
+                right: 10px;
+                top: 15px;
+            }
+            
+            /* 确保登录按钮和用户区域不重叠 */
+            #loginButtons, #userArea {
+                display: flex !important;
+                position: absolute;
+                right: 10px;
+                top: 15px;
+                z-index: 1002;
+                background-color: rgba(255, 255, 255, 0.9);
+                padding: 5px;
+                border-radius: 4px;
+            }
+            
+            /* 调整登录和注册按钮在移动端的间距 */
+            #loginButtons a, #userArea a {
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            /* 确保用户名在移动端正确显示 */
+            #userNameDisplay {
+                font-size: 14px;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-group button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .form-group button:hover {
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <!-- 新的顶部导航区域 -->
+    <div class="new-nav">
+        <!-- 汉堡菜单按钮 - 仅在移动端显示 -->
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="菜单">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- 功能导航 - 左侧 -->
+        <ul class="nav-links">
+            <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+            <li><a href="index.html">返回主页<span class="inline-translation">Back</span></a></li>
+        </ul>
+    </div>
+
+    <!-- 登录状态提示 -->
+    <div class="login-status" id="loginStatus"></div>
+
+    <!-- 新闻内容区域 -->
+    <div class="news-container">
+        <div class="news-header">
+            <h1 class="news-title">卫生用品质量问题调查：废弃卫生巾、纸尿裤被回收再销售</h1>
+            <div class="news-meta">发布日期: 2025年3月15日 | 来源: <a href="javascript:void(0)">央视财经</a></div>
+        </div>
+        
+        <img src="images/news2.jpg" alt="卫生用品质量问题" class="news-image">
+        
+        <div class="news-content">
+            <p>2025年年初，"3·15"晚会和《财经调查》栏目同时接到消费者的举报，位于济宁市梁山县的一家企业在销售劣质卫生巾、婴儿纸尿裤，数量巨大。根据举报线索，记者来到梁山县黑虎庙镇，找到了这家企业——梁山希希纸制品有限公司。</p>
+            
+            <p>公司的负责人刘总告诉记者，虽然希希公司是名为"纸制品公司"，但他们企业并不生产纸制品。他们最主要的业务就是废品回收，即专门从纸尿裤和卫生巾生产厂家购买生产线上不要的残次品、下脚料等生产垃圾。</p>
+            
+            <p>为了展示自己的实力，刘总带着记者走进了公司的大院，院子左侧仓库的大门敞开，门口贴着"外来人员禁止入内禁止拍照"的提示，仓库中堆放着货物。刘总介绍，这些货正是他成吨采购回来的纸尿裤、卫生巾的生产垃圾。除了打成整包的垃圾，还有很多卫生巾、纸尿裤散落在地上，脏乱不堪。几百平方米的仓库一大半空间被这些生产垃圾占用，记者粗略计算，目测现场至少有上百吨货。</p>
+            
+            <div class="quote">
+                梁山希希纸制品有限公司 刘总："凡是成捆的包都得分挑，散的都是挑完的。把'好东西'都挑出去了，凡是没拆开的都是等待挑货的。"
+            </div>
+            
+            <p>刘总所说的"好东西"，就是从这些垃圾中挑选出来的卫生巾和纸尿裤。刘总说，这些垃圾中有很多是可以再利用的，比如有些卫生巾只是包装有问题，有些纸尿裤只是尺寸不合格，这些产品经过简单处理后就可以重新包装销售。</p>
+            
+            <p>记者在仓库中看到，有工人正在对这些垃圾进行分拣，将"好的"卫生巾和纸尿裤挑选出来，放在一旁的筐中。这些被挑选出来的产品，将被送往另一个车间进行简单处理后重新包装销售。</p>
+            
+            <p>记者跟随刘总来到了另一个车间，看到了令人震惊的一幕：几名工人正在对挑选出来的卫生巾进行简单处理，有的用剪刀修剪边缘，有的用胶水粘贴脱落的部分，有的直接将几个不同品牌的卫生巾拼凑在一起。处理完成后，这些卫生巾被放入新的包装袋中，贴上假冒的品牌标签，变成了"全新"的产品。</p>
+            
+            <p>类似的情况也发生在纸尿裤的处理上。工人们将挑选出来的纸尿裤进行简单清理，有的甚至直接将已经被污染的纸尿裤翻面使用，然后重新包装销售。</p>
+            
+            <div class="quote">
+                梁山希希纸制品有限公司 工人："这些都是从垃圾堆里挑出来的，有些确实很脏，但是老板说只要能看的过去就行，反正消费者也看不出来。"
+            </div>
+            
+            <p>据刘总介绍，这些重新包装的卫生巾和纸尿裤主要销往农村地区和小型超市，价格比正规产品低30%左右。由于价格优势，这些产品销量很好，每月能销售几十万包。</p>
+            
+            <p>记者将这一情况反映给当地市场监管部门后，执法人员立即前往梁山希希纸制品有限公司进行检查。检查发现，该公司存在无证生产、假冒商标、生产环境恶劣等多项违法行为。执法人员当场查封了该公司的生产设备和库存产品，并对公司负责人进行立案调查。</p>
+            
+            <p>市场监管部门提醒消费者，购买卫生巾、纸尿裤等个人卫生用品时，应选择正规渠道，不要贪图便宜购买来源不明的产品。同时，消费者可以通过国家市场监督管理总局官网或"国家市场监管总局"微信公众号查询产品的生产许可信息，确保购买的产品安全可靠。</p>
+            
+            <a href="index.html" class="back-button">返回首页</a>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p>Bruce Joey Sarah</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Firebase配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5onVOLlzU9ZIPvUPCZMVVnH-pK-aRSL8",
+            authDomain: "shehaven-health6.firebaseapp.com",
+            projectId: "shehaven-health6",
+            storageBucket: "shehaven-health6.appspot.com",
+            messagingSenderId: "1038494962823",
+            appId: "1:1038494962823:web:2e1d73f8e0cc3a2e7c4c42"
+        };
+        
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // DOM元素
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        // 汉堡菜单切换
+        menuToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+        
+        // 关闭导航菜单（当点击链接时）
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html> 

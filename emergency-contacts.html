@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紧急联系方式 | She Haven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .page-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* 主要内容 */
+        .main-content {
+            padding: 5rem 0;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* 紧急联系卡片 */
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .emergency-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emergency-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .emergency-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, transparent 100%);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .emergency-card h3 {
+            color: #e74c3c;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .emergency-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 1rem 0;
+            display: block;
+            letter-spacing: 2px;
+        }
+
+        .emergency-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 支持热线表格 */
+        .helpline-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .helpline-section h2 {
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .helpline-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .helpline-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .helpline-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .helpline-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 重要提示 */
+        .important-note {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.05) 100%);
+            border-left: 5px solid #e74c3c;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .important-note h3 {
+            color: #e74c3c;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .important-note p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .emergency-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .helpline-table {
+                font-size: 0.9rem;
+            }
+
+            .helpline-table th,
+            .helpline-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* 滚动动画 */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">She Haven</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="fullscreen-map.html">安全地图</a></li>
+                <li><a href="resources.html">安全资源</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="emergency-contacts.html">紧急联系</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#" class="btn btn-outline">登录</a>
+                <a href="#" class="btn btn-primary">注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <section class="page-header">
+        <div class="page-header-content">
+            <h1><i class="fas fa-phone-alt"></i> 紧急联系方式</h1>
+            <p>在紧急情况下，这些联系方式可能救您一命</p>
+        </div>
+    </section>
+
+    <!-- 主要内容 -->
+    <section class="main-content">
+        <div class="container">
+            <!-- 重要提示 -->
+            <div class="important-note scroll-reveal">
+                <h3><i class="fas fa-exclamation-triangle"></i> 重要提示</h3>
+                <p>在遇到紧急情况时，请立即拨打相应的紧急电话。如果您正处于危险中，请优先保证自身安全，然后再寻求帮助。记住，您的生命安全是最重要的。</p>
+            </div>
+
+            <!-- 紧急联系卡片 -->
+            <div class="emergency-grid">
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-shield-alt"></i> 报警电话</h3>
+                    <span class="emergency-number">110</span>
+                    <p>遇到违法犯罪、治安案件、交通事故等紧急情况时拨打。24小时全天候服务，是最重要的紧急求助电话。</p>
+                </div>
+
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-ambulance"></i> 急救电话</h3>
+                    <span class="emergency-number">120</span>
+                    <p>医疗急救服务电话，用于突发疾病、意外伤害等需要紧急医疗救助的情况。</p>
+                </div>
+
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-fire"></i> 火警电话</h3>
+                    <span class="emergency-number">119</span>
+                    <p>火灾报警电话，也可用于其他灾害救援，如地震、洪水、建筑倒塌等紧急情况。</p>
+                </div>
+
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-female"></i> 妇女维权热线</h3>
+                    <span class="emergency-number">12338</span>
+                    <p>全国妇女维权公益服务热线，为妇女提供法律、婚姻、家庭、心理、教育等方面的咨询服务。</p>
+                </div>
+
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-heart"></i> 心理危机干预</h3>
+                    <span class="emergency-number">400-161-9995</span>
+                    <p>24小时心理危机干预热线，为有自杀倾向或心理危机的人群提供专业心理援助。</p>
+                </div>
+
+                <div class="emergency-card scroll-reveal">
+                    <h3><i class="fas fa-balance-scale"></i> 法律援助</h3>
+                    <span class="emergency-number">12348</span>
+                    <p>全国法律援助咨询专线，为经济困难的公民提供免费法律咨询和法律援助。</p>
+                </div>
+            </div>
+
+            <!-- 支持热线表格 -->
+            <div class="helpline-section scroll-reveal">
+                <h2>专业支持热线</h2>
+                <table class="helpline-table">
+                    <thead>
+                        <tr>
+                            <th>服务类型</th>
+                            <th>联系电话</th>
+                            <th>服务时间</th>
+                            <th>服务内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>反家暴热线</td>
+                            <td>400-110-1110</td>
+                            <td>24小时</td>
+                            <td>家庭暴力求助、咨询、法律援助</td>
+                        </tr>
+                        <tr>
+                            <td>青少年心理热线</td>
+                            <td>400-161-9995</td>
+                            <td>24小时</td>
+                            <td>青少年心理咨询、危机干预</td>
+                        </tr>
+                        <tr>
+                            <td>性侵害求助热线</td>
+                            <td>010-64033383</td>
+                            <td>周一至周五 9:00-17:00</td>
+                            <td>性侵害受害者心理支持、法律援助</td>
+                        </tr>
+                        <tr>
+                            <td>反拐热线</td>
+                            <td>010-84024444</td>
+                            <td>24小时</td>
+                            <td>拐卖妇女儿童案件举报、求助</td>
+                        </tr>
+                        <tr>
+                            <td>消费者投诉</td>
+                            <td>12315</td>
+                            <td>24小时</td>
+                            <td>消费维权、质量投诉</td>
+                        </tr>
+                        <tr>
+                            <td>劳动保障监察</td>
+                            <td>12333</td>
+                            <td>24小时</td>
+                            <td>劳动争议、社会保障咨询</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> 返回首页
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // 滚动动画
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.scroll-reveal');
+            
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('revealed');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealOnScroll);
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        });
+
+        // Firebase 配置和初始化
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+            } catch (error) {
+                console.error('Firebase 初始化失败:', error);
+            }
+        }
+
+        // 监听Firebase认证状态变化
+        firebase.auth().onAuthStateChanged((user) => {
+            console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+            updateAuthUI(user);
+        });
+
+        // 更新认证UI
+        function updateAuthUI(user) {
+            const authButtons = document.querySelector('.auth-buttons');
+            
+            if (user) {
+                // 用户已登录，显示用户信息
+                const userName = user.email.split('@')[0];
+                authButtons.innerHTML = `
+                    <span style="color: #333; margin-right: 15px;">欢迎，${userName}</span>
+                    <a href="javascript:void(0)" class="btn btn-outline" onclick="logout()">退出</a>
+                `;
+            } else {
+                // 用户未登录，显示登录注册按钮
+                authButtons.innerHTML = `
+                    <a href="index.html" class="btn btn-outline">登录</a>
+                    <a href="index.html" class="btn btn-primary">注册</a>
+                `;
+            }
+        }
+
+        // 退出登录
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                console.log('退出成功');
+                alert('已成功退出登录');
+                // 跳转到主页
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('退出失败:', error);
+                alert('退出失败: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

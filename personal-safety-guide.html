@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人安全指南 | 她安计划</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        /* 导航链接样式 */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-links li {
+            margin: 0 10px;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 内容容器 */
+        .content-container {
+            max-width: 1000px;
+            margin: 100px auto 60px;
+            padding: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 15px;
+        }
+        
+        /* 页面标题 */
+        .page-title {
+            color: #2c3e50;
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 2.5em;
+            position: relative;
+        }
+        
+        .page-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+        }
+        
+        /* 内联翻译样式 */
+        .inline-translation {
+            margin-left: 5px;
+            font-size: 0.7em;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+        
+        /* 段落样式 */
+        .content-section {
+            margin-bottom: 50px;
+        }
+        
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+            padding: 10px 0 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 0 5px 5px 0;
+            font-size: 1.8em;
+        }
+        
+        .content-section p {
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 1.8;
+        }
+        
+        /* 安全提示卡片 */
+        .safety-content {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #3498db;
+        }
+        
+        .safety-content h3 {
+            color: #e74c3c;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        
+        .safety-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .safety-content h4 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            font-size: 1.2em;
+        }
+        
+        .safety-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .safety-content ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .safety-content li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 5px;
+            line-height: 1.6;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* 打印按钮 */
+        .print-btn {
+            display: inline-block;
+            margin-top: 30px;
+            margin-left: 15px;
+            padding: 12px 25px;
+            background-color: #7f8c8d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .print-btn:hover {
+            background-color: #636e72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        /* 强调内容 */
+        .highlight {
+            background-color: #ffeaa7;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        /* 底部按钮容器 */
+        .action-buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 25px;
+                margin-top: 80px;
+                border-radius: 10px;
+            }
+            
+            .top-nav {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2em;
+            }
+            
+            .content-section h2 {
+                font-size: 1.5em;
+            }
+            
+            .safety-content {
+                padding: 20px;
+            }
+            
+            .safety-content h3 {
+                font-size: 1.3em;
+            }
+        }
+        
+        @media print {
+            .top-nav, .action-buttons {
+                display: none;
+            }
+            
+            .content-container {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+            
+            body {
+                font-size: 12pt;
+            }
+            
+            .safety-content {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航区域 -->
+    <div class="top-nav">
+        <!-- 功能导航 - 左侧 -->
+        <ul class="nav-links">
+            <li><a href="index.html" class="logo-link"><img src="images/logo.png" alt="She Haven Logo" class="nav-logo" style="height: 40px; width: auto;"></a></li>
+        </ul>
+    </div>
+
+    <div class="content-container">
+        <h1 class="page-title">个人安全指南 <span class="inline-translation">Personal Safety Guide</span></h1>
+        
+        <div class="content-section">
+            <h2>出行安全 <span class="inline-translation">Travel Safety</span></h2>
+            
+            <div class="safety-content">
+                <h3>路线规划</h3>
+                <p>出行前规划路线，优先选择光线充足、行人多的主道，避免偏僻小巷。</p>
+
+                <h3>交通工具选择</h3>
+                <h4>网约车/出租车：</h4>
+                <p>尽量预约正规平台车辆，上车前核对车牌号与司机信息是否与平台一致，后排落座。行车中分享行程给亲友，避免透露过多个人信息。自驾时上车前检查后座和车底，锁好车门后再启动。</p>
+                
+                <h4>公共交通：</h4>
+                <p>避免在深夜时段独自乘车，若必须则选择靠近司机或监控的位置。警惕周围异常情况（如被尾随、过度搭讪），必要时提前下车到人多处。随身物品尤其是贵重物品保持在视线范围内，防止被盗。</p>
+                
+                <h3>步行/骑行安全</h3>
+                <p>避免长时间低头看手机或戴耳机，保持对环境的警觉。走明亮、人多的街道，绕行无监控的窄巷、地下通道。随身携带便携警报器或防身工具（如随身携带小型防狼喷雾，注意需符合当地法律），夜间着装选择亮色或反光材质，增加可见度。</p>
+                
+                <h3>夜间出行</h3>
+                <p>尽量结伴而行，告知亲友目的地及预计返回时间。穿着轻便、易活动的鞋服，减少贵重物品外露。手机保持电量充足，安装位置共享或紧急求助类应用。不要走捷径或穿越黑暗、人少的区域，即使绕远也要选择安全路线。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>住宿安全 <span class="inline-translation">Accommodation Safety</span></h2>
+            
+            <div class="safety-content">
+                <h3>门锁检查</h3>
+                <p>入住酒店或宿舍后，检查门窗是否牢固，可使用门闩增加安全性。</p>
+                
+                <h3>独居安全</h3>
+                <p>安装防盗门锁、阻门器、可视门铃或监控设备。外卖/快递使用化名（如"X先生"），避免门牌信息暴露独居状态。定期检查门窗锁具，空调外机、阳台等易攀爬处加装防护栏。与信任的邻居或朋友建立定期联系机制，互相照应。将紧急联系人信息（如家人、房东）放在明显位置，以便紧急情况使用。</p>
+                
+                <h3>酒店/民宿</h3>
+                <p>选择正规平台预订，查看安全评价，避免入住偏僻区域。入住后检查门窗、镜子（防偷窥）、摄像头（可用手机摄像头扫描红外线）。使用阻门器或椅子抵门，房卡不离身，不随意透露房间号。熟悉紧急出口位置，了解酒店安全规定和服务电话。</p>
+                
+                <h3>窗户安全</h3>
+                <p>确保窗户能够牢固关闭，尤其是低楼层住所需加强窗户防护以防止他人通过窗户进入。</p>
+                
+                <h3>陌生人防范</h3>
+                <p>不要轻易给陌生人开门，如有人敲门自称维修人员，应通过房东或前台确认其身份。</p>
+                
+                <h3>窃贼防范</h3>
+                <p>妥善保管贵重物品，将其放在保险箱或不容易被发现的地方，可考虑使用低像设置伪装。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>社交安全 <span class="inline-translation">Social Safety</span></h2>
+            
+            <div class="safety-content">
+                <h3>个人信息保护</h3>
+                <p>不随意在社交平台透露过多个人信息，如家庭住址、出行计划等。</p>
+                
+                <h3>聚会安全</h3>
+                <p>参加聚会时，保持手机畅通，不接受陌生人的饮料，告知朋友约会地点和时间，保持手机畅通。</p>
+                
+                <h3>约会安全</h3>
+                <p>初次约会选择公共场所，事先告知朋友约会地点和对象信息，保持手机畅通。初次见面保持适当社交距离，设定明确边界，不轻易透露住址和工作单位等敏感信息。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>酒店场所安全 <span class="inline-translation">Hotel Safety</span></h2>
+            
+            <div class="safety-content">
+                <h3>入住酒店前</h3>
+                <p>在前台办理手续过程中，避免让外人知晓自己独自入住以及具体房间号。进入房间后，不要急着签收行李，先检查房间内各个角落，包括床底、浴室、阳台，防止有陌生人藏匿。</p>
+                
+                <h3>检查设施</h3>
+                <p>查看房间内每个角落，检查门窗锁是否完好，浴室设施是否安全，以及是否存在针孔摄像头。使用手机的闪光灯照射可疑位置，观察是否有反光点即摄像头镜头。</p>
+                
+                <h3>进出安全</h3>
+                <p>离开酒店房间时，不要随意请清洁人员进入打扫，立好"请勿打扰"的牌子。外出归来时，若门有被撬动或物品有被移动痕迹，不要贸然进入，立即联系酒店前台或报警。</p>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>出游旅游安全 <span class="inline-translation">Travel Safety</span></h2>
+            
+            <div class="safety-content">
+                <h3>旅游前</h3>
+                <p>将行程计划告知亲友人或可靠朋友，若有可能，住宿地待信息，到达旅游目的地后，提前了解当地治安状况，熟门禁区周边可疑人员或警察。</p>
+                
+                <h3>旅行中的安全措施</h3>
+                <p>尽量结伴而行，避免独自前往偏远或人烟稀少的地区。保持警惕性，特别是在拥挤的旅游景点和公共交通工具上。财物分散存放，不要将所有现金和证件放在同一地方。随身携带紧急联系信息和基本医疗用品。在陌生环境中保持低调，避免过度暴露自己是外地人的身份。</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="print-btn" onclick="window.print()">打印指南 <span class="inline-translation">Print Guide</span></button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyAj6iwv8tAcFGqa0r0GDfNQHCTNBnGeZo8",
+            authDomain: "safe-b29.firebaseapp.com",
+            databaseURL: "https://safe-b29-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "safe-b29",
+            storageBucket: "safe-b29.firebasestorage.app",
+            messagingSenderId: "253210723999",
+            appId: "1:253210723999:web:41f4bdef8689f45b0cc4aa"
+        };
+
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+            } catch (error) {
+                console.error('Firebase 初始化失败:', error);
+            }
+        }
+
+        // 监听Firebase认证状态变化
+        firebase.auth().onAuthStateChanged((user) => {
+            console.log('Firebase认证状态变化:', user ? '已登录' : '未登录');
+            // 这里可以根据登录状态显示不同的内容或功能
+            if (user) {
+                console.log('用户已登录:', user.email);
+            } else {
+                console.log('用户未登录');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 平滑滚动到锚点
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

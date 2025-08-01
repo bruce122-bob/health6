@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优化版AI助手测试 - She Haven</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="ai-assistant.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .test-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .test-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .optimization-info {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .optimization-info h3 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .optimization-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .optimization-info li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .optimization-info li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">
+            <i class="fas fa-sparkles"></i>
+            优化版AI助手
+            <i class="fas fa-sparkles"></i>
+        </h1>
+        
+        <p class="test-subtitle">高性价比的阿里云API集成</p>
+        
+        <div class="test-features">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="feature-title">成本优化</div>
+                <div class="feature-desc">使用阿里云通义千问Turbo模型，性价比极高</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="feature-title">Token优化</div>
+                <div class="feature-desc">精简系统提示词，减少历史消息，最小化token使用</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="feature-title">快速响应</div>
+                <div class="feature-desc">优化的API配置，减少超时时间，提高响应速度</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="feature-title">安全可靠</div>
+                <div class="feature-desc">使用阿里云官方API，稳定可靠，数据安全</div>
+            </div>
+        </div>
+
+        <div class="optimization-info">
+            <h3>优化详情：</h3>
+            <ul>
+                <li><strong>模型选择：</strong>使用阿里云通义千问Turbo模型，性价比最高</li>
+                <li><strong>Token限制：</strong>最大800 tokens，比原版减少40%</li>
+                <li><strong>历史消息：</strong>只保留最近4条消息，节省上下文token</li>
+                <li><strong>系统提示词：</strong>精简版本，减少固定token消耗</li>
+                <li><strong>超时设置：</strong>10秒超时，避免长时间等待</li>
+                <li><strong>重试机制：</strong>最多重试1次，减少无效请求</li>
+                <li><strong>流式响应：</strong>禁用流式，简化实现，减少复杂性</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 10px;">
+            <i class="fas fa-info-circle"></i>
+            点击右下角的星光按钮开始与优化版Luma对话！
+        </div>
+    </div>
+
+    <!-- 优化版AI助手脚本 -->
+    <script src="ai-assistant-optimized.js"></script>
+</body>
+</html> 

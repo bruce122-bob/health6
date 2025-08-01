@@ -1,0 +1,27 @@
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server public -p 8081",
+    "build": "echo 'No build script defined'",
+    "test": "echo 'No test script defined'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.12.3",
+    "mime": "^4.0.6",
+    "opener": "^1.5.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "async": "^3.2.6",
+    "axios": "^1.11.0",
+    "concurrently": "^9.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

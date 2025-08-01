@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noErrorTruncation": false,
+    "checkJs": false,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "/Applications/Cursor.app/**/*",
+    "**/lib.dom.d.ts",
+    "**/lib.*.d.ts"
+  ]
+} 

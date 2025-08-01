@@ -137,10 +137,197 @@
             animation: float 6s ease-in-out infinite;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* 高级背景动画 */
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: float 8s ease-in-out infinite;
         }
+
+        /* 炫酷光效 */
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        /* 动态边框 */
+        .page-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header-content::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 200%;
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: border-glow 4s ease-in-out infinite;
+        }
+
+        /* 侧边栏悬停动画 */
+        .sidebar {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: left 0.5s ease;
+        }
+
+        .sidebar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+        }
+
+        .sidebar:hover::before {
+            left: 0;
+        }
+
+        /* 提交按钮动画 */
+        .submit-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        /* 话题标签动画 */
+        .topic-tag {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .topic-tag:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .topic-tag:hover::before {
+            left: 100%;
+        }
+
+        /* 脉冲发光动画 */
+        @keyframes pulse-glow {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scroll-reveal {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        /* 消息项增强动画 */
+        .message-item {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .message-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            border-left-width: 8px;
+        }
+
+        .message-item:hover::before {
+            left: 100%;
+        }
+
+
+
+
+
+
 
         .page-header-content {
             max-width: 1200px;
@@ -165,6 +352,22 @@
         .main-content {
             padding: 3rem 0;
             min-height: calc(100vh - 200px);
+            position: relative;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        /* 背景装饰 */
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .container {
@@ -181,6 +384,304 @@
             margin-top: 2rem;
         }
 
+
+
+        /* 特色功能卡片 */
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 热门话题 */
+        .hot-topics {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .hot-topics h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .topic-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .topic-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .topic-tag:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .topic-tag:hover::before {
+            left: 100%;
+        }
+
+        /* 活动日历 */
+        .events-calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 0.5rem;
+        }
+
+        .event-date {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover .event-date {
+            transform: scale(1.1);
+        }
+
+        .event-date .day {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .event-date .month {
+            font-size: 0.8rem;
+        }
+
+        .event-content h5 {
+            color: #333;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .event-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-date {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .event-date .day {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .event-date .month {
+            font-size: 0.8rem;
+        }
+
+        .event-content h5 {
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 用户排行榜 */
+        .user-leaderboard {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: white; }
+        .rank-other { background: #f8f9fa; color: #666; }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* 快速操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .action-btn span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
         /* 侧边栏 */
         .sidebar {
             background: white;
@@ -189,6 +690,27 @@
             height: fit-content;
             position: sticky;
             top: 120px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: border-slide 3s ease-in-out infinite;
+        }
+
+        .sidebar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
         }
 
         .sidebar h3 {
@@ -239,6 +761,358 @@
             color: #666;
             font-size: 0.9rem;
             line-height: 1.5;
+        }
+
+        /* 热门话题 */
+        .hot-topics {
+            margin-bottom: 2rem;
+        }
+
+        .topic-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .topic-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .topic-tag:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .topic-tag:hover::before {
+            left: 100%;
+        }
+
+        /* 活动日历 */
+        .events-calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 0.5rem;
+        }
+
+        .event-date {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover .event-date {
+            transform: scale(1.1);
+        }
+
+        .event-date .day {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .event-date .month {
+            font-size: 0.8rem;
+        }
+
+        .event-content h5 {
+            color: #333;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .event-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 用户排行榜 */
+        .user-leaderboard {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 0.5rem;
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+        }
+
+        .rank-other {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* 热门话题 */
+        .hot-topics {
+            margin-bottom: 2rem;
+        }
+
+        .topic-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .topic-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .topic-tag:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .topic-tag:hover::before {
+            left: 100%;
+        }
+
+        /* 活动日历 */
+        .events-calendar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 0.5rem;
+        }
+
+        .event-date {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover .event-date {
+            transform: scale(1.1);
+        }
+
+        .event-date .day {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .event-date .month {
+            font-size: 0.8rem;
+        }
+
+        .event-content h5 {
+            color: #333;
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .event-content p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 用户排行榜 */
+        .user-leaderboard {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            padding-left: 0.5rem;
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+        }
+
+        .rank-other {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-stats {
+            font-size: 0.8rem;
+            color: #666;
         }
         
         /* 消息区域 */
@@ -309,12 +1183,31 @@
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border-left: 4px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+            transition: left 0.6s ease;
         }
 
         .message-item:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            border-left-width: 8px;
+        }
+
+        .message-item:hover::before {
+            left: 100%;
         }
         
         .message-header {
@@ -424,11 +1317,29 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
         }
 
         .submit-btn:disabled {
@@ -520,6 +1431,8 @@
                 font-size: 2rem;
             }
 
+
+
             .community-layout {
                 grid-template-columns: 1fr;
                 gap: 1rem;
@@ -542,6 +1455,31 @@
             .filter-buttons {
                 justify-content: center;
             }
+
+            .topic-list {
+                justify-content: center;
+            }
+
+            .event-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .event-date {
+                align-self: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
+            }
         }
 
         /* 滚动动画 */
@@ -554,6 +1492,97 @@
         .scroll-reveal.revealed {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* 加载动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* 更自然的脉冲动画 */
+        @keyframes pulse-glow {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        /* 更流畅的浮动动画 */
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+            }
+            25% { 
+                transform: translateY(-10px) rotate(1deg); 
+            }
+            50% { 
+                transform: translateY(-20px) rotate(0deg); 
+            }
+            75% { 
+                transform: translateY(-10px) rotate(-1deg); 
+            }
+        }
+
+        /* 更柔和的光效扫过 */
+        @keyframes shimmer {
+            0% { 
+                transform: translateX(-100%) skewX(-15deg); 
+                opacity: 0;
+            }
+            50% { 
+                opacity: 0.8;
+            }
+            100% { 
+                transform: translateX(100%) skewX(-15deg); 
+                opacity: 0;
+            }
+        }
+
+        /* 更自然的边框发光 */
+        @keyframes border-glow {
+            0%, 100% { 
+                background-position: 0% 50%; 
+                opacity: 0.3;
+            }
+            50% { 
+                background-position: 100% 50%; 
+                opacity: 0.6;
+            }
+        }
+
+        /* 更流畅的淡入动画 */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .scroll-reveal {
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         /* 加载和错误状态 */
@@ -700,7 +1729,7 @@
         <div class="page-header-content">
             <h1><i class="fas fa-users"></i> 交流社区</h1>
             <p>分享经验，互相支持，共建安全的女性社区</p>
-            </div>
+        </div>
     </section>
 
     <!-- 主要内容 -->
@@ -709,36 +1738,114 @@
             <div class="community-layout">
                 <!-- 侧边栏 -->
                 <div class="sidebar scroll-reveal">
-                    <h3><i class="fas fa-chart-bar"></i> 社区统计</h3>
+                    <h3><i class="fas fa-chart-bar pulse-glow"></i> 社区统计</h3>
                     <div class="community-stats">
                         <div class="stat-item">
                             <span>在线用户</span>
                             <span class="stat-value" id="onlineUsers">0</span>
-        </div>
+                        </div>
                         <div class="stat-item">
                             <span>今日消息</span>
                             <span class="stat-value" id="todayMessages">0</span>
-                </div>
+                        </div>
                         <div class="stat-item">
                             <span>总消息数</span>
                             <span class="stat-value" id="totalMessages">0</span>
                         </div>
-        </div>
+                    </div>
 
-                    <h3><i class="fas fa-bullhorn"></i> 社区公告</h3>
-                <div class="notice-item">
+                    <h3><i class="fas fa-fire pulse-glow"></i> 热门话题</h3>
+                    <div class="hot-topics">
+                        <div class="topic-list">
+                            <span class="topic-tag" onclick="filterByTopic('安全出行')">安全出行</span>
+                            <span class="topic-tag" onclick="filterByTopic('自我保护')">自我保护</span>
+                            <span class="topic-tag" onclick="filterByTopic('心理健康')">心理健康</span>
+                            <span class="topic-tag" onclick="filterByTopic('职场安全')">职场安全</span>
+                            <span class="topic-tag" onclick="filterByTopic('家庭安全')">家庭安全</span>
+                            <span class="topic-tag" onclick="filterByTopic('网络安全')">网络安全</span>
+                        </div>
+                    </div>
+
+                    <h3><i class="fas fa-calendar-alt pulse-glow"></i> 近期活动</h3>
+                    <div class="events-calendar">
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="day">15</div>
+                                <div class="month">8月</div>
+                            </div>
+                            <div class="event-content">
+                                <h5>女性安全讲座</h5>
+                                <p>线上安全知识分享会</p>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="day">20</div>
+                                <div class="month">8月</div>
+                            </div>
+                            <div class="event-content">
+                                <h5>互助小组聚会</h5>
+                                <p>线下交流活动</p>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">
+                                <div class="day">25</div>
+                                <div class="month">8月</div>
+                            </div>
+                            <div class="event-content">
+                                <h5>心理健康工作坊</h5>
+                                <p>专业心理咨询师指导</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><i class="fas fa-trophy pulse-glow"></i> 活跃用户</h3>
+                    <div class="user-leaderboard">
+                        <div class="leaderboard-item">
+                            <div class="rank rank-1">1</div>
+                            <div class="user-info">
+                                <div class="user-name">安全守护者</div>
+                                <div class="user-stats">帮助了 45 人</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank rank-2">2</div>
+                            <div class="user-info">
+                                <div class="user-name">温暖姐姐</div>
+                                <div class="user-stats">分享了 32 条经验</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank rank-3">3</div>
+                            <div class="user-info">
+                                <div class="user-name">智慧导师</div>
+                                <div class="user-stats">回答了 28 个问题</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank rank-other">4</div>
+                            <div class="user-info">
+                                <div class="user-name">新朋友</div>
+                                <div class="user-stats">加入了 15 天</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><i class="fas fa-bullhorn pulse-glow"></i> 社区公告</h3>
+                    <div class="notice-item">
                         <h4>欢迎来到She Haven社区</h4>
                         <p>这里是一个安全、友善的交流空间，请遵守社区规则，互相尊重。</p>
-                </div>
-                <div class="notice-item">
+                    </div>
+                    <div class="notice-item">
                         <h4>社区规则</h4>
                         <p>禁止发布不当内容，保护个人隐私，营造积极向上的交流环境。</p>
-                </div>
-                <div class="notice-item">
+                    </div>
+                    <div class="notice-item">
                         <h4>安全提醒</h4>
                         <p>请勿在社区中透露个人敏感信息，如遇紧急情况请及时求助。</p>
-            </div>
-        </div>
+                    </div>
+                </div>
 
                 <!-- 消息区域 -->
                 <div class="message-area scroll-reveal">
@@ -746,36 +1853,36 @@
                     <div class="message-controls">
                         <div class="search-box">
                             <input type="text" id="searchInput" placeholder="搜索消息内容...">
-                </div>
+                        </div>
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-filter="all">全部</button>
                             <button class="filter-btn" data-filter="recent">最新</button>
                             <button class="filter-btn" data-filter="popular">热门</button>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
                     <!-- 消息列表 -->
                     <div class="messages-container" id="messagesContainer">
                         <div class="no-messages">
                             <i class="fas fa-comments"></i>
                             <p>暂无消息，成为第一个发言的人吧！</p>
-            </div>
-            </div>
+                        </div>
+                    </div>
 
                     <!-- 发布消息表单 -->
                     <div class="message-form">
                         <h3><i class="fas fa-edit"></i> 发布消息</h3>
                         <textarea id="messageInput" placeholder="分享您的想法、经验或寻求帮助..." maxlength="500"></textarea>
-                    <div class="form-footer">
+                        <div class="form-footer">
                             <span class="char-count">0/500</span>
                             <button class="submit-btn" onclick="submitMessage()">
                                 <i class="fas fa-paper-plane"></i> 发布
                             </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </section>
 
     <!-- 登录模态框 -->
@@ -1291,6 +2398,64 @@
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
+        });
+
+
+
+        // 话题过滤功能
+        function filterByTopic(topic) {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = topic;
+                loadMessages('all', topic);
+            }
+        }
+
+        // 添加一些示例消息
+        function addSampleMessages() {
+            const sampleMessages = [
+                {
+                    text: "今天分享一个安全出行的小技巧：晚上回家时尽量选择人多的路线，随身携带防狼喷雾，保持警惕。",
+                    userName: "安全守护者",
+                    timestamp: Date.now() - 3600000,
+                    likes: 12
+                },
+                {
+                    text: "最近遇到了一些职场骚扰问题，想请教大家如何优雅地处理这种情况？",
+                    userName: "职场新人",
+                    timestamp: Date.now() - 7200000,
+                    likes: 8
+                },
+                {
+                    text: "推荐一个很好的心理健康资源，大家可以去看看，对缓解压力很有帮助。",
+                    userName: "温暖姐姐",
+                    timestamp: Date.now() - 10800000,
+                    likes: 15
+                }
+            ];
+
+            sampleMessages.forEach((msg, index) => {
+                setTimeout(() => {
+                    const messageData = {
+                        userId: 'sample' + index,
+                        userEmail: msg.userName + '@example.com',
+                        userName: msg.userName,
+                        text: msg.text,
+                        timestamp: msg.timestamp,
+                        likes: msg.likes
+                    };
+                    
+                    if (messagesRef) {
+                        messagesRef.push(messageData);
+                    }
+                }, index * 2000);
+            });
+        }
+
+        // 页面加载完成后添加示例消息
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟5秒后添加示例消息
+            setTimeout(addSampleMessages, 5000);
         });
     </script>
 </body>
